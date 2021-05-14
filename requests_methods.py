@@ -68,25 +68,13 @@ def login(username, password, url, base_headers):
 """
 Returns a history of CAD transactions
 """
-def history(url, base_headers, token):
+def history(url, base_headers, token, body):
 	# copy headers
 	local_headers = base_headers.copy()
 	local_headers['Content-Type'] = 'application/json'
 	local_headers['Authorization'] = token
 
-	# create JSON body for history
-	body = json.dumps({
-		'filterParams': {
-            'currencies': ['CAD']
-        },
-        'pagination': {
-            'descending': True,
-            'page': 1,
-            'rowsPerPage': 100
-        }
-	})
-
-	response = requests.post(url, headers = local_headers, data = body)
+	response = requests.post(url, headers = local_headers, data = json.dumps(body))
 	
 	# make sure we have 2xx status
 	if (not response.ok):
