@@ -88,21 +88,22 @@ if (__name__ == '__main__'):
 	print('+ Initializing swap history today')
 	init_history()
 	
+	print(HISTORY)
+
 	print('+ Waiting 60 seconds for rate limit expiry')
-	time.sleep(60)
+	# time.sleep(60)
 	print('+ Starting polling')
 
 	while (1):
 		response_json = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, {'filterParams': {'currencies': ['CAD']}})
 		swap_list = filter_transactions.filter_transactions(response_json, HISTORY)
 
-		print('+ Fetched transactions')
-
 		for transaction in swap_list:
+			transaction_id = transaction['transactionId']
 			shaketag = transaction['from']['label']
-			print('++ Simulate sending ${} to {} ({}) (swap: {})'.format(transaction['amount'], shaketag, transaction['from']['id'], HISTORY[shaketag]['swap']))
+			user_id = transaction['from']['id']
 
-			HISTORY[shaketag]['swap'] = HISTORY[shaketag]['swap'] - 1
+			print('++ Simulate sending ${} to {} ({}) (currswap: {})'.format(transaction['amount'], shaketag, user_id, HISTORY[shaketag]['swap']))
 
-		print('+ Sleeping')
+		print('wait')
 		time.sleep(10)
