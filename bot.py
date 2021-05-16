@@ -5,7 +5,7 @@ import datetime
 import time
 
 import requests_methods
-import filter_transactions
+import service
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -47,7 +47,6 @@ def init_history():
 	}
 
 	# the datetime at which reset happened (4am UTC time)
-	#TODO rewrite this reset_date mess below
 	reset_date = datetime.datetime.now(datetime.timezone.utc).replace(hour = 4, minute = 0, second = 0, microsecond = 0)
 	if (reset_date > datetime.datetime.now(datetime.timezone.utc)): reset_date = reset_date - datetime.timedelta(days = 1)
 
@@ -56,13 +55,12 @@ def init_history():
 		response = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, body)
 
 		# populate the HISTORY object
-		filter_transactions.filter_transactions(response, HISTORY, reset_date)
+		service.filter_transactions(response, HISTORY, reset_date)
 
 		# get last transaction timestamp in datetime format with UTC timezone
-		last_transaction_datetime = datetime.datetime.strptime(response['data'][-1]['timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ')
-		last_transaction_datetime = last_transaction_datetime.replace(tzinfo = datetime.timezone.utc)
+		last_transaction_datetime = service.to_datetime(response['data'][-1]['timestamp'])
 
-		print('++ Fetched page {} (reftime: {}, lasttime: {})'.format(page_num, str(reset_date), str(last_transaction_datetime)))
+		service.printt('Fetched page {} (reftime: {}, lasttime: {})'.format(page_num, str(reset_date), str(last_transaction_datetime)))
 
 		# stop loop if we dont have anymore valid transactions
 		if (response == {} or last_transaction_datetime < reset_date):
@@ -75,35 +73,35 @@ if (__name__ == '__main__'):
 	# read token from file
 	try:
 		with open('./.token') as token_file:
-			print('+ Reading .token')
+			service.printt('Reading .token')
 			TOKEN = token_file.readline()
 	except FileNotFoundError:
-		print('! .token file not found')
+		service.printt('.token file not found')
 		raise SystemExit(0)
 	
 	# bot ready
-	print('+ Bot ready')
+	service.printt('Bot ready')
 
 	# init hash table of transactions
-	print('+ Initializing swap history today')
+	service.printt('Initializing swap history today')
 	init_history()
 	
-	print(HISTORY)
+	for user in HISTORY:
+		print('{} {}'.format(user, HISTORY[user]['swap']))
 
-	print('+ Waiting 60 seconds for rate limit expiry')
+	service.printt('Waiting 60 seconds for rate limit expiry')
 	# time.sleep(60)
-	print('+ Starting polling')
+	service.printt('Starting polling')
 
 	while (1):
 		response_json = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, {'filterParams': {'currencies': ['CAD']}})
-		swap_list = filter_transactions.filter_transactions(response_json, HISTORY)
+		swap_list = service.filter_transactions(response_json, HISTORY)
 
-		for transaction in swap_list:
-			transaction_id = transaction['transactionId']
-			shaketag = transaction['from']['label']
-			user_id = transaction['from']['id']
+		for shaketag in swap_list:
+				user_id = HISTORY[shaketag]['user_id']
+				amount = swap_list[shaketag]
+				note = ''
 
-			print('++ Simulate sending ${} to {} ({}) (currswap: {})'.format(transaction['amount'], shaketag, user_id, HISTORY[shaketag]['swap']))
+				service.printt('Simulate sending ${} to {} ({}) (currswap: {})'.format(amount, shaketag, user_id, HISTORY[user]['swap']))
 
-		print('wait')
 		time.sleep(10)
