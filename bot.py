@@ -105,7 +105,7 @@ if (__name__ == '__main__'):
 
 		for shaketag in swap_list:
 				amount = swap_list[shaketag]
-				note = _NOTE.format_map(map(shaketag = shaketag, amount = amount))
+				note = _NOTE.format_map(map(shaketag = shaketag, amount = '${}'.format(amount)))
 
 				service.printt('Sending ${} to {}'.format(amount, shaketag))
 				requests_methods.send_transaction(ENDPOINTS['SWAP'], HEADERS, TOKEN, amount, WALLET_ID, shaketag, note)
