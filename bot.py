@@ -107,7 +107,9 @@ if (__name__ == '__main__'):
 				amount = swap_list[shaketag]
 				note = _NOTE.format_map(map(shaketag = shaketag, amount = amount))
 
+				service.printt('Sending ${} to {}'.format(amount, shaketag))
 				requests_methods.send_transaction(ENDPOINTS['SWAP'], HEADERS, TOKEN, amount, WALLET_ID, shaketag, note)
+
 				#service.printt('Simulate sending ${} to {} with note:  ({}) (currswap: {})'.format(amount, shaketag, note, HISTORY[shaketag]['swap']))
 
 		time.sleep(_POLL_RATE)
