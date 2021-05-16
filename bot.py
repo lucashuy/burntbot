@@ -10,12 +10,16 @@ import service
 from dotenv import load_dotenv
 load_dotenv()
 
+_POLL_RATE = int(os.getenv('POLL_RATE', 10))
+_INIT_FETCH_AMNT = os.getenv('INIT_FETCH_AMNT', 50)
+_NOTE = os.getenv('NOTE', '')
+
 # create constants for API endpoints
 HOST = 'https://api.shakepay.com/'
 ENDPOINTS = {
-	'AUTH': HOST + 'authentication',
 	'WALLET': HOST + 'wallets',
-	'HISTORY': HOST + 'transactions/history'
+	'HISTORY': HOST + 'transactions/history',
+	'SWAP': HOST + 'transactions'
 }
 
 # init required headers from .env file
@@ -28,11 +32,14 @@ HEADERS = {
 # JWT
 TOKEN = None
 
-# trading history
-# swap -1 == waiting on them
-#       1 == need to send to them
-#       0 == nothing outstanding
+# CAD wallet ID
+WALLET_ID = None
+
+# trading history hash table
 HISTORY = {}
+
+class map(dict):
+	def __missing__(self, key): return key
 
 def init_history():
 	page_num = 1
@@ -42,7 +49,7 @@ def init_history():
 		'pagination': {
 			'descending': True,
 			'page': page_num,
-			'rowsPerPage': 50
+			'rowsPerPage': _INIT_FETCH_AMNT
 		}
 	}
 
@@ -60,7 +67,7 @@ def init_history():
 		# get last transaction timestamp in datetime format with UTC timezone
 		last_transaction_datetime = service.to_datetime(response['data'][-1]['timestamp'])
 
-		service.printt('Fetched page {} (reftime: {}, lasttime: {})'.format(page_num, str(reset_date), str(last_transaction_datetime)))
+		service.printt('Fetched page {} (lasttime: {})'.format(page_num, str(last_transaction_datetime)))
 
 		# stop loop if we dont have anymore valid transactions
 		if (response == {} or last_transaction_datetime < reset_date):
@@ -79,29 +86,28 @@ if (__name__ == '__main__'):
 		service.printt('.token file not found')
 		raise SystemExit(0)
 	
-	# bot ready
-	service.printt('Bot ready')
+	# fetch CAD wallet ID (for transactions)
+	service.printt('Getting CAD wallet ID')
+	WALLET_ID = requests_methods.wallet(ENDPOINTS['WALLET'], HEADERS, TOKEN)
 
 	# init hash table of transactions
 	service.printt('Initializing swap history today')
 	init_history()
 	
-	for user in HISTORY:
-		print('{} {}'.format(user, HISTORY[user]['swap']))
-
+	# wait for rate limit cooldown (for transactions its 15/minute)
 	service.printt('Waiting 60 seconds for rate limit expiry')
-	# time.sleep(60)
-	service.printt('Starting polling')
+	time.sleep(60)
+	service.printt('Bot ready')
 
 	while (1):
 		response_json = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, {'filterParams': {'currencies': ['CAD']}})
 		swap_list = service.filter_transactions(response_json, HISTORY)
 
 		for shaketag in swap_list:
-				user_id = HISTORY[shaketag]['user_id']
 				amount = swap_list[shaketag]
-				note = ''
+				note = _NOTE.format_map(map(shaketag = shaketag, amount = amount))
 
-				service.printt('Simulate sending ${} to {} ({}) (currswap: {})'.format(amount, shaketag, user_id, HISTORY[user]['swap']))
+				requests_methods.send_transaction(ENDPOINTS['SWAP'], HEADERS, TOKEN, amount, WALLET_ID, shaketag, note)
+				#service.printt('Simulate sending ${} to {} with note:  ({}) (currswap: {})'.format(amount, shaketag, note, HISTORY[shaketag]['swap']))
 
-		time.sleep(10)
+		time.sleep(_POLL_RATE)

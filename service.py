@@ -31,8 +31,6 @@ def filter_transactions(json_data, history, init_datetime = None):
 				'swap': swap,
 				'user_id': user_id
 			}
-
-			printt('add {}'.format(shaketag))
 		else:
 			is_newer = to_datetime(transaction['timestamp']) > to_datetime(history[shaketag]['timestamp'])
 
@@ -45,7 +43,6 @@ def filter_transactions(json_data, history, init_datetime = None):
 				history_update[shaketag] = transaction['timestamp']
 
 			# update swap counter
-			printt('swap {} {} {} {}'.format(shaketag, transaction['transactionId'], history[shaketag]['swap'], history[shaketag]['swap'] + swap))
 			history[shaketag]['swap'] = history[shaketag]['swap'] + swap
 
 		# check if we need to add this transaction to the swap list
@@ -56,7 +53,7 @@ def filter_transactions(json_data, history, init_datetime = None):
 			if (shaketag in swap_list):
 				swap_list[shaketag] = swap_list[shaketag] - transaction['amount']
 
-				if (swap_list[shaketag] == 0): del swap_list[shaketag]
+				if (swap_list[shaketag] <= 0): del swap_list[shaketag]
 
 	# finally update history timestamps
 	for shaketag in history_update:
@@ -65,6 +62,6 @@ def filter_transactions(json_data, history, init_datetime = None):
 	return swap_list
 
 def printt(msg):
-	formatted_datetime = datetime.datetime.now().strftime('[%Y%m%d %H:%M:%S:%f]')
+	formatted_datetime = datetime.datetime.now().strftime('[%Y%m%d %H:%M:%S]')
 
 	print('{} {}'.format(formatted_datetime, msg))
