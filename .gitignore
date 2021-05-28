@@ -1,5 +1,4 @@
 __pycache__/
 
-.env
-.token
-test.py
+.persistence
+test_*.py

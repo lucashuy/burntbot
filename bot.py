@@ -1,115 +1,78 @@
-#!/usr/bin/python3
-
-import os
-import datetime
+import threading
 import time
 
-import requests_methods
-import service
+import globals
+import logic_requests
+import logic_service
 
 from dotenv import load_dotenv
 load_dotenv()
 
-_POLL_RATE = int(os.getenv('POLL_RATE', 10))
-_INIT_FETCH_AMNT = os.getenv('INIT_FETCH_AMNT', 50)
-_NOTE = os.getenv('NOTE', '')
-
-# create constants for API endpoints
-HOST = 'https://api.shakepay.com/'
-ENDPOINTS = {
-	'WALLET': HOST + 'wallets',
-	'HISTORY': HOST + 'transactions/history',
-	'SWAP': HOST + 'transactions'
-}
-
-# init required headers from .env file
-HEADERS = {
-	'User-Agent': os.getenv('USER_AGENT'),
-	'X-Device-Unique-Id': os.getenv('UNIQUE_ID'),
-	'X-Device-Serial-Number': os.getenv('SERIAL_NUM')
-}
-
-# JWT
-TOKEN = None
-
-# CAD wallet ID
-WALLET_ID = None
-
-# trading history hash table
-HISTORY = {}
-
-class map(dict):
+class Map(dict):
 	def __missing__(self, key): return key
 
-def init_history():
-	page_num = 1
+class SwapBot(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self, daemon = True)
 
-	body = {
-		'filterParams': {'type': 'peer'},
-		'pagination': {
-			'descending': True,
-			'page': page_num,
-			'rowsPerPage': _INIT_FETCH_AMNT
+	def init_history(self):
+		body = {
+			'filterParams': {'type': 'peer'},
+			'pagination': {
+				'descending': True,
+				'page': 1,
+				'rowsPerPage': 2000
+			}
 		}
-	}
 
-	# the datetime at which reset happened (4am UTC time)
-	reset_date = datetime.datetime.now(datetime.timezone.utc).replace(hour = 4, minute = 0, second = 0, microsecond = 0)
-	if (reset_date > datetime.datetime.now(datetime.timezone.utc)): reset_date = reset_date - datetime.timedelta(days = 1)
+		last_time = int(time.time())
 
-	while (1):
-		# get transaction history 50 at a time
-		response = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, body)
+		while (1):
+			logic_service.printt(f'Fetching page {body["pagination"]["page"]} of transactions')
 
-		# populate the HISTORY object
-		service.filter_transactions(response, HISTORY, reset_date)
+			response = logic_requests.transactions(body)
+			data = response['data']
 
-		# get last transaction timestamp in datetime format with UTC timezone
-		last_transaction_datetime = service.to_datetime(response['data'][-1]['timestamp'])
+			if (len(data) == 0): break
 
-		service.printt('Fetched page {} (lasttime: {})'.format(page_num, str(last_transaction_datetime)))
+			logic_service.populate_history(data)
+			
+			body['pagination']['page'] = body['pagination']['page'] + 1
 
-		# stop loop if we dont have anymore valid transactions
-		if (response == {} or last_transaction_datetime < reset_date):
-			break
+			# prevent rate limit by ensuring we maintain 6 second window between fetches
+			time_left = 6 - (int(time.time()) - last_time)
+			if (time_left > 0):
+				time.sleep(time_left)
 
-		page_num = page_num + 1
-		body['pagination']['page'] = page_num
+			last_time = int(time.time())
 
-if (__name__ == '__main__'):
-	# read token from file
-	try:
-		with open('./.token') as token_file:
-			service.printt('Reading .token')
-			TOKEN = token_file.readline()
-	except FileNotFoundError:
-		service.printt('.token file not found')
-		raise SystemExit(0)
-	
-	# fetch CAD wallet ID (for transactions)
-	service.printt('Getting CAD wallet ID')
-	WALLET_ID = requests_methods.wallet(ENDPOINTS['WALLET'], HEADERS, TOKEN)
+	def run(self):
+		# init hash table of transactions
+		logic_service.printt('Initializing swap history today')
+		self.init_history()
+		
+		for user in globals.HISTORY:
+			if globals.HISTORY[user]['swap'] != 0.:
+				print(f'{user} has swap of {globals.HISTORY[user]["swap"]}')
 
-	# init hash table of transactions
-	service.printt('Initializing swap history today')
-	init_history()
-	
-	# wait for rate limit cooldown (for transactions its 15/minute)
-	service.printt('Waiting 60 seconds for rate limit expiry')
-	time.sleep(60)
-	service.printt('Bot ready')
+		# wait for rate limit cooldown (for transactions its 15/minute)
+		logic_service.printt('Waiting 60 seconds for rate limit expiry')
+		time.sleep(60)
+		logic_service.printt('Bot ready')
 
-	while (1):
-		response_json = requests_methods.history(ENDPOINTS['HISTORY'], HEADERS, TOKEN, {'filterParams': {'currencies': ['CAD']}})
-		swap_list = service.filter_transactions(response_json, HISTORY)
+		while (1):
+			response_json = logic_requests.transactions({'filterParams': {'currencies': ['CAD']}})
+			swap_list = logic_service.get_swaps(response_json['data'])
 
-		for shaketag in swap_list:
-				amount = swap_list[shaketag]
-				note = _NOTE.format_map(map(shaketag = shaketag, amount = '${}'.format(amount)))
+			for shaketag in swap_list:
+				amount = globals.HISTORY[shaketag]['swap']
+				note = globals.NOTE.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
 
-				service.printt('Sending ${} to {}'.format(amount, shaketag))
-				requests_methods.send_transaction(ENDPOINTS['SWAP'], HEADERS, TOKEN, amount, WALLET_ID, shaketag, note)
+				# logic_service.printt('Sending ${} to {}'.format(amount, shaketag))
+				# logic_requests.send_transaction(amount, shaketag, note)
 
-				#service.printt('Simulate sending ${} to {} with note:  ({}) (currswap: {})'.format(amount, shaketag, note, HISTORY[shaketag]['swap']))
+				logic_service.printt(f'Simulate sending ${amount} to {shaketag} with note: ({note})')
 
-		time.sleep(_POLL_RATE)
+				globals.HISTORY[shaketag]['swap'] = 0.
+
+			time.sleep(globals.POLL_RATE)
