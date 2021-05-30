@@ -46,7 +46,7 @@ def get_swaps(data: dict) -> dict:
 
 		if (not shaketag in globals.HISTORY):
 			# create new history entry for this swapper
-			create_history(shaketag, transaction['timestamp', swap])
+			create_history(shaketag, transaction['timestamp'], swap)
 		else:
 			# stop loop if we come across existing transaction by checking transaction times
 			# since its a string, dont need to convert
