@@ -47,32 +47,22 @@ def get_swaps(data: dict) -> dict:
 		if (not shaketag in globals.HISTORY):
 			# create new history entry for this swapper
 			create_history(shaketag, transaction['timestamp', swap])
-			print(f'creating new history {shaketag}')
 		else:
 			# stop loop if we come across existing transaction by checking transaction times
 			# since its a string, dont need to convert
 			if (transaction['timestamp'] == globals.HISTORY[shaketag]['timestamp']):
 				break
 
-			print(f'change {shaketag} swap {globals.HISTORY[shaketag]["swap"]} to {globals.HISTORY[shaketag]["swap"] + swap}')
-
 			# entry exists, update their swap
 			globals.HISTORY[shaketag]['swap'] = globals.HISTORY[shaketag]['swap'] + swap
 
 			# update the transaction history if we havent already
 			if (not shaketag in history_updated):
-				print(f'change {shaketag} history {globals.HISTORY[shaketag]["timestamp"]} to {globals.HISTORY[shaketag]["timestamp"]}')
-
-				history_updated[shaketag] = True
-				globals.HISTORY[shaketag]['timestamp'] = transaction['timestamp']
+				history_updated[shaketag] = transaction['timestamp']
 
 		# check if we need to add to the swap list
 		if (transaction['direction'] == 'credit'):
-			# creating a dict is more time efficent than just appending to a list
 			swap_list[shaketag] = True
-
-	print('before')
-	print(swap_list)
 
 	# update swap list incase we also got returns from after we added the swap
 	for shaketag in swap_list.copy():
@@ -80,8 +70,9 @@ def get_swaps(data: dict) -> dict:
 		if (globals.HISTORY[shaketag]['swap'] <= 0.):
 			del swap_list[shaketag]
 
-	print('after')
-	print(swap_list)
+	# commit changes to user timestamp
+	for shaketag, timestamp in history_updated.items():
+		globals.HISTORY[shaketag]['timestamp'] = timestamp
 
 	return swap_list
 

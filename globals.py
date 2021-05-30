@@ -1,8 +1,3 @@
-import os
-
-from dotenv import load_dotenv
-load_dotenv()
-
 # default values for poll rate, note, etc
 NOTE = ''
 POLL_RATE = 10
@@ -16,7 +11,7 @@ ENDPOINT_AUTHENTICATE = _HOST + 'authentication'
 
 # init required headers from .env file
 HEADERS = {
-	'User-Agent': os.getenv('USER_AGENT'),
+	'User-Agent': 'Shakepay App v1.6.100 (16100) on samsung SM-G930W8 (Android 8.0.0)',
 	'X-Device-Unique-Id': '406275726e74746f',
 	'X-Device-Serial-Number': '617374657220626f74'
 }

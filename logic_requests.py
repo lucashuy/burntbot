@@ -4,6 +4,15 @@ import json
 import logic_service
 import globals
 
+class ClientException(Exception): pass
+class OtherException(Exception): pass
+
+def raise_exception(status_code: int):
+	if (str(status_code)[0] == 4):
+		raise ClientException()
+	else:
+		raise OtherException()
+
 """
 Returns your CAD wallet ID
 """
@@ -13,7 +22,8 @@ def wallet():
 	# make sure we have 2xx status
 	if (not response.ok):
 		logic_service.printt('Something went wrong when fetching wallets: {}'.format(response.text))
-		raise SystemExit(0)
+		
+		raise_exception(response.status_code)
 
 	data = response.json()['data']
 	for wallet in data:
@@ -41,7 +51,8 @@ def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 	# make sure we have 2xx status
 	if (not response.ok):
 		logic_service.printt('Something went wrong when swapping: {}'.format(response.text))
-		raise SystemExit(0)
+
+		raise_exception(response.status_code)
 
 	return response
 
@@ -58,6 +69,7 @@ def transactions(body: dict) -> dict:
 	# make sure we have 2xx status
 	if (not response.ok):
 		logic_service.printt('Something went wrong when fetching history: {}'.format(response.text))
-		raise SystemExit(0)
+
+		raise_exception(response.status_code)
 
 	return response.json()

@@ -63,4 +63,4 @@ if (__name__ == '__main__'):
 			logic_service.printt('Bot died, stopping')
 			break
 
-		time.sleep(1)
+		time.sleep(5)
