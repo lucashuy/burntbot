@@ -5,9 +5,6 @@ import globals
 import logic_requests
 import logic_service
 
-from dotenv import load_dotenv
-load_dotenv()
-
 class Map(dict):
 	def __missing__(self, key): return key
 
