@@ -9,12 +9,12 @@ import logic_requests
 import bot
 
 if (__name__ == '__main__'):
-	persistence = None
+	persistence = {}
 
 	# read or create persistence file
 	try:
 		logic_service.printt('Reading persistence file')
-		logic_service.read_persistence()
+		persistence = logic_service.read_persistence()
 	except:
 		logic_service.printt('Creating new persistence file')
 

@@ -1,5 +1,6 @@
 import threading
 import time
+import requests
 
 import globals
 import logic_requests
@@ -92,7 +93,7 @@ class SwapBot(threading.Thread):
 				logic_service.upsert_persistence({'token': ''})
 
 				break
-			except logic_requests.OtherException:
+			except (logic_requests.OtherException, requests.exceptions.ConnectionError):
 				logic_service.printt(f'ENCOUNTERED OTHER ERROR, RESTARTING (fails in past 5 mins: {self.restarts})')
 
 				time_now = time.time()
