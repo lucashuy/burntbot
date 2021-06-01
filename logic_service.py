@@ -26,7 +26,7 @@ def upsert_persistence(data: dict):
 		file.write(json.dumps(read_data))
 
 # should be using a class
-def create_history(shaketag: str, timestamp: str, swap: int):
+def create_history(shaketag: str, timestamp: str, swap: float):
 	globals.HISTORY[shaketag] = {
 		'timestamp': timestamp,
 		'swap': swap
@@ -79,9 +79,9 @@ def get_swaps(data: dict) -> dict:
 			# entry exists, update their swap
 			globals.HISTORY[shaketag]['swap'] = globals.HISTORY[shaketag]['swap'] + swap
 
-			# update the transaction history if we havent already
-			if (not shaketag in history_updated):
-				history_updated[shaketag] = transaction['timestamp']
+		# update the transaction history if we havent already
+		if (not shaketag in history_updated):
+			history_updated[shaketag] = transaction['timestamp']
 
 		# check if we need to add to the swap list
 		if (transaction['direction'] == 'credit'):
