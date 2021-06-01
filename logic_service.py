@@ -1,6 +1,29 @@
 import datetime
+import json
 
 import globals
+
+def read_persistence() -> dict:
+	with open('.persistence') as file:
+		persistence = json.loads(file.readline())
+
+	return persistence or {}
+
+def upsert_persistence(data: dict):
+	read_data = {}
+
+	# read data, even if it doesnt exist
+	try:
+		read_data = read_persistence()
+	except: pass
+
+	# merge read data and param data
+	for key, value in data.items():
+		read_data[key] = value
+
+	# write to file
+	with open('.persistence', 'w') as file:
+		file.write(json.dumps(read_data))
 
 # should be using a class
 def create_history(shaketag: str, timestamp: str, swap: int):

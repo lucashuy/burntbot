@@ -89,6 +89,8 @@ class SwapBot(threading.Thread):
 			except logic_requests.ClientException:
 				logic_service.printt('ENCOUNTERED CLIENT 4xx ERROR')
 
+				logic_service.upsert_persistence({'token': ''})
+
 				break
 			except logic_requests.OtherException:
 				logic_service.printt(f'ENCOUNTERED OTHER ERROR, RESTARTING (fails in past 5 mins: {self.restarts})')

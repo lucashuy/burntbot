@@ -1,0 +1,13 @@
+{% from "swapper.html" import swapper %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>swapbot</title>
+	</head>
+	<body>
+		{% for shaketag in swappers %}
+			{{ swapper(shaketag) }}
+		{% endfor %}
+	</body>
+</html>

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import time
-import json
 
 import globals
 import logic_service
@@ -9,31 +8,24 @@ import logic_requests
 
 import bot
 
-_PERSISTENCE_FILE_NAME = '.persistence'
-
-def save_persistence(data: dict):
-	with open(_PERSISTENCE_FILE_NAME, 'w') as file:
-		file.write(json.dumps(data))
-
 if (__name__ == '__main__'):
 	persistence = None
 
 	# read or create persistence file
 	try:
-		with open(_PERSISTENCE_FILE_NAME) as file:
-			logic_service.printt('Reading persistence file')
-
-			persistence = json.loads(file.readline())
+		logic_service.printt('Reading persistence file')
+		logic_service.read_persistence()
 	except:
 		logic_service.printt('Creating new persistence file')
 
+		# save defaults
 		persistence = {
 			'token': '',
 			'poll_rate': globals.POLL_RATE,
 			'note': globals.NOTE
 		}
 
-		save_persistence(persistence)
+		logic_service.upsert_persistence(persistence)
 
 	# check if the file is valid (we have token key)
 	if (not 'token' in persistence) or (persistence['token'] == ''):
@@ -41,8 +33,8 @@ if (__name__ == '__main__'):
 		raise SystemExit(0)
 	
 	# set global variables
-	globals.NOTE = persistence['note']
-	globals.POLL_RATE = persistence['poll_rate']
+	globals.NOTE = persistence['note'] or globals.NOTE
+	globals.POLL_RATE = persistence['poll_rate'] or globals.POLL_RATE
 
 	# set the authorization header
 	globals.HEADERS['Authorization'] = persistence['token']
@@ -63,4 +55,4 @@ if (__name__ == '__main__'):
 			logic_service.printt('Bot died, stopping')
 			break
 
-		time.sleep(5)
+		time.sleep(10)
