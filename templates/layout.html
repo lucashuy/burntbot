@@ -1,13 +1,12 @@
-{% from "swapper.html" import swapper %}
+{% from "send_transaction.html" import send_transaction %}
 
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>swapbot</title>
+		<link href = '{{ url_for("static", filename = "styles.css") }}' rel = 'stylesheet' />
 	</head>
 	<body>
-		{% for shaketag in swappers %}
-			{{ swapper(shaketag) }}
-		{% endfor %}
+		{{ send_transaction() }}
 	</body>
 </html>

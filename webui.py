@@ -1,17 +1,38 @@
 import flask
 import threading
+import json
 
-class WebUI(threading.Thread):
+import logic_service
+import globals
+
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 
 	def run(self):
-		self.app.add_url_rule('/', '', self.home)
+		self.app.add_url_rule('/', view_func = self.home)
+		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
 
-		self.app.run(debug = False)
+		self.app.run(debug = True)
 
 	def home(self):
-		swappers = ['name1', 'name2', 'name3']
+		return flask.render_template('layout.html')
 
-		return flask.render_template('layout.html', swappers = swappers)
+	def check_swapped(self, shaketag):
+		result = {
+			'exists': False,
+			'swapped': False
+		}
+
+		if (shaketag in globals.HISTORY):
+			result['exists'] = True
+
+			reset_date = logic_service.get_reset_datetime()
+			last_swap_date = logic_service.string_to_datetime(globals.HISTORY['shaketag']['timestamp'])
+
+			if (last_swap_date > reset_date):
+				result['swapped'] = True
+
+		return json.dumps(result)
