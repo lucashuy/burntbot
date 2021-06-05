@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import time
+import sys
 
 import globals
 import bot
@@ -10,6 +11,15 @@ from service.persistence import read_persistence, upsert_persistence
 from service.log import log
 
 if (__name__ == '__main__'):
+	for arg in sys.argv:
+		if (arg == '-v'):
+			globals.flags['verbose'] = True
+		elif (arg == '-l'):
+			globals.flags['listen'] = True
+		else:
+			log(f'Unknown argument: {arg}')
+			raise SystemExit(0)
+
 	persistence = {}
 
 	# read or create persistence file

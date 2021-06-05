@@ -53,10 +53,11 @@ class SwapBot(threading.Thread):
 	def swap(self, shaketag, amount):
 		note = globals.note.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
 
-		# log('Sending ${} to {}'.format(amount, shaketag))
-		send_transaction(amount, shaketag, note)
-		
-		# log(f'Simulate sending ${amount} to {shaketag} with note: ({note})')
+		if (globals.flags['listen']):
+			log(f'Simulate sending ${amount} to {shaketag} with note: ({note})', True)
+		else:
+			log('Sending ${} to {}'.format(amount, shaketag), True)
+			send_transaction(amount, shaketag, note)
 
 	def poll_shakepay(self):
 		while (1):
@@ -64,7 +65,7 @@ class SwapBot(threading.Thread):
 			swap_list = get_swaps(response_json['data'])
 
 			for shaketag in swap_list:
-				amount = globals.history[shaketag]['swap']
+				amount = globals.history[shaketag].get_swap()
 				
 				self.swap(shaketag, amount)
 				
@@ -75,8 +76,9 @@ class SwapBot(threading.Thread):
 		log('Initializing swap history today')
 		self.init_history()
 
-		for shaketag in globals.history:
-			amount = globals.history[shaketag]['swap']
+		# send back to those that sent to us during bot startup/downtime
+		for shaketag, history in globals.history.items():
+			amount = history.get_swap()
 			if (amount > 0.):
 				self.swap(shaketag, amount)
 

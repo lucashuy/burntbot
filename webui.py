@@ -2,8 +2,9 @@ import flask
 import threading
 import json
 
-import logic_service
 import globals
+
+from service.datetime import get_reset_datetime, string_to_datetime
 
 # class WebUI(threading.Thread):
 class WebUI():
@@ -29,8 +30,8 @@ class WebUI():
 		if (shaketag in globals.history):
 			result['exists'] = True
 
-			reset_date = logic_service.get_reset_datetime()
-			last_swap_date = logic_service.string_to_datetime(globals.history['shaketag']['timestamp'])
+			reset_date = get_reset_datetime()
+			last_swap_date = string_to_datetime(globals.history[shaketag].get_timestamp())
 
 			if (last_swap_date > reset_date):
 				result['swapped'] = True

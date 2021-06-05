@@ -1,13 +1,12 @@
 import globals
 
+from classes.user_history import UserHistory
 from service.transaction_helper import determine_shaketag, determine_swap_amnt
+from service.log import log
 
 # should be using a class
 def create_history(shaketag: str, timestamp: str, swap: float):
-	globals.history[shaketag] = {
-		'timestamp': timestamp,
-		'swap': swap
-	}
+	globals.history[shaketag] = UserHistory(timestamp, swap)
 
 def populate_history(data: list):
 	for transaction in data:
@@ -20,7 +19,7 @@ def populate_history(data: list):
 			create_history(shaketag, transaction['timestamp'], swap)
 		else:
 			# otherwise, update their swap amount
-			globals.history[shaketag]['swap'] = globals.history[shaketag]['swap'] + swap
+			globals.history[shaketag].adjust_swap(swap)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
@@ -37,14 +36,18 @@ def get_swaps(data: dict) -> dict:
 		if (not shaketag in globals.history):
 			# create new history entry for this swapper
 			create_history(shaketag, transaction['timestamp'], swap)
+
+			log(f'Create new entry for {shaketag}', True)
 		else:
 			# stop loop if we come across existing transaction by checking transaction times
 			# since its a string, dont need to convert
-			if (transaction['timestamp'] == globals.history[shaketag]['timestamp']):
+			if (transaction['timestamp'] == globals.history[shaketag].get_timestamp()):
 				break
 
+			log(f'Adjust {shaketag} {globals.history[shaketag].get_swap()} by {swap}', True)
+
 			# entry exists, update their swap
-			globals.history[shaketag]['swap'] = globals.history[shaketag]['swap'] + swap
+			globals.history[shaketag].adjust_swap(swap)
 
 		# update the transaction history if we havent already
 		if (not shaketag in history_updated):
@@ -57,11 +60,11 @@ def get_swaps(data: dict) -> dict:
 	# update swap list incase we also got returns from after we added the swap
 	for shaketag in swap_list.copy():
 		# remove name from list if we dont owe them
-		if (globals.history[shaketag]['swap'] <= 0.):
+		if (globals.history[shaketag].get_swap() <= 0.):
 			del swap_list[shaketag]
 
 	# commit changes to user timestamp
 	for shaketag, timestamp in history_updated.items():
-		globals.history[shaketag]['timestamp'] = timestamp
+		globals.history[shaketag].update_timestamp(timestamp)
 
 	return swap_list

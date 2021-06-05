@@ -21,3 +21,8 @@ wallet_id = None
 
 # trading history hash table
 history = {}
+
+flags = {
+	'listen': False,
+	'verbose': False
+}
