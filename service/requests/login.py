@@ -8,11 +8,11 @@ from service.log import log
 
 def login(email: str, password: str, code: str) -> str:
 	# copy headers to append content type
-	local_headers = globals.HEADERS.copy()
+	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
 
 	# pre 2FA POST
-	response = requests.post(globals.ENDPOINT_AUTHENTICATE, headers = local_headers, data = json.dumps({
+	response = requests.post(globals.endpoint_authenticate, headers = local_headers, data = json.dumps({
 		'password': password,
 		'strategy': 'local',
 		'totpType': 'sms',
@@ -30,7 +30,7 @@ def login(email: str, password: str, code: str) -> str:
 	local_headers['Authorization'] = response['accessToken']
 
 	# 2FA POST
-	response = requests.post(globals.ENDPOINT_AUTHENTICATE, headers = local_headers, data = json.dumps({
+	response = requests.post(globals.endpoint_authenticate, headers = local_headers, data = json.dumps({
 		'mfaToken': code,
 		'strategy': 'mfa'
 	}))

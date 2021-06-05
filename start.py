@@ -22,8 +22,8 @@ if (__name__ == '__main__'):
 		# save defaults
 		persistence = {
 			'token': '',
-			'poll_rate': globals.POLL_RATE,
-			'note': globals.NOTE
+			'poll_rate': globals.poll_rate,
+			'note': globals.note
 		}
 
 		upsert_persistence(persistence)
@@ -34,15 +34,15 @@ if (__name__ == '__main__'):
 		raise SystemExit(0)
 	
 	# set global variables
-	globals.NOTE = persistence['note'] or globals.NOTE
-	globals.POLL_RATE = persistence['poll_rate'] or globals.POLL_RATE
+	globals.note = persistence['note'] or globals.note
+	globals.poll_rate = persistence['poll_rate'] or globals.poll_rate
 
 	# set the authorization header
-	globals.HEADERS['Authorization'] = persistence['token']
+	globals.headers['Authorization'] = persistence['token']
 
 	# validate valid token by getting wallet ID
 	log('Getting CAD wallet ID')
-	globals.WALLET_ID = get_wallet()['id']
+	globals.wallet_id = get_wallet()['id']
 
 	# start bot thread
 	log('Starting bot')

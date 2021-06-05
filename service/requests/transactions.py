@@ -8,18 +8,18 @@ from service.log import log
 
 def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 	# copy headers to append content type
-	local_headers = globals.HEADERS.copy()
+	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
 
 	body = {
 		'amount': str(amount),
-		'fromWallet': globals.WALLET_ID,
+		'fromWallet': globals.wallet_id,
 		'note': note,
 		'to': shaketag[1:],
 		'toType': 'user'
 	}
 
-	response = requests.post(globals.ENDPOINT_SWAP, headers = local_headers, data = json.dumps(body))
+	response = requests.post(globals.endpoint_swap, headers = local_headers, data = json.dumps(body))
 	
 	# make sure we have 2xx status
 	if (not response.ok):
@@ -31,10 +31,10 @@ def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 
 def get_transactions(body: dict) -> dict:
 	# copy headers to append content type
-	local_headers = globals.HEADERS.copy()
+	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
 
-	response = requests.post(globals.ENDPOINT_HISTORY, headers = local_headers, data = json.dumps(body))
+	response = requests.post(globals.endpoint_history, headers = local_headers, data = json.dumps(body))
 	
 	# make sure we have 2xx status
 	if (not response.ok):

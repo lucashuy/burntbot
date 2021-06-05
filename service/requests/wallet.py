@@ -6,7 +6,7 @@ from service.requests.exception import raise_exception
 from service.log import log
 
 def get_wallet():
-	response = requests.get(globals.ENDPOINT_WALLET, headers = globals.HEADERS)
+	response = requests.get(globals.endpoint_wallet, headers = globals.headers)
 
 	# make sure we have 2xx status
 	if (not response.ok):

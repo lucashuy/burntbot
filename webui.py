@@ -26,11 +26,11 @@ class WebUI():
 			'swapped': False
 		}
 
-		if (shaketag in globals.HISTORY):
+		if (shaketag in globals.history):
 			result['exists'] = True
 
 			reset_date = logic_service.get_reset_datetime()
-			last_swap_date = logic_service.string_to_datetime(globals.HISTORY['shaketag']['timestamp'])
+			last_swap_date = logic_service.string_to_datetime(globals.history['shaketag']['timestamp'])
 
 			if (last_swap_date > reset_date):
 				result['swapped'] = True
