@@ -26,3 +26,5 @@ flags = {
 	'listen': False,
 	'verbose': False
 }
+
+version = '0.0.0'

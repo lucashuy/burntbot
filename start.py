@@ -10,16 +10,19 @@ from service.requests.wallet import get_wallet
 from service.persistence import read_persistence, upsert_persistence
 from service.log import log
 
-if (__name__ == '__main__'):
-	for arg in sys.argv:
+def read_flags():
+	for arg in sys.argv[1:]:
 		if (arg == '-v'):
+			log(f'-v setting verbose logging')
 			globals.flags['verbose'] = True
 		elif (arg == '-l'):
+			log(f'-l setting listen only mode - no auto returns')
 			globals.flags['listen'] = True
 		else:
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
 
+def read_per():
 	persistence = {}
 
 	# read or create persistence file
@@ -37,6 +40,24 @@ if (__name__ == '__main__'):
 		}
 
 		upsert_persistence(persistence)
+
+	return persistence
+
+def read_version():
+	version = '0.0.0'
+
+	try:
+		log('Reading version')
+		with open('.version') as file:
+			version = file.readline()
+	except: pass
+
+	return version
+
+if (__name__ == '__main__'):
+	read_flags()
+	persistence = read_per()
+	globals.version = read_version()
 
 	# check if the file is valid (we have token key)
 	if (not 'token' in persistence) or (persistence['token'] == ''):
@@ -57,13 +78,22 @@ if (__name__ == '__main__'):
 	# start bot thread
 	log('Starting bot')
 
-	bot = bot.SwapBot()
-	bot.start()
+	swap_bot = bot.SwapBot()
+	swap_bot.start()
 
 	# main thread busy
 	while (1):
-		if (not bot.is_alive()):
-			log('Bot died, stopping')
-			break
-
 		time.sleep(10)
+
+		if (not swap_bot.is_alive()):
+			if (swap_bot.restarts == -1):
+				log('Bot died due to client error, stopping')
+
+				raise SystemExit(0)
+			elif (swap_bot.restarts < 5):
+				swap_bot = bot.SwapBot()
+				swap_bot.start()
+			else:
+				log('Bot died due to too many deaths, stopping')
+
+				raise SystemExit(0)
