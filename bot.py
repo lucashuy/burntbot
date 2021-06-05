@@ -1,10 +1,13 @@
 import threading
 import time
-import requests
 
 import globals
-import logic_requests
-import logic_service
+
+from service.requests.transactions import get_transactions, send_transaction
+from service.requests.exception import ClientException, OtherException
+from service.persistence import upsert_persistence
+from service.transaction_parser import populate_history, get_swaps
+from service.log import log
 
 class Map(dict):
 	def __missing__(self, key): return key
@@ -29,14 +32,14 @@ class SwapBot(threading.Thread):
 		last_time = int(time.time())
 
 		while (1):
-			logic_service.printt(f'Fetching page {body["pagination"]["page"]} of transactions')
+			log(f'Fetching page {body["pagination"]["page"]} of transactions')
 
-			response = logic_requests.transactions(body)
+			response = get_transactions(body)
 			data = response['data']
 
 			if (len(data) == 0): break
 
-			logic_service.populate_history(data)
+			populate_history(data)
 			
 			body['pagination']['page'] = body['pagination']['page'] + 1
 
@@ -50,15 +53,15 @@ class SwapBot(threading.Thread):
 	def swap(self, shaketag, amount):
 		note = globals.NOTE.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
 
-		logic_service.printt('Sending ${} to {}'.format(amount, shaketag))
-		logic_requests.send_transaction(amount, shaketag, note)
+		log('Sending ${} to {}'.format(amount, shaketag))
+		send_transaction(amount, shaketag, note)
 		
-		# logic_service.printt(f'Simulate sending ${amount} to {shaketag} with note: ({note})')
+		# log(f'Simulate sending ${amount} to {shaketag} with note: ({note})')
 
 	def poll_shakepay(self):
 		while (1):
-			response_json = logic_requests.transactions({'filterParams': {'currencies': ['CAD']}})
-			swap_list = logic_service.get_swaps(response_json['data'])
+			response_json = get_transactions({'filterParams': {'currencies': ['CAD']}})
+			swap_list = get_swaps(response_json['data'])
 
 			for shaketag in swap_list:
 				amount = globals.HISTORY[shaketag]['swap']
@@ -69,7 +72,7 @@ class SwapBot(threading.Thread):
 
 	def run(self):
 		# init hash table of transactions
-		logic_service.printt('Initializing swap history today')
+		log('Initializing swap history today')
 		self.init_history()
 
 		for shaketag in globals.HISTORY:
@@ -78,23 +81,23 @@ class SwapBot(threading.Thread):
 				self.swap(shaketag, amount)
 
 		# wait for rate limit cooldown (for transactions its 15/minute)
-		logic_service.printt('Waiting 60 seconds for rate limit expiry')
+		log('Waiting 60 seconds for rate limit expiry')
 		time.sleep(60)
 
 		while (self.restarts < 3):
 			try:
-				logic_service.printt('Bot ready')
+				log('Bot ready')
 
 				# start polling
 				self.poll_shakepay()
-			except logic_requests.ClientException:
-				logic_service.printt('ENCOUNTERED CLIENT 4xx ERROR')
+			except ClientException:
+				log('ENCOUNTERED CLIENT 4xx ERROR')
 
-				logic_service.upsert_persistence({'token': ''})
+				upsert_persistence({'token': ''})
 
 				break
-			except (logic_requests.OtherException, requests.exceptions.ConnectionError):
-				logic_service.printt(f'ENCOUNTERED OTHER ERROR, RESTARTING (fails in past 5 mins: {self.restarts})')
+			except OtherException:
+				log(f'ENCOUNTERED OTHER ERROR, RESTARTING (fails in past 5 mins: {self.restarts})')
 
 				time_now = time.time()
 

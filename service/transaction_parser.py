@@ -1,41 +1,6 @@
-import datetime
-import json
-
 import globals
 
-def get_reset_datetime() -> datetime.datetime:
-	reset_date = datetime.datetime.now(datetime.timezone.utc).replace(hour = 4, minute = 0, second = 0, microsecond = 0)
-	if (reset_date > datetime.datetime.now(datetime.timezone.utc)): reset_date = reset_date - datetime.timedelta(days = 1)
-
-	return reset_date
-
-def string_to_datetime(string: str) -> datetime.datetime:
-	datetime_obj = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%fZ')
-	datetime_obj = datetime_obj.replace(tzinfo = datetime.timezone.utc)
-
-	return datetime_obj
-
-def read_persistence() -> dict:
-	with open('.persistence') as file:
-		persistence = json.loads(file.readline())
-
-	return persistence or {}
-
-def upsert_persistence(data: dict):
-	read_data = {}
-
-	# read data, even if it doesnt exist
-	try:
-		read_data = read_persistence()
-	except: pass
-
-	# merge read data and param data
-	for key, value in data.items():
-		read_data[key] = value
-
-	# write to file
-	with open('.persistence', 'w') as file:
-		file.write(json.dumps(read_data))
+from service.transaction_helper import determine_shaketag, determine_swap_amnt
 
 # should be using a class
 def create_history(shaketag: str, timestamp: str, swap: float):
@@ -43,16 +8,6 @@ def create_history(shaketag: str, timestamp: str, swap: float):
 		'timestamp': timestamp,
 		'swap': swap
 	}
-
-# determine shaketag and id of swapper
-def determine_shaketag(transaction: dict) -> str:
-	return (transaction.get('to') or transaction['from'])['label']
-
-def determine_swap_amnt(transaction: dict) -> float:
-	swap = 1. if (transaction['direction'] == 'credit') else -1.
-	swap = swap * float(f'{transaction["amount"]:.2f}')
-
-	return swap
 
 def populate_history(data: list):
 	for transaction in data:
@@ -110,8 +65,3 @@ def get_swaps(data: dict) -> dict:
 		globals.HISTORY[shaketag]['timestamp'] = timestamp
 
 	return swap_list
-
-def printt(msg: str):
-	formatted_datetime = datetime.datetime.now().strftime('[%Y%m%d %H:%M:%S]')
-
-	print('{} {}'.format(formatted_datetime, msg))

@@ -3,20 +3,21 @@
 import time
 
 import globals
-import logic_service
-import logic_requests
-
 import bot
+
+from service.requests.wallet import get_wallet
+from service.persistence import read_persistence, upsert_persistence
+from service.log import log
 
 if (__name__ == '__main__'):
 	persistence = {}
 
 	# read or create persistence file
 	try:
-		logic_service.printt('Reading persistence file')
-		persistence = logic_service.read_persistence()
+		log('Reading persistence file')
+		persistence = read_persistence()
 	except:
-		logic_service.printt('Creating new persistence file')
+		log('Creating new persistence file')
 
 		# save defaults
 		persistence = {
@@ -25,11 +26,11 @@ if (__name__ == '__main__'):
 			'note': globals.NOTE
 		}
 
-		logic_service.upsert_persistence(persistence)
+		upsert_persistence(persistence)
 
 	# check if the file is valid (we have token key)
 	if (not 'token' in persistence) or (persistence['token'] == ''):
-		logic_service.printt('No token found, stopping')
+		log('No token found, stopping')
 		raise SystemExit(0)
 	
 	# set global variables
@@ -40,11 +41,11 @@ if (__name__ == '__main__'):
 	globals.HEADERS['Authorization'] = persistence['token']
 
 	# validate valid token by getting wallet ID
-	logic_service.printt('Getting CAD wallet ID')
-	globals.WALLET_ID = logic_requests.wallet()
+	log('Getting CAD wallet ID')
+	globals.WALLET_ID = get_wallet()['id']
 
 	# start bot thread
-	logic_service.printt('Starting bot')
+	log('Starting bot')
 
 	bot = bot.SwapBot()
 	bot.start()
@@ -52,7 +53,7 @@ if (__name__ == '__main__'):
 	# main thread busy
 	while (1):
 		if (not bot.is_alive()):
-			logic_service.printt('Bot died, stopping')
+			log('Bot died, stopping')
 			break
 
 		time.sleep(10)
