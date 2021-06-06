@@ -34,6 +34,16 @@ def load_persistence_data():
 		persistence = read_persistence()
 	except: pass
 
+	# add missing required fields to persistence
+	if (not 'note' in persistence): persistence['note'] = ''
+	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
+	if (not 'unique_id' in persistence): persistence['unique_id'] = secrets.token_hex(8)
+	if (not 'serial_number' in persistence): persistence['serial_number'] = secrets.token_hex(9)
+
+	# set the device headers here since we need them just incase we login
+	globals.headers['X-Device-Unique-Id'] = persistence['unique_id']
+	globals.headers['X-Device-Serial-Number'] = persistence['serial_number']
+
 	# check if we have an existing session
 	if (not 'token' in persistence) or (persistence['token'] == ''):
 		log('Existing session not found, logging in to Shakepay...')
@@ -42,32 +52,23 @@ def load_persistence_data():
 		email = input('> email: ')
 		code = input('> 2FA code: ')
 
-		token = None
-
 		try:
-			token = login(email, password, code)
+			persistence['token'] = login(email, password, code)
 		except:
 			log('Failed to login, stopping')
 			raise SystemExit(0)
 
-		persistence = {
-			'token': token,
-			'unique_id': secrets.token_hex(8),
-			'serial_number': secrets.token_hex(9),
-			'note': '',
-			'poll_rate': 10
-		}
-
+		# save data
 		upsert_persistence(persistence)
 	
 	# set global variables
 	globals.note = persistence['note']
 	globals.poll_rate = persistence['poll_rate']
 
-	# set required headers
+	# finally set token header
 	globals.headers['Authorization'] = persistence['token']
-	globals.headers['X-Device-Unique-Id'] = persistence['unique_id']
-	globals.headers['X-Device-Serial-Number'] = persistence['serial_number']
+
+	log(globals.headers, True)
 
 def read_version() -> str:
 	version = '0.0.0'
@@ -107,6 +108,10 @@ if (__name__ == '__main__'):
 				log('Bot died due to HTTP client error, stopping')
 
 				raise SystemExit(0)
+			elif (total_restarts > 5):
+				log('Bot died from too many deaths, stopping')
+				
+				raise SystemExit(0)
 			elif (swap_bot.status >= 0):
 				log('Bot died due to uncaught exception, restarting')
 
@@ -121,7 +126,3 @@ if (__name__ == '__main__'):
 
 				last_restart = time_now
 				total_restarts = total_restarts + 1
-			elif (total_restarts > 5):
-				log('Bot died due to too many deaths, stopping')
-				
-				raise SystemExit(0)
