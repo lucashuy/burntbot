@@ -8,10 +8,12 @@ import getpass
 import globals
 import bot
 
+from service.requests.users import users
 from service.requests.wallet import get_wallet
 from service.requests.login import login
 from service.persistence import read_persistence, upsert_persistence
 from service.log import log
+from service.decode_payload import decode
 
 def read_flags():
 	for arg in sys.argv[1:]:
@@ -34,9 +36,7 @@ def load_persistence_data():
 		persistence = read_persistence()
 	except: pass
 
-	# add missing required fields to persistence
-	if (not 'note' in persistence): persistence['note'] = ''
-	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
+	# add required keys incase we need to login
 	if (not 'unique_id' in persistence): persistence['unique_id'] = secrets.token_hex(8)
 	if (not 'serial_number' in persistence): persistence['serial_number'] = secrets.token_hex(9)
 
@@ -57,18 +57,27 @@ def load_persistence_data():
 		except:
 			log('Failed to login, stopping')
 			raise SystemExit(0)
-
-		# save data
-		upsert_persistence(persistence)
 	
+	# add other key values to persistence
+	user_id = decode(persistence['token'].split('.')[1])['userId']
+	user_data = users(user_id)
+	if (not 'shaketag' in persistence): persistence['shaketag'] = f'@{user_data["username"]}'
+
+	if (not 'note' in persistence): persistence['note'] = ''
+	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
+	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
+
 	# set global variables
 	globals.note = persistence['note']
 	globals.poll_rate = persistence['poll_rate']
+	globals.shaketag = persistence['shaketag']
+	globals.wallet_id = persistence['wallet_id']
 
-	# finally set token header
+	# set token header
 	globals.headers['Authorization'] = persistence['token']
 
-	log(globals.headers, True)
+	# save data
+	upsert_persistence(persistence)
 
 def read_version() -> str:
 	version = '0.0.0'
@@ -88,10 +97,6 @@ if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
 	globals.version = read_version()
-
-	# get wallet ID
-	log('Getting CAD wallet ID', True)
-	globals.wallet_id = get_wallet()['id']
 
 	# start bot thread
 	log('Starting bot')
