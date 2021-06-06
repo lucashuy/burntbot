@@ -2,11 +2,14 @@
 
 import time
 import sys
+import secrets
+import getpass
 
 import globals
 import bot
 
 from service.requests.wallet import get_wallet
+from service.requests.login import login
 from service.persistence import read_persistence, upsert_persistence
 from service.log import log
 
@@ -22,28 +25,51 @@ def read_flags():
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
 
-def read_per():
+def load_persistence_data():
 	persistence = {}
 
 	# read or create persistence file
 	try:
 		log('Reading persistence file')
 		persistence = read_persistence()
-	except:
-		log('Creating new persistence file')
+	except: pass
 
-		# save defaults
+	# check if we have an existing session
+	if (not 'token' in persistence) or (persistence['token'] == ''):
+		log('Existing session not found, logging in to Shakepay...')
+
+		password = getpass.getpass('> password: ')
+		email = input('> email: ')
+		code = input('> 2FA code: ')
+
+		token = None
+
+		try:
+			token = login(email, password, code)
+		except:
+			log('Failed to login, stopping')
+			raise SystemExit(0)
+
 		persistence = {
-			'token': '',
-			'poll_rate': globals.poll_rate,
-			'note': globals.note
+			'token': token,
+			'unique_id': secrets.token_hex(8),
+			'serial_number': secrets.token_hex(9),
+			'note': '',
+			'poll_rate': 10
 		}
 
 		upsert_persistence(persistence)
+	
+	# set global variables
+	globals.note = persistence['note']
+	globals.poll_rate = persistence['poll_rate']
 
-	return persistence
+	# set required headers
+	globals.headers['Authorization'] = persistence['token']
+	globals.headers['X-Device-Unique-Id'] = persistence['unique_id']
+	globals.headers['X-Device-Serial-Number'] = persistence['serial_number']
 
-def read_version():
+def read_version() -> str:
 	version = '0.0.0'
 
 	try:
@@ -55,24 +81,15 @@ def read_version():
 	return version
 
 if (__name__ == '__main__'):
+	total_restarts = 0
+	last_restart = time.time()
+
 	read_flags()
-	persistence = read_per()
+	load_persistence_data()
 	globals.version = read_version()
 
-	# check if the file is valid (we have token key)
-	if (not 'token' in persistence) or (persistence['token'] == ''):
-		log('No token found, stopping')
-		raise SystemExit(0)
-	
-	# set global variables
-	globals.note = persistence['note'] or globals.note
-	globals.poll_rate = persistence['poll_rate'] or globals.poll_rate
-
-	# set the authorization header
-	globals.headers['Authorization'] = persistence['token']
-
-	# validate valid token by getting wallet ID
-	log('Getting CAD wallet ID')
+	# get wallet ID
+	log('Getting CAD wallet ID', True)
 	globals.wallet_id = get_wallet()['id']
 
 	# start bot thread
@@ -86,14 +103,25 @@ if (__name__ == '__main__'):
 		time.sleep(10)
 
 		if (not swap_bot.is_alive()):
-			if (swap_bot.restarts == -1):
-				log('Bot died due to client error, stopping')
+			if (swap_bot.status == -1):
+				log('Bot died due to HTTP client error, stopping')
 
 				raise SystemExit(0)
-			elif (swap_bot.restarts < 5):
+			elif (swap_bot.status >= 0):
+				log('Bot died due to uncaught exception, restarting')
+
 				swap_bot = bot.SwapBot()
 				swap_bot.start()
-			else:
-				log('Bot died due to too many deaths, stopping')
 
+				time_now = time.time()
+
+				# checks to see if we restarted recently (5 min window), if not then reset counter
+				if (time_now - last_restart >= (60 * 5)):
+					total_restarts = 0
+
+				last_restart = time_now
+				total_restarts = total_restarts + 1
+			elif (total_restarts > 5):
+				log('Bot died due to too many deaths, stopping')
+				
 				raise SystemExit(0)

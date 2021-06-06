@@ -5,7 +5,7 @@ import globals
 def labrie_check(shaketag: str, type: str) -> dict:
 	data =  {
 		'source': f'@burnttoaster bot v{globals.version}',
-		'shaketag': shaketag[1:],
+		'shaketag': shaketag,
 		'step': type
 	}
 

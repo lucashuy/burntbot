@@ -17,8 +17,7 @@ class SwapBot(threading.Thread):
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
 
-		self.restarts = 0
-		self.last_restart = time.time()
+		self.status = 0
 
 		# init hash table of transactions
 		log('Initializing swap history today')
@@ -100,17 +99,10 @@ class SwapBot(threading.Thread):
 		except ClientException:
 			log('ENCOUNTERED CLIENT 4xx ERROR')
 
-			upsert_persistence({'token': '', 'device_id': '', 'device_serial': ''})
+			upsert_persistence({'token': ''})
 
-			self.restarts = -1
+			self.status = -1
 		except:
-			log(f'ENCOUNTERED OTHER ERROR, RESTARTING (fails in past 5 mins: {self.restarts})')
+			log(f'ENCOUNTERED OTHER ERROR, RESTARTING')
 
-			time_now = time.time()
-
-			# checks to see if we restarted recently (5 min window), if not then reset counter
-			if (time_now - self.last_restart >= (60 * 5)):
-				self.restarts = 0
-
-			self.restarts = self.restarts + 1
-			self.last_restart = time_now
+			self.status = 1
