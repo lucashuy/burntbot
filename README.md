@@ -1,10 +1,9 @@
-# Shakepong
-Shakepong is a Python bot designed to automatically send back swaps from other users participating in the swapping event to acquire a Shakepay Card.
+# SwapPong
+SwapPong is a bot designed to automatically send back swaps from other users participating in the 2021 swapping event to acquire a Shakepay Card.
 
 ## Requirements
-This bot was written with Python 3.6 in mind. This means that I lazily assumed that all dictonaries are ordered. Required Python packages can be found in `requirements.txt` and should be installed prior to running the bot.
+This project is written for Python 3.6. Required packages can be found in `requirements.txt` and can be installed using `pip3`.
 
-These packages can be installed using `pip3`:
 ```
 pip3 install -r requirements.txt
 ```

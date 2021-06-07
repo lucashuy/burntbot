@@ -1,3 +1,9 @@
+:root {
+	--accent: rgb(91, 91, 206);
+	--white: #f2f2f2;
+	--less-white: #afafaf;
+}
+
 * {
 	margin: 0;
 	padding: 0;
@@ -6,10 +12,10 @@
 
 body {
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 16px;
+	font-size: 15px;
 	padding: 2rem 7% 2rem 7%;
 	background-color: rgba(0, 0, 0, 0.9);
-	color: #f2f2f2;
+	color: var(--white);
 }
 
 h1 {
@@ -32,12 +38,12 @@ input {
 	border-bottom: 1.5px solid rgba(255, 255, 255, 0.5);
 	background-color: transparent;
 	padding: 0.5rem;
-	color: #f2f2f2;
+	color: var(--white);
 }
 
 button {
 	border-radius: 4px;
-	color: #f2f2f2;
+	color: var(--white);
 	padding: 0.5rem;
 	background-color: transparent;
 	border: none;
@@ -47,14 +53,22 @@ button {
 }
 
 button.emphasis {
-
+	color: var(--accent);
 }
 
 button.contained {
-	background-color: rgb(91, 91, 206);
+	background-color: var(--accent);
 }
 
-.m-top {
+a {
+	color: var(--accent);
+}
+
+p {
+	color: var(--less-white);
+}
+
+.m-top-1 {
 	margin-top: 1rem;
 }
 
@@ -62,18 +76,23 @@ button.contained {
 	direction: rtl;
 }
 
-.content > div:not(:first-child) {
+.content > div:not(:first-child),
+.vertical > div:not(:first-child) {
 	margin-top: 3rem;
 }
 
-.flex-verticle {
+.flex-row {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 }
 
 .stats > div {
-	width: 25%;
+	width: 20%;
+}
+
+.stats h2 {
+	color: #5bcece;
 }
 
 .rounded {
@@ -87,6 +106,20 @@ button.contained {
 	text-align: center;
 }
 
+.update {
+	margin-bottom: 1.5rem;
+	border-color: #ce785b;
+}
+
 .swap {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+.vertical {
 	display: inline-block;
+}
+
+.other > div {
+	width: 30%;
 }

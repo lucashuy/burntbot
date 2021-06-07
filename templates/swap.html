@@ -1,14 +1,16 @@
 {% macro swap() %}
 	<div>
 		<div class = 'rounded swap'>
-			<p>
-				some text goes here
-			</p>
-			<form id = 'swap' class = 'm-top' autocomplete = 'off'>
-				@ <input type = 'text' placeholder = 'shaketag'>
-				<div class = 'button-wrapper m-top'>
-					<button type = 'submit' class = 'contained'>SEND</button>
-					<button type = 'submit' class = 'emphasis'>CHECK</button>
+			<h2>Swap</h2>
+			<p>Send $5 to another swapper</p>
+			<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
+				<div>
+					<input type = 'text' placeholder = 'note'>
+					<input type = 'text' placeholder = '@shaketag'>
+				</div>
+				<div class = 'button-wrapper m-top-1'>
+					<button id = 'submit' type = 'submit' class = 'contained'>SWAP</button>
+					<button id = 'check' type = 'submit' class = 'emphasis'>CHECK</button>
 				</div>
 			</form>
 		</div>
@@ -17,10 +19,12 @@
 		function check(event) {
 			event.preventDefault()
 			
-			fetch('/check/test')
-			.then(async (data) => {
-				console.log(await data.text())
-			})
+			console.log(event.submitter)
+
+			// fetch('/check/test')
+			// .then(async (data) => {
+			// 	console.log(await data.text())
+			// })
 		}
 
 		document.getElementById('swap').addEventListener('submit', check)

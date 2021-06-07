@@ -1,5 +1,8 @@
 {% from 'stats.html' import stats %}
 {% from 'swap.html' import swap %}
+{% from 'settings.html' import settings %}
+{% from 'autoswap.html' import autoswap %}
+{% from 'balance.html' import balance %}
 
 {% extends 'layout.html' %}
 
@@ -8,5 +11,16 @@
 		<h1>Hello @shaketag</h1>
 		{{ stats() }}
 	</div>
-	{{ swap() }}
+	<div class = 'flex-row other'>
+		<div class = 'vertical'>
+			{{ swap() }}
+			{{ settings() }}
+		</div>
+		<div>
+			{{ autoswap() }}
+		</div>
+		<div>
+			{{ balance() }}
+		</div>
+	</div>
 {% endblock %}
