@@ -19,7 +19,7 @@ class WebUI():
 		self.app.run(debug = True)
 
 	def home(self):
-		return flask.render_template('layout.html')
+		return flask.render_template('home.html')
 
 	def check_swapped(self, shaketag):
 		result = {

@@ -1,0 +1,12 @@
+{% from 'stats.html' import stats %}
+{% from 'swap.html' import swap %}
+
+{% extends 'layout.html' %}
+
+{% block body %}
+	<div class = 'home-general'>
+		<h1>Hello @shaketag</h1>
+		{{ stats() }}
+	</div>
+	{{ swap() }}
+{% endblock %}

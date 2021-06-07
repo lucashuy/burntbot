@@ -1,15 +1,92 @@
 * {
 	margin: 0;
 	padding: 0;
+	position: relative;
 }
 
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 16px;
+	padding: 2rem 7% 2rem 7%;
+	background-color: rgba(0, 0, 0, 0.9);
+	color: #f2f2f2;
 }
 
-.check {
-	background-color: lightblue;
-	width: 50%;
+h1 {
+	font-size: 2rem;
+	margin-bottom: 1.5rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+h1, h2 {
+	font-weight: normal;
+}
+
+input {
+	font-size: 1rem;
+	border: none;
+	border-bottom: 1.5px solid rgba(255, 255, 255, 0.5);
+	background-color: transparent;
+	padding: 0.5rem;
+	color: #f2f2f2;
+}
+
+button {
+	border-radius: 4px;
+	color: #f2f2f2;
+	padding: 0.5rem;
+	background-color: transparent;
+	border: none;
+	font-size: 0.9rem;
+	cursor: pointer;
+	min-width: 64px;
+}
+
+button.emphasis {
+
+}
+
+button.contained {
+	background-color: rgb(91, 91, 206);
+}
+
+.m-top {
+	margin-top: 1rem;
+}
+
+.button-wrapper {
+	direction: rtl;
+}
+
+.content > div:not(:first-child) {
+	margin-top: 3rem;
+}
+
+.flex-verticle {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.stats > div {
+	width: 25%;
+}
+
+.rounded {
+	border-radius: 7px;
+	border: 1.5px solid rgba(100, 100, 100, 0.5);
+	background-color: rgba(0, 0, 0, 0.1);
 	padding: 1rem;
+}
+
+.center {
+	text-align: center;
+}
+
+.swap {
+	display: inline-block;
 }

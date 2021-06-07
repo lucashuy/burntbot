@@ -1,0 +1,28 @@
+{% macro swap() %}
+	<div>
+		<div class = 'rounded swap'>
+			<p>
+				some text goes here
+			</p>
+			<form id = 'swap' class = 'm-top' autocomplete = 'off'>
+				@ <input type = 'text' placeholder = 'shaketag'>
+				<div class = 'button-wrapper m-top'>
+					<button type = 'submit' class = 'contained'>SEND</button>
+					<button type = 'submit' class = 'emphasis'>CHECK</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<script>
+		function check(event) {
+			event.preventDefault()
+			
+			fetch('/check/test')
+			.then(async (data) => {
+				console.log(await data.text())
+			})
+		}
+
+		document.getElementById('swap').addEventListener('submit', check)
+	</script>
+{% endmacro %}
