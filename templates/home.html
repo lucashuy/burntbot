@@ -8,8 +8,8 @@
 
 {% block body %}
 	<div class = 'home-general'>
-		<h1>Hello @shaketag</h1>
-		{{ stats() }}
+		<h1>Hello {{ data['shaketag'] }}</h1>
+		{{ stats(data) }}
 	</div>
 	<div class = 'flex-row other'>
 		<div class = 'vertical'>

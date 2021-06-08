@@ -1,20 +1,20 @@
-{% macro stats() %}
+{% macro stats(data) %}
 	<div class = 'flex-row stats'>
 		<div class = 'rounded'>
-			<h2 class = 'center'>69</h2>
+			<h2 class = 'center'>{{ data['position'] }}</h2>
 			<p class = 'center'>Waitlist Position</p>
 		</div>
 		<div class = 'rounded'>
-			<h2 class = 'center'>420 420</h2>
+			<h2 class = 'center'>{{ data['points_total'] }}</h2>
 			<p class = 'center'>Total Points</p>
 		</div>
 		<div class = 'rounded'>
-			<h2 class = 'center'>+ 420</h2>
+			<h2 class = 'center'>+ {{ data['points_today'] }}</h2>
 			<p class = 'center'>Points Today</p>
 		</div>
 		<div class = 'rounded'>
-			<h2 class = 'center'>420</h2>
-			<p class = 'center'>Unique Swappers (since May 2nd)</p>
+			<h2 class = 'center'>{{ data['unique'] }}</h2>
+			<p class = 'center'>Unique Swappers (since May 3rd)</p>
 		</div>
 	</div>
 {% endmacro %}

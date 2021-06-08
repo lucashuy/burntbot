@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import time
 import sys
 import secrets
@@ -7,6 +5,7 @@ import getpass
 
 import globals
 import bot
+import webui
 
 from service.requests.users import users
 from service.requests.wallet import get_wallet
@@ -58,11 +57,19 @@ def load_persistence_data():
 			log('Failed to login, stopping')
 			raise SystemExit(0)
 	
+	# set token header
+	globals.headers['Authorization'] = persistence['token']
+
 	# add other key values to persistence
 	user_id = decode(persistence['token'].split('.')[1])['userId']
-	user_data = users(user_id)
-	if (not 'shaketag' in persistence): persistence['shaketag'] = f'@{user_data["username"]}'
 
+	log(f'userid is {user_id}', True)
+
+	user_data = users(user_id)
+
+	log(user_data, True)
+
+	if (not 'shaketag' in persistence): persistence['shaketag'] = f'@{user_data["username"]}'
 	if (not 'note' in persistence): persistence['note'] = ''
 	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
 	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
@@ -72,9 +79,6 @@ def load_persistence_data():
 	globals.poll_rate = persistence['poll_rate']
 	globals.shaketag = persistence['shaketag']
 	globals.wallet_id = persistence['wallet_id']
-
-	# set token header
-	globals.headers['Authorization'] = persistence['token']
 
 	# save data
 	upsert_persistence(persistence)
@@ -98,15 +102,25 @@ if (__name__ == '__main__'):
 	load_persistence_data()
 	globals.version = read_version()
 
+	# start ui thread
+	log('Starting WebUI')
+	ui = webui.WebUI()
+	ui.start()
+
 	# start bot thread
 	log('Starting bot')
-
 	swap_bot = bot.SwapBot()
 	swap_bot.start()
 
 	# main thread busy
 	while (1):
 		time.sleep(10)
+
+		if (not ui.is_alive()):
+			log('Restarting WebUI')
+
+			ui = webui.WebUI()
+			ui.start()
 
 		if (not swap_bot.is_alive()):
 			if (swap_bot.status == -1):

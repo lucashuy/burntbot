@@ -5,8 +5,8 @@
 			<p>Send $5 to another swapper</p>
 			<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
 				<div>
-					<input type = 'text' placeholder = 'note'>
-					<input type = 'text' placeholder = '@shaketag'>
+					<input id = 'swap-note' type = 'text' placeholder = 'note'>
+					<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
 				</div>
 				<div class = 'button-wrapper m-top-1'>
 					<button id = 'submit' type = 'submit' class = 'contained'>SWAP</button>
@@ -20,11 +20,19 @@
 			event.preventDefault()
 			
 			console.log(event.submitter)
+			let shaketag = document.getElementById('swap-tag').value
 
-			// fetch('/check/test')
-			// .then(async (data) => {
-			// 	console.log(await data.text())
-			// })
+			if (shaketag === '') return;
+			if (shaketag[0] !== '@') shaketag = '@' + shaketag
+
+			if (event.submitter.id === 'check') {
+				fetch('/check/' + shaketag)
+				.then(async (data) => {
+					console.log(await data.json())
+				})
+			} else {
+				console.log('swap')
+			}
 		}
 
 		document.getElementById('swap').addEventListener('submit', check)

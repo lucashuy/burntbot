@@ -6,6 +6,9 @@ def get_reset_datetime() -> datetime.datetime:
 
 	return reset_date
 
+def get_paddle_datetime() -> datetime.datetime:
+	return datetime.datetime(2021, 5, 3, 4, tzinfo = datetime.timezone.utc)
+
 def string_to_datetime(string: str) -> datetime.datetime:
 	datetime_obj = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%fZ')
 	datetime_obj = datetime_obj.replace(tzinfo = datetime.timezone.utc)

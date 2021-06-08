@@ -27,6 +27,7 @@ class SwapBot(threading.Thread):
 		for shaketag, history in globals.history.items():
 			amount = history.get_swap()
 			if (amount > 0.):
+				log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
 				self.swap(shaketag, amount)
 
 		# wait for rate limit cooldown (for transactions its 15/minute)
