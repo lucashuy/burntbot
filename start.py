@@ -96,7 +96,6 @@ def read_version() -> str:
 
 if (__name__ == '__main__'):
 	total_restarts = 0
-	last_restart = time.time()
 
 	read_flags()
 	load_persistence_data()
@@ -107,10 +106,9 @@ if (__name__ == '__main__'):
 	ui = webui.WebUI()
 	ui.start()
 
-	# start bot thread
-	log('Starting bot')
 	swap_bot = bot.SwapBot()
 	swap_bot.start()
+
 
 	# main thread busy
 	while (1):
@@ -125,6 +123,7 @@ if (__name__ == '__main__'):
 		if (not swap_bot.is_alive()):
 			if (swap_bot.status == -1):
 				log('Bot died due to HTTP client error, stopping')
+				upsert_persistence({'token': ''})
 
 				raise SystemExit(0)
 			elif (total_restarts > 5):
@@ -134,14 +133,9 @@ if (__name__ == '__main__'):
 			elif (swap_bot.status >= 0):
 				log('Bot died due to uncaught exception, restarting')
 
+				globals.history = {}
+
 				swap_bot = bot.SwapBot()
 				swap_bot.start()
 
-				time_now = time.time()
-
-				# checks to see if we restarted recently (5 min window), if not then reset counter
-				if (time_now - last_restart >= (60 * 5)):
-					total_restarts = 0
-
-				last_restart = time_now
 				total_restarts = total_restarts + 1

@@ -19,21 +19,6 @@ class SwapBot(threading.Thread):
 
 		self.status = 0
 
-		# init hash table of transactions
-		log('Initializing swap history today')
-		self.init_history()
-
-		# send back to those that sent to us during bot startup/downtime
-		for shaketag, history in globals.history.items():
-			amount = history.get_swap()
-			if (amount > 0.):
-				log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
-				self.swap(shaketag, amount)
-
-		# wait for rate limit cooldown (for transactions its 15/minute)
-		log('Waiting 60 seconds for rate limit expiry')
-		time.sleep(60)
-
 	def init_history(self):
 		body = {
 			'filterParams': {'type': 'peer'},
@@ -79,31 +64,37 @@ class SwapBot(threading.Thread):
 			else:
 				log(f'Ignoring auto return for {shaketag} for reason: {response["data"]["reason"] or ""}')
 
-	def poll_shakepay(self):
-		while (1):
-			response_json = get_transactions({'filterParams': {'currencies': ['CAD']}})
-			swap_list = get_swaps(response_json['data'])
-
-			for shaketag in swap_list:
-				amount = globals.history[shaketag].get_swap()
-				
-				self.swap(shaketag, amount)
-				
-			time.sleep(globals.poll_rate)
-
 	def run(self):
 		try:
+			# init hash table of transactions
+			log('Initializing swap history today')
+			self.init_history()
+
+			# send back to those that sent to us during bot startup/downtime
+			for shaketag, history in globals.history.items():
+				amount = history.get_swap()
+				if (amount > 0.):
+					log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
+					self.swap(shaketag, amount)
+
+			# wait for rate limit cooldown (for transactions its 15/minute)
+			log('Waiting 60 seconds for rate limit expiry')
+			time.sleep(60)
+
 			log('Bot ready')
 
 			# start polling
-			self.poll_shakepay()
+			while (1):
+				response_json = get_transactions({'filterParams': {'currencies': ['CAD']}})
+				swap_list = get_swaps(response_json['data'])
+
+				for shaketag in swap_list:
+					amount = globals.history[shaketag].get_swap()
+					
+					self.swap(shaketag, amount)
+					
+				time.sleep(globals.poll_rate)
 		except ClientException:
-			log('ENCOUNTERED CLIENT 4xx ERROR')
-
-			upsert_persistence({'token': ''})
-
 			self.status = -1
 		except:
-			log(f'ENCOUNTERED OTHER ERROR, RESTARTING')
-
 			self.status = 1

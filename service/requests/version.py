@@ -11,7 +11,8 @@ def is_even_version() -> bool:
 	if (not response.ok):
 		log('Something went wrong when fetching version')
 		
-		return False
+		# return true if something goes wrong so that we dont display notification
+		return True
 
 	master_version = response.text.strip()
 	return master_version == globals.version
