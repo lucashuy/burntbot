@@ -7,6 +7,7 @@ import globals
 from service.datetime import get_reset_datetime, string_to_datetime
 from service.requests.version import is_even_version
 from service.requests.waitlist import get_waitlist
+from service.requests.users import search
 from service.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
 
 class WebUI(threading.Thread):
@@ -18,6 +19,7 @@ class WebUI(threading.Thread):
 	def run(self):
 		self.app.add_url_rule('/', view_func = self.home)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
+		self.app.add_url_rule('/search/<string:shaketag>', view_func = self.check_spelling)
 
 		self.app.run(debug = False)
 
@@ -32,7 +34,8 @@ class WebUI(threading.Thread):
 			'unique': calc[1],
 			'points_today': calc[0],
 			'position': globals.waitlist_position,
-			'points_total': globals.waitlist_points
+			'points_total': globals.waitlist_points,
+			'paddles': globals.waitlist_paddles
 		}
 
 		return flask.render_template('home.html', data = data)
@@ -73,3 +76,16 @@ class WebUI(threading.Thread):
 
 	def swap(self, shaketag, note):
 		pass
+
+	def check_spelling(self, shaketag):
+		usernames = search(shaketag)
+
+		result = {
+			'found': False
+		}
+
+		if (len(usernames) > 0):
+			result['found'] = True
+			result['match'] = usernames[0]
+
+		return result

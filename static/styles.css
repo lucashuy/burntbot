@@ -60,12 +60,26 @@ button.contained {
 	background-color: var(--accent);
 }
 
+button:disabled {
+	cursor: not-allowed;
+}
+
 a {
 	color: var(--accent);
 }
 
 p {
 	color: var(--less-white);
+}
+
+.personal-banner > * {
+	display: inline-block;
+	text-align: top;
+	margin-right: 0.5rem;
+}
+
+.personal-banner > img {
+	height: 1.5rem;
 }
 
 .m-top-1 {
@@ -122,4 +136,27 @@ p {
 
 .other > div {
 	width: 30%;
+}
+
+.swap-input-wrapper {
+	display: inline-block;
+	vertical-align: top;
+}
+
+p#swap-input-subtext {
+	margin-top: 0.25rem;
+	font-size: 0.75rem;
+}
+
+.add-link {
+	cursor: pointer;
+	color: var(--accent);
+}
+
+.underline-red {
+	border-bottom: 1.5px solid rgba(255, 0, 0, 0.7);
+}
+
+.underline-green {
+	border-bottom: 1.5px solid rgba(0, 255, 0, 0.7);
 }

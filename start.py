@@ -109,7 +109,6 @@ if (__name__ == '__main__'):
 	swap_bot = bot.SwapBot()
 	swap_bot.start()
 
-
 	# main thread busy
 	while (1):
 		time.sleep(10)

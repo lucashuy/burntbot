@@ -5,30 +5,102 @@
 			<p>Send $5 to another swapper</p>
 			<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
 				<div>
-					<input id = 'swap-note' type = 'text' placeholder = 'note'>
-					<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
+					<div class = 'swap-input-wrapper'>
+						<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
+						<p id = 'swap-input-subtext'>&nbsp</p>
+					</div>
+					<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
 				</div>
 				<div class = 'button-wrapper m-top-1'>
-					<button id = 'submit' type = 'submit' class = 'contained'>SWAP</button>
-					<button id = 'check' type = 'submit' class = 'emphasis'>CHECK</button>
+					<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
+					<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
 				</div>
 			</form>
 		</div>
 	</div>
-	<script>
-		function check(event) {
-			event.preventDefault()
-			
-			console.log(event.submitter)
-			let shaketag = document.getElementById('swap-tag').value
+	<script type = 'text/javascript'>
+		let swap_input_timer;
 
-			if (shaketag === '') return;
-			if (shaketag[0] !== '@') shaketag = '@' + shaketag
+		function toggle_form_buttons(enabled) {
+			document.getElementById('check').disabled = !enabled;
+			document.getElementById('submit').disabled = !enabled;
+		}
+
+		function append_shaketag(shaketag) {
+			result = shaketag;
+			if (shaketag[0] !== '@') result = '@' + shaketag;
+
+			return result;
+		}
+
+		function create_put_link(shaketag) {
+			local_shaketag = append_shaketag(shaketag)
+
+			element = document.createElement('span');
+			element.textContent = local_shaketag;
+			element.classList.add('add-link');
+
+			element.addEventListener('click', () => {
+				let tag = document.getElementById('swap-tag');
+				tag.value = local_shaketag;
+				tag.classList.remove('underline-red');
+				tag.classList.add('underline-green');
+
+				document.getElementById('swap-input-subtext').innerHTML = '&nbsp';
+
+				toggle_form_buttons(true)
+			})
+
+			return element;
+		}
+
+		function delay_search(event) {
+			clearTimeout(swap_input_timer);
+			
+			input = document.getElementById('swap-tag');
+			input.classList.remove('underline-red', 'underline-green')
+
+			subtext = document.getElementById('swap-input-subtext');
+			subtext.innerHTML = '&nbsp';
+
+			swap_input_timer = setTimeout(async () => {
+				toggle_form_buttons(false)
+				shaketag = event.target.value.trim();
+
+				if (shaketag !== '' && shaketag !== '@') {
+					shaketag = append_shaketag(shaketag);
+
+					fetch('/search/' + shaketag)
+					.then(async (data) => {
+						json = await data.json();
+
+						if (json.found && json.match !== shaketag) {
+							subtext.append('Did you mean: ');
+							subtext.append(create_put_link(json.match));
+							subtext.append('?');
+
+							input.classList.add('underline-red')
+						} else if (!json.found) {
+							subtext.textContent = 'No results found.';
+							input.classList.add('underline-red')
+						} else {
+							input.classList.add('underline-green')
+							toggle_form_buttons(true)
+						}
+					})
+				}
+			}, 500);
+		}
+
+		function check(event) {
+			event.preventDefault();
+			
+			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
 
 			if (event.submitter.id === 'check') {
 				fetch('/check/' + shaketag)
 				.then(async (data) => {
-					console.log(await data.json())
+					console.log(await data.json());
 				})
 			} else {
 				console.log('swap')
@@ -36,5 +108,6 @@
 		}
 
 		document.getElementById('swap').addEventListener('submit', check)
+		document.getElementById('swap-tag').addEventListener('input', delay_search)
 	</script>
 {% endmacro %}

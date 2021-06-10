@@ -27,3 +27,7 @@ def get_waitlist():
 
 		globals.waitlist_points = data['score']
 		globals.waitlist_position = data['rank']
+
+		globals.waitlist_paddles = []
+		for paddle in data['badges']:
+			globals.waitlist_paddles.append(paddle)

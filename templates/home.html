@@ -8,7 +8,12 @@
 
 {% block body %}
 	<div class = 'home-general'>
-		<h1>Hello {{ data['shaketag'] }}</h1>
+		<div class = 'personal-banner'>
+			<h1>Hello {{ data['shaketag'] }}</h1>
+			{% for paddle in data['paddles'] %}
+				<img src = 'data:image/png;base64,{{ paddle["icon"] }}' />
+			{% endfor %}
+		</div>
 		{{ stats(data) }}
 	</div>
 	<div class = 'flex-row other'>

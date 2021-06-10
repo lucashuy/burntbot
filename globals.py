@@ -23,6 +23,7 @@ shaketag = ''
 waitlist_etag = None
 waitlist_position = 0
 waitlist_points = 0
+waitlist_paddles = []
 
 # trading history hash table
 history = {}
