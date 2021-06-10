@@ -22,7 +22,7 @@ Additionally, startup flags can be used:
 ```
 python3 start.py -v		# verbose logging mode: more debug messages
 python3 start.py -l		# listen mode: the bot will not auto-return swaps
-python3 start.py -v -l	# verbose and listen: a combination of the above
+python3 start.py -v -l		# verbose and listen: a combination of the above
 ```
 
 ## Contributing
