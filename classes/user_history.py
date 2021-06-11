@@ -1,16 +1,23 @@
 class UserHistory():
-	def __init__(self, timestamp: str, swap: float):
+	def __init__(self, shaketag: str, timestamp: str, swap: float):
+		self.shaketag = shaketag
 		self.timestamp = timestamp
 		self.swap = swap
 
 	def update_timestamp(self, timestamp: str):
 		self.timestamp = timestamp
 
-	def get_timestamp(self):
+	def get_timestamp(self) -> str:
 		return self.timestamp
 
 	def adjust_swap(self, swap: float):
 		self.swap = self.swap + swap
 
-	def get_swap(self):
+	def get_swap(self) -> float:
 		return self.swap
+
+	def update_shaketag(self, shaketag: str):
+		self.shaketag = shaketag
+
+	def get_shaketag(self) -> str:
+		return self.shaketag

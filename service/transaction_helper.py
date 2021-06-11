@@ -6,3 +6,6 @@ def determine_swap_amnt(transaction: dict) -> float:
 	swap = swap * float(f'{transaction["amount"]:.2f}')
 
 	return swap
+
+def determine_userid(transaction: dict) -> str:
+	return (transaction.get('to') or transaction['from'])['id']

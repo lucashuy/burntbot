@@ -6,7 +6,6 @@ import globals
 from service.requests.transactions import get_transactions, send_transaction
 from service.requests.labrie_check import labrie_check
 from service.requests.exception import ClientException
-from service.persistence import upsert_persistence
 from service.transaction_parser import populate_history, get_swaps
 from service.log import log
 
@@ -76,8 +75,10 @@ class SwapBot(threading.Thread):
 			wait_time = self.init_history()
 
 			# send back to those that sent to us during bot startup/downtime
-			for shaketag, history in globals.history.items():
+			for _, history in globals.history.items():
 				amount = history.get_swap()
+				shaketag = history.get_shaketag()
+
 				if (amount > 0.):
 					log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
 					self.swap(shaketag, amount)
@@ -93,8 +94,11 @@ class SwapBot(threading.Thread):
 				(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
 				swap_list = get_swaps(response_json['data'])
 
-				for shaketag in swap_list:
-					amount = globals.history[shaketag].get_swap()
+				for userid in swap_list:
+					user_details = globals.history[userid]
+					
+					shaketag = user_details.get_shaketag()
+					amount = user_details.get_swap()
 					
 					self.swap(shaketag, amount)
 					
