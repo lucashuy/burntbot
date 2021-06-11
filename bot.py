@@ -7,7 +7,8 @@ from service.requests.transactions import get_transactions, send_transaction
 from service.requests.labrie_check import labrie_check
 from service.requests.exception import ClientException
 from service.transaction_parser import populate_history, get_swaps
-from service.datetime import get_reset_datetime, get_swap_datetime, string_to_datetime
+from service.datetime import get_swap_datetime, string_to_datetime
+from service.persistence import upsert_persistence
 from service.log import log
 
 class Map(dict):
@@ -17,7 +18,8 @@ class SwapBot(threading.Thread):
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
 
-		self.status = 0
+		self.restarts = 0
+		self.last_restart = time.time()
 
 	def init_history(self) -> float:
 		body = {
@@ -111,8 +113,29 @@ class SwapBot(threading.Thread):
 					
 				time.sleep(globals.poll_rate)
 		except ClientException:
-			self.status = -1
-		except Exception as e:
-			log(e)
+			log('Bot died due to HTTP client error, stopping')
+			upsert_persistence({'token': ''})
 
-			self.status = 1
+			raise SystemExit(0)
+		except Exception as e:
+			log(f'Crashed due to: {e}')
+
+			globals.history = {}
+
+			time_now = time.time()
+
+			# if bot last restart was > 5 minutes ago, reset counter
+			if (self.last_restart + (60 * 5) < time_now):
+				self.restarts = 0
+
+			if (self.restarts > 5):
+				log('Bot died from too many deaths, stopping')
+				
+				raise SystemExit(0)
+			else:
+				log('Bot died due to uncaught exception, restarting after 60 seconds')
+
+				self.restarts = self.restarts + 1
+				self.last_restart = time_now
+
+				time.sleep(60)

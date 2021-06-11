@@ -95,8 +95,6 @@ def read_version() -> str:
 	return version
 
 if (__name__ == '__main__'):
-	total_restarts = 0
-
 	read_flags()
 	load_persistence_data()
 	globals.version = read_version()
@@ -120,21 +118,6 @@ if (__name__ == '__main__'):
 			ui.start()
 
 		if (not swap_bot.is_alive()):
-			if (swap_bot.status == -1):
-				log('Bot died due to HTTP client error, stopping')
-				upsert_persistence({'token': ''})
+			log('Bot died, stopping program')
 
-				raise SystemExit(0)
-			elif (total_restarts > 5):
-				log('Bot died from too many deaths, stopping')
-				
-				raise SystemExit(0)
-			elif (swap_bot.status >= 0):
-				log('Bot died due to uncaught exception, restarting')
-
-				globals.history = {}
-
-				swap_bot = bot.SwapBot()
-				swap_bot.start()
-
-				total_restarts = total_restarts + 1
+			raise SystemExit(0)
