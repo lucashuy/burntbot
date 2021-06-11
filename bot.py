@@ -19,7 +19,7 @@ class SwapBot(threading.Thread):
 
 		self.status = 0
 
-	def init_history(self):
+	def init_history(self) -> float:
 		body = {
 			'filterParams': {'type': 'peer'},
 			'pagination': {
@@ -30,11 +30,12 @@ class SwapBot(threading.Thread):
 		}
 
 		last_time = int(time.time())
+		rate_limit_timeout = 0
 
 		while (1):
 			log(f'Fetching page {body["pagination"]["page"]} of transactions')
 
-			response = get_transactions(body)
+			(response, headers) = get_transactions(body)
 			data = response['data']
 
 			if (len(data) == 0): break
@@ -49,6 +50,10 @@ class SwapBot(threading.Thread):
 				time.sleep(time_left)
 
 			last_time = int(time.time())
+
+			rate_limit_timeout = headers['Retry-After']
+
+		return rate_limit_timeout
 
 	def swap(self, shaketag, amount):
 		note = globals.note.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
@@ -68,7 +73,7 @@ class SwapBot(threading.Thread):
 		try:
 			# init hash table of transactions
 			log('Initializing swap history today')
-			self.init_history()
+			wait_time = self.init_history()
 
 			# send back to those that sent to us during bot startup/downtime
 			for shaketag, history in globals.history.items():
@@ -77,15 +82,15 @@ class SwapBot(threading.Thread):
 					log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
 					self.swap(shaketag, amount)
 
-			# wait for rate limit cooldown (for transactions its 15/minute)
-			log('Waiting 60 seconds for rate limit expiry')
-			time.sleep(60)
+			# this isnt 100% accurate since there maybe late send backs
+			log(f'Waiting {wait_time} seconds for rate limit expiry')
+			time.sleep(wait_time)
 
 			log('Bot ready')
 
 			# start polling
 			while (1):
-				response_json = get_transactions({'filterParams': {'currencies': ['CAD']}})
+				(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
 				swap_list = get_swaps(response_json['data'])
 
 				for shaketag in swap_list:
