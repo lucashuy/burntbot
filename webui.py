@@ -63,14 +63,18 @@ class WebUI(threading.Thread):
 			'swapped': False
 		}
 
-		if (shaketag in globals.history):
-			reset_date = get_reset_datetime()
-			last_swap_date = string_to_datetime(globals.history[shaketag].get_timestamp())
+		# oh no, an O(n) search
+		for userid, history in globals.history.items():
+			if (history.get_shaketag() == shaketag):
+				reset_date = get_reset_datetime()
+				last_swap_date = string_to_datetime(globals.history[userid].get_timestamp())
 
-			if (last_swap_date > reset_date):
-				result['swapped'] = True
+				if (last_swap_date > reset_date):
+					result['swapped'] = True
 
-			result['last_date'] = last_swap_date.timestamp()
+				result['last_date'] = last_swap_date.timestamp()
+
+				break
 
 		return json.dumps(result)
 
