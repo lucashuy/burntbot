@@ -7,6 +7,7 @@ from service.requests.transactions import get_transactions, send_transaction
 from service.requests.labrie_check import labrie_check
 from service.requests.exception import ClientException
 from service.transaction_parser import populate_history, get_swaps
+from service.datetime import get_reset_datetime, get_swap_datetime, string_to_datetime
 from service.log import log
 
 class Map(dict):
@@ -28,6 +29,7 @@ class SwapBot(threading.Thread):
 			}
 		}
 
+		swapping_begin_datetime = get_swap_datetime()
 		last_time = int(time.time())
 		rate_limit_timeout = 0
 
@@ -41,16 +43,21 @@ class SwapBot(threading.Thread):
 
 			populate_history(data)
 			
+			rate_limit_timeout = headers['Retry-After']
+
+			# check if we need to stop fetching history
+			log(f'{data[-1]["timestamp"]} vs {swapping_begin_datetime}', True)
+			if (string_to_datetime(data[-1]['timestamp']) < swapping_begin_datetime):
+				break
+
 			body['pagination']['page'] = body['pagination']['page'] + 1
 
 			# prevent rate limit by ensuring we maintain window between fetches
-			time_left = 6 - (int(time.time()) - last_time)
+			time_left = 5 - (int(time.time()) - last_time)
 			if (time_left > 0):
 				time.sleep(time_left)
 
 			last_time = int(time.time())
-
-			rate_limit_timeout = headers['Retry-After']
 
 		return rate_limit_timeout
 
@@ -85,7 +92,7 @@ class SwapBot(threading.Thread):
 
 			# this isnt 100% accurate since there maybe late send backs
 			log(f'Waiting {wait_time} seconds for rate limit expiry')
-			time.sleep(wait_time)
+			time.sleep(float(wait_time))
 
 			log('Bot ready')
 
@@ -105,5 +112,7 @@ class SwapBot(threading.Thread):
 				time.sleep(globals.poll_rate)
 		except ClientException:
 			self.status = -1
-		except:
+		except Exception as e:
+			log(e)
+
 			self.status = 1

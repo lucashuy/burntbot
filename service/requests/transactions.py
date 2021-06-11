@@ -37,7 +37,7 @@ def get_transactions(body: dict) -> tuple:
 	response = requests.post(globals.endpoint_history, headers = local_headers, data = json.dumps(body))
 	headers = response.headers
 
-	log(f'{headers["Retry-After"]}s := {headers["X-RateLimit-Remaining"]}', True)
+	log(f'{headers["Retry-After"]}s as {headers["X-RateLimit-Remaining"]}', True)
 
 	# make sure we have 2xx status
 	if (not response.ok):
