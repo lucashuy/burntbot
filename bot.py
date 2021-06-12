@@ -78,64 +78,65 @@ class SwapBot(threading.Thread):
 				log(f'Ignoring auto return for {shaketag} for reason: {response["data"]["reason"] or ""}')
 
 	def run(self):
-		try:
-			# init hash table of transactions
-			log('Initializing swap history today')
-			wait_time = self.init_history()
+		while (1):
+			try:
+				# init hash table of transactions
+				log('Initializing swap history today')
+				wait_time = self.init_history()
 
-			# send back to those that sent to us during bot startup/downtime
-			for _, history in globals.history.items():
-				amount = history.get_swap()
-				shaketag = history.get_shaketag()
+				# send back to those that sent to us during bot startup/downtime
+				for _, history in globals.history.items():
+					amount = history.get_swap()
+					shaketag = history.get_shaketag()
 
-				if (amount > 0.):
-					log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
-					self.swap(shaketag, amount)
+					if (amount > 0.):
+						log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
+						self.swap(shaketag, amount)
 
-			# this isnt 100% accurate since there maybe late send backs
-			log(f'Waiting {wait_time} seconds for rate limit expiry')
-			time.sleep(float(wait_time))
+				# this isnt 100% accurate since there maybe late send backs
+				log(f'Waiting {wait_time} seconds for rate limit expiry')
+				time.sleep(float(wait_time))
 
-			log('Bot ready')
+				log('Bot ready')
 
-			# start polling
-			while (1):
-				(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
-				swap_list = get_swaps(response_json['data'])
+				# start polling
+				while (1):
+					(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
+					swap_list = get_swaps(response_json['data'])
 
-				for userid in swap_list:
-					user_details = globals.history[userid]
-					
-					shaketag = user_details.get_shaketag()
-					amount = user_details.get_swap()
-					
-					self.swap(shaketag, amount)
-					
-				time.sleep(globals.poll_rate)
-		except ClientException:
-			log('Bot died due to HTTP client error, stopping')
-			upsert_persistence({'token': ''})
+					for userid in swap_list:
+						user_details = globals.history[userid]
+						
+						shaketag = user_details.get_shaketag()
+						amount = user_details.get_swap()
+						
+						self.swap(shaketag, amount)
+						
+					time.sleep(globals.poll_rate)
+			except ClientException:
+				log('Bot died due to HTTP client error, stopping')
+				upsert_persistence({'token': ''})
 
-			raise SystemExit(0)
-		except Exception as e:
-			log(f'Crashed due to: {e}')
-
-			globals.history = {}
-
-			time_now = time.time()
-
-			# if bot last restart was > 5 minutes ago, reset counter
-			if (self.last_restart + (60 * 5) < time_now):
-				self.restarts = 0
-
-			if (self.restarts > 5):
-				log('Bot died from too many deaths, stopping')
-				
 				raise SystemExit(0)
-			else:
-				log('Bot died due to uncaught exception, restarting after 60 seconds')
+			except Exception as e:
+				log(f'Crashed due to: {e}')
 
-				self.restarts = self.restarts + 1
-				self.last_restart = time_now
+				globals.history = {}
 
-				time.sleep(60)
+				time_now = time.time()
+
+				# if bot last restart was > 10 minutes ago, reset counter
+				if (self.last_restart + (60 * 10) < time_now):
+					self.restarts = 0
+
+				if (self.restarts > 5):
+					log('Bot died from too many deaths, stopping')
+					
+					raise SystemExit(0)
+				else:
+					log('Bot died due to uncaught exception, restarting after 60 seconds')
+
+					self.restarts = self.restarts + 1
+					self.last_restart = time_now
+
+					time.sleep(60)
