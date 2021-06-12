@@ -21,7 +21,7 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = self.check_spelling)
 
-		self.app.run(debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
 	def home(self):
 		get_waitlist()

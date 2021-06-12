@@ -22,6 +22,15 @@ def read_flags():
 		elif (arg == '-l'):
 			log(f'-l setting listen only mode - no auto returns')
 			globals.flags['listen'] = True
+		elif (arg[0:2] == '-r') and ('=' in arg) and (':' in arg):
+			split_args = arg.split('=')
+			split_args = split_args[1].split(':')
+			
+			log(f'-r setting web ui host to {split_args[0]} on port {split_args[1]}')
+
+			globals.webui_host = split_args[0]
+			globals.webui_port = split_args[1]
+
 		else:
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
