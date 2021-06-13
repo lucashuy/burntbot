@@ -9,7 +9,7 @@ import webui
 
 from service.requests.users import users
 from service.requests.wallet import get_wallet
-from service.requests.login import login
+from service.requests.login import pre_login, mfa_login
 from service.persistence import read_persistence, upsert_persistence
 from service.log import log
 from service.decode_payload import decode
@@ -58,10 +58,13 @@ def load_persistence_data():
 
 		password = getpass.getpass('> password: ')
 		email = input('> email: ')
-		code = input('> 2FA code: ')
 
 		try:
-			persistence['token'] = login(email, password, code)
+			pre_auth_token = pre_login(email, password)
+
+			code = input('> 2FA code: ')
+
+			persistence['token'] = mfa_login(code, pre_auth_token)
 		except:
 			log('Failed to login, stopping')
 			raise SystemExit(0)

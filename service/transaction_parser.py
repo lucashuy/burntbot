@@ -59,6 +59,10 @@ def get_swaps(data: dict) -> dict:
 		if (transaction['direction'] == 'credit'):
 			swap_list[userid] = True
 
+		# check if the note contains "no return"
+		if ('no return' == transaction['note'].lower()):
+			globals.history[userid].adjust_swap(-swap)
+
 	# update swap list incase we also got returns from after we added the swap
 	for userid in swap_list.copy():
 		# remove name from list if we dont owe them

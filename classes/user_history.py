@@ -11,7 +11,7 @@ class UserHistory():
 		return self.timestamp
 
 	def adjust_swap(self, swap: float):
-		self.swap = self.swap + swap
+		self.swap = float(f'{self.swap + swap:.2f}')
 
 	def get_swap(self) -> float:
 		return self.swap

@@ -6,7 +6,7 @@ import globals
 from service.requests.exception import raise_exception
 from service.log import log
 
-def login(email: str, password: str, code: str) -> str:
+def pre_login(email: str, password: str, code: str) -> str:
 	# copy headers to append content type
 	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
@@ -26,8 +26,13 @@ def login(email: str, password: str, code: str) -> str:
 		raise_exception(response.status_code)
 
 	response = response.json()
+	return response['accessToken']
 
-	local_headers['Authorization'] = response['accessToken']
+def mfa_login(code: str, pre_token: str) -> str:
+	# copy headers to append content type
+	local_headers = globals.headers.copy()
+	local_headers['Content-Type'] = 'application/json'
+	local_headers['Authorization'] = pre_token
 
 	# 2FA POST
 	response = requests.post(globals.endpoint_authenticate, headers = local_headers, data = json.dumps({
