@@ -65,8 +65,8 @@ def load_persistence_data():
 			code = input('> 2FA code: ')
 
 			persistence['token'] = mfa_login(code, pre_auth_token)
-		except:
-			log('Failed to login, stopping')
+		except Exception as e:
+			log(f'Failed to login, stopping: {e}')
 			raise SystemExit(0)
 	
 	# set token header
