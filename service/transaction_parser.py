@@ -21,6 +21,10 @@ def populate_history(data: list):
 		else:
 			# otherwise, update their swap amount
 			globals.history[userid].adjust_swap(swap)
+			
+		# check if the note contains "no return"
+		if ('no return' == transaction['note'].lower()):
+			globals.history[userid].adjust_swap(-swap)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
