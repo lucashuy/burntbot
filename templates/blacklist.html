@@ -1,0 +1,77 @@
+{% from 'components/blacklist_user.html' import user %}
+
+{% extends 'layout.html' %}
+
+{% block body %}
+	<div class = 'flex-col balance-wrapper'>
+		<div class = 'rounded balance-add'>
+			<h1>Balance</h1>
+			<p>Gave money to a family member or received money from a friend? Set their balances here to prevent the bot from keeping grudges!</p>
+			<p class = 'warn-text m-top-1'>Any changes require a restart to take effect!</p>
+			<div class = 'divider'></div>
+			<div>
+				<form id = 'balance' autocomplete = 'off'>
+					<div>
+						<input id = 'balance-shaketag' type = 'text' placeholder = '@shaketag'>
+						<input id = 'balance-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
+					</div>
+					<div class = 'm-top-1'>
+						<div>
+							<input id = 'debit' type = 'radio' name = 'direction' value = 'debit'>
+							<label for = 'debit'>I sent them</label>
+						</div>
+						<div>
+							<input id = 'credit' type = 'radio' name = 'direction' value = 'credit'>
+							<label for = 'credit'>They sent me</label>
+						</div>
+					</div>
+					<div class = 'button-wrapper m-top-1'>
+						<button id = 'submit' type = 'submit' class = 'contained'>ADD</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		
+		{% if data | length > 0 %}
+			<div class = 'rounded'>
+				{% for shaketag, amount in data.items() %}
+					{{ user(shaketag, amount) }}
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+
+	<script type = 'text/javascript'>
+		function submit(event) {
+			event.preventDefault();
+
+			let shaketag = document.getElementById('balance-shaketag').value;
+			let amount = document.getElementById('balance-amount').value;
+			let direction = document.querySelector('input[name=direction]:checked').value;
+
+			if (shaketag && amount > 0 && direction) {
+				shaketag = append_shaketag(shaketag);
+
+				let body = {
+					amount: amount,
+					direction: direction
+				}
+
+				fetch('/blacklist/' + shaketag, {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(body)
+				})
+				.then(async (data) => {
+					if (await data.ok) {
+						window.location.reload();
+					} else {
+						console.log('not added')
+					}
+				})
+			}
+		}
+
+		document.getElementById('balance').addEventListener('submit', submit)
+	</script>
+{% endblock %}

@@ -4,9 +4,15 @@ from classes.user_history import UserHistory
 from service.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
 from service.log import log
 
-# should be using a class
 def create_history(userid: str, shaketag: str, timestamp: str, swap: float):
 	globals.history[userid] = UserHistory(shaketag, timestamp, swap)
+
+def check_no_return(transaction: dict, userid: str, swap: float):
+	# check if the note contains "no return"
+	if ('no return' == transaction['note']):
+		globals.history[userid].adjust_swap(-swap)
+
+	
 
 def populate_history(data: list):
 	for transaction in data:
@@ -22,9 +28,7 @@ def populate_history(data: list):
 			# otherwise, update their swap amount
 			globals.history[userid].adjust_swap(swap)
 
-		# check if the note contains "no return"
-		if ('no return' == transaction['note']):
-			globals.history[userid].adjust_swap(-swap)
+		check_no_return(transaction, userid, swap)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
@@ -63,9 +67,7 @@ def get_swaps(data: dict) -> dict:
 		if (transaction['direction'] == 'credit'):
 			swap_list[userid] = True
 
-		# check if the note contains "no return"
-		if ('no return' == transaction['note']):
-			globals.history[userid].adjust_swap(-swap)
+		check_no_return(transaction, userid, swap)
 
 	# update swap list incase we also got returns from after we added the swap
 	for userid in swap_list.copy():

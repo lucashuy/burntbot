@@ -1,15 +1,11 @@
-{% from 'update.html' import update_notification %}
-
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>swapbot</title>
 		<link href = '{{ url_for("static", filename = "styles.css") }}' rel = 'stylesheet' />
+		<script src = '{{ url_for("static", filename = "js.js") }}'></script>
 	</head>
 	<body>
-		{% if data['update'] %}
-			{{ update_notification() }}
-		{% endif %}
 		<div class = 'content'>
 			{% block body %}
 			{% endblock %}

@@ -1,12 +1,15 @@
-{% from 'stats.html' import stats %}
-{% from 'swap.html' import swap %}
-{% from 'settings.html' import settings %}
-{% from 'autoswap.html' import autoswap %}
-{% from 'balance.html' import balance %}
+{% from 'components/stats.html' import stats %}
+{% from 'components/swap.html' import swap %}
+{% from 'components/settings.html' import settings %}
+{% from 'components/autoswap.html' import autoswap %}
+{% from 'components/update.html' import update_notification %}
 
 {% extends 'layout.html' %}
 
 {% block body %}
+	{% if data['update'] %}
+		{{ update_notification() }}
+	{% endif %}
 	<div class = 'home-general'>
 		<div class = 'personal-banner'>
 			<h1>Hello {{ data['shaketag'] }}</h1>
@@ -23,9 +26,6 @@
 		</div>
 		<div>
 			{{ autoswap() }}
-		</div>
-		<div>
-			{{ balance() }}
 		</div>
 	</div>
 {% endblock %}

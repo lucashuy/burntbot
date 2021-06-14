@@ -1,0 +1,23 @@
+{% macro user(shaketag, amount) %}
+	<div class = 'blacklist-user'>
+		<p>{{ shaketag }}: {{ amount }}</p>
+		<button type = 'submit' class = 'contained' value = '{{ shaketag }}' onclick = remove(this)>DELETE</button>
+	</div>
+
+	<script>
+		function remove(event) {
+			let shaketag = event.value;
+
+			fetch('/blacklist/' + shaketag, {
+				method: 'DELETE'
+			})
+			.then(async (data) => {
+				if (await data.ok) {
+					window.location.reload()
+				} else {
+					console.log(`not deleted ${shaketag}`)
+				}
+			})
+		}
+	</script>
+{% endmacro %}

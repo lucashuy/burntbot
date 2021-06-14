@@ -1,5 +1,6 @@
 import threading
 import time
+import traceback
 
 import globals
 
@@ -22,6 +23,7 @@ class SwapBot(threading.Thread):
 		self.last_restart = time.time()
 
 	def init_history(self) -> float:
+		# rowsPerPage other than 2000 breaks FOR SOME REASON
 		body = {
 			'filterParams': {'type': 'peer'},
 			'pagination': {
@@ -84,10 +86,21 @@ class SwapBot(threading.Thread):
 				log('Initializing swap history today')
 				wait_time = self.init_history()
 
-				# send back to those that sent to us during bot startup/downtime
+				# adjust swaps by our blacklist function
+				for shaketag, amount in globals.blacklist.items():
+					pass
+
+				# iterate through transactions and apply adjustments and pay back those need swaps
+				# instead of adjust, then swap, do it together, saves CPU time
 				for _, history in globals.history.items():
-					amount = history.get_swap()
 					shaketag = history.get_shaketag()
+
+					if (shaketag in globals.blacklist):
+						history.adjust_swap(globals.blacklist[shaketag])
+
+					amount = history.get_swap()
+
+					if (amount != 0.): log(f'{shaketag}\twith\t{amount}\t{history.get_timestamp()}', True)
 
 					if (amount > 0.):
 						log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
@@ -120,6 +133,7 @@ class SwapBot(threading.Thread):
 				raise SystemExit(0)
 			except Exception as e:
 				log(f'Crashed due to: {e}')
+				log(traceback.format_exc())
 
 				globals.history = {}
 

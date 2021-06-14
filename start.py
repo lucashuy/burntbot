@@ -83,6 +83,7 @@ def load_persistence_data():
 
 	if (not 'shaketag' in persistence): persistence['shaketag'] = f'@{user_data["username"]}'
 	if (not 'note' in persistence): persistence['note'] = ''
+	if (not 'blacklist' in persistence): persistence['blacklist'] = {}
 	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
 	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
 
@@ -91,6 +92,7 @@ def load_persistence_data():
 	globals.poll_rate = persistence['poll_rate']
 	globals.shaketag = persistence['shaketag']
 	globals.wallet_id = persistence['wallet_id']
+	globals.blacklist = persistence['blacklist']
 
 	# save data
 	upsert_persistence(persistence)

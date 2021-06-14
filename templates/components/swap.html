@@ -14,6 +14,7 @@
 				<div class = 'button-wrapper m-top-1'>
 					<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
 					<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
+					<div id = 'check-status'></div>
 				</div>
 			</form>
 		</div>
@@ -25,33 +26,22 @@
 			document.getElementById('check').disabled = !enabled;
 			document.getElementById('submit').disabled = !enabled;
 		}
+		
+		function check(event) {
+			event.preventDefault();
+			
+			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
 
-		function append_shaketag(shaketag) {
-			result = shaketag;
-			if (shaketag[0] !== '@') result = '@' + shaketag;
+			if (event.submitter.id === 'check') {
+				fetch('/check/' + shaketag)
+				.then(async (data) => {
+					json = await data.json();
 
-			return result;
-		}
-
-		function create_put_link(shaketag) {
-			local_shaketag = append_shaketag(shaketag)
-
-			element = document.createElement('span');
-			element.textContent = local_shaketag;
-			element.classList.add('add-link');
-
-			element.addEventListener('click', () => {
-				let tag = document.getElementById('swap-tag');
-				tag.value = local_shaketag;
-				tag.classList.remove('underline-red');
-				tag.classList.add('underline-green');
-
-				document.getElementById('swap-input-subtext').innerHTML = '&nbsp';
-
-				toggle_form_buttons(true)
-			})
-
-			return element;
+					console.log(get_human_time((Date.now() / 1000) - json['last_date']));
+				})
+			} else {
+				console.log('swap')
+			}
 		}
 
 		function delay_search(event) {
@@ -90,21 +80,6 @@
 					})
 				}
 			}, 500);
-		}
-
-		function check(event) {
-			event.preventDefault();
-			
-			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
-
-			if (event.submitter.id === 'check') {
-				fetch('/check/' + shaketag)
-				.then(async (data) => {
-					console.log(await data.json());
-				})
-			} else {
-				console.log('swap')
-			}
 		}
 
 		document.getElementById('swap').addEventListener('submit', check)

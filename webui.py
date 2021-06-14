@@ -9,6 +9,7 @@ from service.requests.version import is_even_version
 from service.requests.waitlist import get_waitlist
 from service.requests.users import search
 from service.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
+from service.persistence import upsert_persistence
 
 class WebUI(threading.Thread):
 # class WebUI():
@@ -17,13 +18,16 @@ class WebUI(threading.Thread):
 		self.app = flask.Flask(__name__)
 
 	def run(self):
-		self.app.add_url_rule('/', view_func = self.home)
+		self.app.add_url_rule('/', view_func = self.home_route)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = self.check_spelling)
+		self.app.add_url_rule('/blacklist/', view_func = self.balance_route)
+		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
+		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
 
 		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
-	def home(self):
+	def home_route(self):
 		get_waitlist()
 
 		calc = self.get_stats()
@@ -39,6 +43,35 @@ class WebUI(threading.Thread):
 		}
 
 		return flask.render_template('home.html', data = data)
+
+	def balance_route(self):
+		print(globals.blacklist)
+		return flask.render_template('blacklist.html', data = globals.blacklist)
+
+	def balance_add(self, shaketag):
+		data = flask.request.get_json()
+		
+		amount = float(data['amount'])
+		amount = amount * (-1 if data['direction'] == 'debit' else 1)
+
+		if (data):
+			globals.blacklist[shaketag] = amount
+
+			upsert_persistence({'blacklist': globals.blacklist})
+
+			return flask.Response(status = 201)
+			
+		return flask.Response(status = 400)
+
+	def balance_delete(self, shaketag):
+		if (shaketag in globals.blacklist):
+			del globals.blacklist[shaketag]
+
+			upsert_persistence({'blacklist': globals.blacklist})
+
+			return flask.Response(status = 201)
+			
+		return flask.Response(status = 400)
 
 	def get_stats(self) -> tuple:
 		reset_datetime = get_reset_datetime()
