@@ -1,6 +1,7 @@
 import globals
 
 from classes.user_history import UserHistory
+from service.datetime import string_to_datetime
 from service.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
 from service.log import log
 
@@ -11,8 +12,6 @@ def check_no_return(transaction: dict, userid: str, swap: float):
 	# check if the note contains "no return"
 	if ('no return' == transaction['note']):
 		globals.history[userid].adjust_swap(-swap)
-
-	
 
 def populate_history(data: list):
 	for transaction in data:
@@ -25,10 +24,14 @@ def populate_history(data: list):
 			# create history entry for them
 			create_history(userid, shaketag, transaction['timestamp'], swap)
 		else:
-			# otherwise, update their swap amount
-			globals.history[userid].adjust_swap(swap)
+			history = globals.history[userid]
+
+			# otherwise, update their swap amount if this transaction does not exist
+			if (not history.transaction_exists(transaction['transactionId'])):
+				history.adjust_swap(swap)
 
 		check_no_return(transaction, userid, swap)
+		globals.history[userid].add_prev_transaction(transaction)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
@@ -49,9 +52,8 @@ def get_swaps(data: dict) -> dict:
 
 			log(f'Create new entry for {shaketag} ({userid})', True)
 		else:
-			# stop loop if we come across existing transaction by checking transaction times
-			# since its a string, dont need to convert
-			if (transaction['timestamp'] == globals.history[userid].get_timestamp()):
+			# stop loop if we come across existing transaction by checking if their transaction exists
+			if (globals.history[userid].transaction_exists(transaction['transactionId'])):
 				break
 
 			log(f'Adjust {shaketag} {globals.history[userid].get_swap()} by {swap}', True)
@@ -68,6 +70,7 @@ def get_swaps(data: dict) -> dict:
 			swap_list[userid] = True
 
 		check_no_return(transaction, userid, swap)
+		globals.history[userid].add_prev_transaction(transaction)
 
 	# update swap list incase we also got returns from after we added the swap
 	for userid in swap_list.copy():

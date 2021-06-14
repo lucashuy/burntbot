@@ -52,7 +52,7 @@ class WebUI(threading.Thread):
 		data = flask.request.get_json()
 		
 		amount = float(data['amount'])
-		amount = amount * (-1 if data['direction'] == 'debit' else 1)
+		amount = amount * (1 if data['direction'] == 'debit' else -1)
 
 		if (data):
 			globals.blacklist[shaketag] = amount
