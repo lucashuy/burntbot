@@ -96,7 +96,7 @@ class SwapBot(threading.Thread):
 					shaketag = history.get_shaketag()
 
 					if (shaketag in globals.blacklist):
-						history.adjust_swap(globals.blacklist[shaketag] * -1)
+						history.adjust_swap(globals.blacklist[shaketag])
 
 					amount = history.get_swap()
 
