@@ -11,34 +11,44 @@ from service.requests.users import search
 from service.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
 from service.persistence import upsert_persistence
 
-class WebUI(threading.Thread):
-# class WebUI():
+def add_commas(amount):
+	int_rep = int(amount)
+
+	if (int_rep > 9999):
+		return f'{int_rep:,}'
+	else:
+		return int_rep
+
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 
 	def run(self):
 		self.app.add_url_rule('/', view_func = self.home_route)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = self.check_spelling)
+		self.app.add_url_rule('/swap/<string:shaketag>', view_func = self.swap, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/', view_func = self.balance_route)
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
 	def home_route(self):
-		get_waitlist()
+		# get_waitlist()
 
 		calc = self.get_stats()
 
 		data = {
 			'update': not is_even_version(),
+			'version': globals.version,
 			'shaketag': f'{globals.shaketag}',
-			'unique': calc[1],
-			'points_today': calc[0],
-			'position': globals.waitlist_position,
-			'points_total': globals.waitlist_points,
+			'unique': add_commas(calc[1]),
+			'points_today': add_commas(calc[0]),
+			'position': add_commas(globals.waitlist_position),
+			'points_total': add_commas(globals.waitlist_points),
 			'paddles': globals.waitlist_paddles
 		}
 
@@ -111,11 +121,17 @@ class WebUI(threading.Thread):
 
 		return json.dumps(result)
 
-	def swap(self, shaketag, note):
+	def swap(self, shaketag):
+		data = flask.request.get_json()
+		amount = float(data['amount'])
+		note = data['note']
+
+		print(f'sending swap to {shaketag} with {amount} and {note}')
 		pass
 
 	def check_spelling(self, shaketag):
 		usernames = search(shaketag)
+		# usernames = []
 
 		result = {
 			'found': False

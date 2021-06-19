@@ -4,6 +4,7 @@
 	--less-white: #afafaf;
 	--border: rgba(100, 100, 100, 0.5);
 	--yellow: rgb(209, 206, 4);
+	--navigation-width: 3rem;
 }
 
 * {
@@ -15,7 +16,6 @@
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 15px;
-	padding: 2rem 7% 2rem 7%;
 	background-color: rgba(0, 0, 0, 0.9);
 	color: var(--white);
 }
@@ -74,6 +74,32 @@ p {
 	color: var(--less-white);
 }
 
+.fas, .fab {
+	color: var(--less-white);
+	font-size: 2rem;
+}
+
+.navigation {
+	position: fixed;
+	float: left;
+	padding: 2rem 1rem 0 1rem;
+	width: var(--navigation-width);
+	background-color: rgba(0, 0, 0, 0.2);
+	height: 100%;
+	z-index: 1;
+}
+
+.navigation > .stick-bottom {
+	position: absolute;
+	bottom: 0;
+	padding: 0 1rem 4rem 1rem;
+}
+
+.navigation .fas,
+.navigation .fab {
+	margin-bottom: 2rem;
+}
+
 .personal-banner > * {
 	display: inline-block;
 	text-align: top;
@@ -94,6 +120,10 @@ p {
 
 .button-wrapper > * {
 	display: inline-block;
+}
+
+.content {
+	padding: 3rem 5rem 3rem 9rem;
 }
 
 .content > div:not(:first-child),

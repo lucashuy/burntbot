@@ -10,6 +10,7 @@
 						<p id = 'swap-input-subtext'>&nbsp</p>
 					</div>
 					<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
+					<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
 				</div>
 				<div class = 'button-wrapper m-top-1'>
 					<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
@@ -28,19 +29,38 @@
 		}
 		
 		function check(event) {
+			console.log('check');
+
 			event.preventDefault();
 			
 			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
 
-			if (event.submitter.id === 'check') {
-				fetch('/check/' + shaketag)
-				.then(async (data) => {
-					json = await data.json();
+			fetch('/check/' + shaketag)
+			.then(async (data) => {
+				json = await data.json();
+				console.log(json)
+				console.log(get_human_time((Date.now() / 1000) - json['last_date']));
+			})
+		}
 
-					console.log(get_human_time((Date.now() / 1000) - json['last_date']));
+		function swap(event) {
+			console.log('swap')
+
+			event.preventDefault();
+			
+			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
+
+			let body = {
+				note: document.getElementById('swap-note'),
+				amount: document.getElementById('swap-amount')
+			}
+
+			if (event.submitter.id === 'check') {
+				fetch('/swap/' + shaketag, {
+					method: 'POST',
+					body: JSON.stringify({note})
 				})
 			} else {
-				console.log('swap')
 			}
 		}
 
@@ -82,7 +102,8 @@
 			}, 500);
 		}
 
-		document.getElementById('swap').addEventListener('submit', check)
+		document.getElementById('swap').addEventListener('submit', swap)
+		document.getElementById('check').addEventListener('submit', check)
 		document.getElementById('swap-tag').addEventListener('input', delay_search)
 	</script>
 {% endmacro %}

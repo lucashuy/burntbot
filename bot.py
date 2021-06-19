@@ -4,16 +4,13 @@ import traceback
 
 import globals
 
-from service.requests.transactions import get_transactions, send_transaction
-from service.requests.labrie_check import labrie_check
+from service.requests.transactions import get_transactions
 from service.requests.exception import ClientException
 from service.transaction_parser import populate_history, get_swaps
 from service.datetime import get_swap_datetime, string_to_datetime
 from service.persistence import upsert_persistence
 from service.log import log
-
-class Map(dict):
-	def __missing__(self, key): return key
+from service.swap import swap
 
 class SwapBot(threading.Thread):
 	def __init__(self):
@@ -65,20 +62,6 @@ class SwapBot(threading.Thread):
 
 		return rate_limit_timeout
 
-	def swap(self, shaketag, amount):
-		note = globals.note.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
-
-		if (globals.flags['listen']):
-			log(f'Simulate sending ${amount} to {shaketag} with note: ({note})', True)
-		else:
-			response = labrie_check(shaketag, 'return')
-
-			if (response['success']) and (response['data']['allow_return']):
-				log(f'Sending ${amount} to {shaketag}', True)
-				send_transaction(amount, shaketag, note)
-			else:
-				log(f'Ignoring auto return for {shaketag} for reason: {response["data"]["reason"] or ""}')
-
 	def run(self):
 		while (1):
 			try:
@@ -104,7 +87,7 @@ class SwapBot(threading.Thread):
 
 					if (amount > 0.):
 						log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
-						self.swap(shaketag, amount)
+						swap(shaketag, amount)
 
 				# this isnt 100% accurate since there maybe late send backs
 				log(f'Waiting {wait_time} seconds for rate limit expiry')
@@ -123,7 +106,7 @@ class SwapBot(threading.Thread):
 						shaketag = user_details.get_shaketag()
 						amount = user_details.get_swap()
 						
-						self.swap(shaketag, amount)
+						swap(shaketag, amount)
 						
 					time.sleep(globals.poll_rate)
 			except ClientException:

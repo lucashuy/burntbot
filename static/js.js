@@ -26,41 +26,35 @@ function append_shaketag(shaketag) {
 	return result;
 }
 
-function get_human_time(timestamp) {
-	let string = '';
+function get_human_time(timestamp_difference) {
+	let string = ''
 
-	let remaining_time = timestamp;
-	let counter = 0
+	let remaining_time = timestamp_difference;
+	let amount;
+	let minutes;
 
-	// determine days since
-	let days_seconds = (24 * 60 * 60);
-	counter = remaining_time / days_seconds;
-	remaining_time = remaining_time % days_seconds;
-	if (counter > 0) {
-		string += `${counter} days${counter === 0 ? '' : 's'} `
+	// day+ ago
+	minutes = 60 * 60 * 24
+	amount = remaining_time / minutes
+	if (amount > 1) {
+		string += Math.floor(amount) + ' day '
+	}
+	remaining_time %= minutes
+
+	// hour+ ago
+	minutes = 60 * 60
+	amount = remaining_time / minutes
+	if (amount > 1) {
+		string += Math.floor(amount) + ' hour '
+	}
+	remaining_time %= minutes
+
+	// minute+ ago
+	minutes = 60
+	amount = remaining_time / minutes
+	if (amount > 1) {
+		string += Math.floor(amount) + ' minute'
 	}
 
-	// determine hours since
-	let hours_seconds = (60 * 60);
-	counter = remaining_time / hours_seconds;
-	remaining_time = remaining_time % hours_seconds;
-	if (counter > 0) {
-		string += `${counter} hour${counter === 0 ? '' : 's'} `
-	}
-
-	// determine minutes since
-	let minutes_seconds = 60;
-	counter = remaining_time / minutes_seconds;
-	remaining_time = remaining_time % minutes_seconds;
-	if (counter > 0) {
-		string += `${counter} min${counter === 0 ? '' : 's'} `
-	}
-
-	// determine seconds
-	counter = remaining_time / minutes_seconds;
-	if (remaining_time > 0) {
-		string += `${counter} sec${counter === 0 ? '' : 's'} `
-	}
-
-	return string.trim();
+	return string;
 }

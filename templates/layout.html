@@ -2,10 +2,21 @@
 <html>
 	<head>
 		<title>swapbot</title>
-		<link href = '{{ url_for("static", filename = "styles.css") }}' rel = 'stylesheet' />
+		<link href = '{{ url_for("static", filename = "css/styles.css") }}' rel = 'stylesheet' />
+		<link href = '{{ url_for("static", filename = "css/all.min.css") }}' rel = 'stylesheet' />
 		<script src = '{{ url_for("static", filename = "js.js") }}'></script>
 	</head>
 	<body>
+		<div class = 'navigation flex-col'>
+			<a href = '/' title = 'Home'><i class="fas fa-home"></i></a>
+			<a href = '/blacklist' title = 'Blacklist'><i class="fas fa-user-slash"></i></a>
+			<a href = '' title = 'Settings'><i class="fas fa-cog"></i></a>
+			<div class = 'stick-bottom flex-col'>
+				<a href = '' title = 'FAQ'><i class="fas fa-question-circle"></i></a>
+				<a href = 'https://github.com/itslupus/shakepong' title = 'Github'><i class="fab fa-github"></i></a>
+				<p>v{{ data['version'] }}</p>
+			</div>
+		</div>
 		<div class = 'content'>
 			{% block body %}
 			{% endblock %}
