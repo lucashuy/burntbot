@@ -47,7 +47,7 @@ function get_human_time(timestamp_difference) {
 	amount = remaining_time / minutes
 	if (amount > 1) {
 		amount = Math.floor(amount);
-		string += amount + ' hour' + (amount == 1 ? 's' : '') + ' '
+		string += amount + ' hour' + (amount >= 1 ? 's' : '') + ' '
 	}
 	remaining_time %= minutes
 
@@ -56,8 +56,10 @@ function get_human_time(timestamp_difference) {
 	amount = remaining_time / minutes
 	if (amount > 1) {
 		amount = Math.floor(amount);
-		string += amount + ' minute' + (amount == 1 ? 's' : '') + ' '
+		string += amount + ' minute' + (amount >= 1 ? 's' : '') + ' '
 	}
+
+	string = string.trim() + ' ago';
 
 	return string;
 }

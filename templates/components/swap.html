@@ -37,9 +37,19 @@
 					json = await data.json();
 					console.log(json)
 					let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
-					document.getElementById('check-status').textContent = readable_time;
+					let status = document.getElementById('check-status')
+
+					if (json['swapped']) {
+						status.textContent = `Already swapped today`;
+					} else {
+						status.textContent = `Have not swapped today`;
+					}
+
+					status.textContent += ` (${readable_time})`;
 				})
 			} else {
+				toggle_form_buttons(false);
+
 				let body = {
 					note: document.getElementById('swap-note').value,
 					amount: document.getElementById('swap-amount').value
@@ -49,6 +59,13 @@
 					method: 'POST',
 					headers: {'Content-Type': 'application/json'},
 					body: JSON.stringify(body)
+				}).then(async (data) => {
+					if (await data.ok) {
+						document.getElementById('check-status').textContent = 'Successfully swapped with ' + shaketag;
+						toggle_form_buttons(true);
+					} else {
+						document.getElementById('check-status').textContent = `Failed to send (do you have enough funds?)`;
+					}
 				})
 			}
 		}

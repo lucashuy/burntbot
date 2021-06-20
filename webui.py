@@ -8,6 +8,8 @@ from service.datetime import get_reset_datetime, string_to_datetime
 from service.requests.version import is_even_version
 from service.requests.waitlist import get_waitlist
 from service.requests.users import search
+from service.requests.wallet import get_wallet
+from service.swap import swap
 from service.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
 from service.persistence import upsert_persistence
 
@@ -19,10 +21,10 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-# class WebUI(threading.Thread):
-class WebUI():
+class WebUI(threading.Thread):
+# class WebUI():
 	def __init__(self):
-		# threading.Thread.__init__(self, daemon = True)
+		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 
 	def run(self):
@@ -34,10 +36,10 @@ class WebUI():
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
 	def home_route(self):
-		# get_waitlist()
+		get_waitlist()
 
 		calc = self.get_stats()
 
@@ -55,7 +57,6 @@ class WebUI():
 		return flask.render_template('home.html', data = data)
 
 	def balance_route(self):
-		print(globals.blacklist)
 		return flask.render_template('blacklist.html', data = globals.blacklist)
 
 	def balance_add(self, shaketag):
@@ -124,20 +125,29 @@ class WebUI():
 	def swap(self, shaketag):
 		data = flask.request.get_json()
 		
+		# check if amount field
+		if (data['amount'] == None) or (data['amount'] == ''): return flask.Response(status = 400)
+
 		# add @ to start and make it lowercase
 		local_shaketag = shaketag.lower()
 		if (local_shaketag[0] != '@'): local_shaketag = f'@{local_shaketag}'
 
 		amount = float(data['amount'])
+
+		# check for valid amount to send
+		if (amount <= 0): return flask.Response(status = 400)
+
+		# make sure we actually have enough money to send :/
+		if (get_wallet()['balance'] < amount): return flask.Response(status = 400)
+
 		note = data['note'] or ''
 
-		print(f'sending swap to {shaketag} with {amount} and {note}')
+		swap(shaketag, amount, override = True, is_return = False, custom_note = note)
 		
 		return flask.Response(status = 201)
 
 	def check_spelling(self, shaketag):
 		usernames = search(shaketag)
-		# usernames = []
 
 		result = {
 			'found': False

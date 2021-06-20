@@ -180,6 +180,10 @@ p {
 	padding: 1rem;
 }
 
+#swap-amount {
+	width: 5rem;
+}
+
 .center {
 	text-align: center;
 }

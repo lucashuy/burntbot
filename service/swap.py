@@ -8,7 +8,7 @@ class Map(dict):
 	def __missing__(self, key): return key
 
 # returns None if okay, otherwise string reason failed against database check
-def swap(shaketag, amount, override = False, is_return = True, custom_note = None):
+def swap(shaketag: str, amount: float, override: bool = False, is_return: bool = True, custom_note = None):
 	note = None
 
 	if (not custom_note == None):
@@ -21,7 +21,7 @@ def swap(shaketag, amount, override = False, is_return = True, custom_note = Non
 
 	if (response['success'] and do_send) or (override):
 		if (globals.flags['listen']):
-			log(f'Simulate sending ${amount} to {shaketag} with note: ({note})')
+			log(f'Simulate sending ${amount} to {shaketag} with note: {note}')
 		else:
 			log(f'Sending ${amount} to {shaketag}')
 			send_transaction(amount, shaketag, note)
