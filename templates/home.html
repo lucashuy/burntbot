@@ -1,7 +1,7 @@
 {% from 'components/stats.html' import stats %}
 {% from 'components/swap.html' import swap %}
 {% from 'components/settings.html' import settings %}
-{% from 'components/autoswap.html' import autoswap %}
+{% from 'components/balance.html' import balance %}
 {% from 'components/update.html' import update_notification %}
 
 {% extends 'layout.html' %}
@@ -20,12 +20,7 @@
 		{{ stats(data) }}
 	</div>
 	<div class = 'flex-row other'>
-		<div class = 'vertical'>
-			{{ swap() }}
-			{{ settings() }}
-		</div>
-		<div>
-			{{ autoswap() }}
-		</div>
+		{{ swap() }}
+		{{ balance() }}
 	</div>
 {% endblock %}

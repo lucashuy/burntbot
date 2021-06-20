@@ -1,24 +1,22 @@
 {% macro swap() %}
-	<div>
-		<div class = 'rounded swap'>
-			<h2>Swap</h2>
-			<p>Send $5 to another swapper</p>
-			<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
-				<div>
-					<div class = 'swap-input-wrapper'>
-						<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
-						<p id = 'swap-input-subtext'>&nbsp</p>
-					</div>
-					<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
-					<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
+	<div class = 'rounded swap' style = 'flex: 1;'>
+		<h2>Swap</h2>
+		<p>Send $5 to another swapper</p>
+		<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
+			<div>
+				<div class = 'swap-input-wrapper'>
+					<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
+					<p id = 'swap-input-subtext'>&nbsp</p>
 				</div>
-				<div class = 'button-wrapper m-top-1'>
-					<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
-					<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
-					<div id = 'check-status'></div>
-				</div>
-			</form>
-		</div>
+				<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount' value = '5'>
+				<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
+			</div>
+			<div class = 'button-wrapper m-top-1'>
+				<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
+				<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
+				<div id = 'check-status'></div>
+			</div>
+		</form>
 	</div>
 	<script type = 'text/javascript'>
 		let swap_input_timer;
@@ -28,39 +26,30 @@
 			document.getElementById('submit').disabled = !enabled;
 		}
 		
-		function check(event) {
-			console.log('check');
-
+		function swap_form(event) {
 			event.preventDefault();
 			
 			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
-
-			fetch('/check/' + shaketag)
-			.then(async (data) => {
-				json = await data.json();
-				console.log(json)
-				console.log(get_human_time((Date.now() / 1000) - json['last_date']));
-			})
-		}
-
-		function swap(event) {
-			console.log('swap')
-
-			event.preventDefault();
-			
-			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
-
-			let body = {
-				note: document.getElementById('swap-note'),
-				amount: document.getElementById('swap-amount')
-			}
 
 			if (event.submitter.id === 'check') {
-				fetch('/swap/' + shaketag, {
-					method: 'POST',
-					body: JSON.stringify({note})
+				fetch('/check/' + shaketag)
+				.then(async (data) => {
+					json = await data.json();
+					console.log(json)
+					let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
+					document.getElementById('check-status').textContent = readable_time;
 				})
 			} else {
+				let body = {
+					note: document.getElementById('swap-note').value,
+					amount: document.getElementById('swap-amount').value
+				}
+
+				fetch('/swap/' + shaketag, {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(body)
+				})
 			}
 		}
 
@@ -102,8 +91,7 @@
 			}, 500);
 		}
 
-		document.getElementById('swap').addEventListener('submit', swap)
-		document.getElementById('check').addEventListener('submit', check)
+		document.getElementById('swap').addEventListener('submit', swap_form)
 		document.getElementById('swap-tag').addEventListener('input', delay_search)
 	</script>
 {% endmacro %}

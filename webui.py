@@ -123,11 +123,17 @@ class WebUI():
 
 	def swap(self, shaketag):
 		data = flask.request.get_json()
+		
+		# add @ to start and make it lowercase
+		local_shaketag = shaketag.lower()
+		if (local_shaketag[0] != '@'): local_shaketag = f'@{local_shaketag}'
+
 		amount = float(data['amount'])
-		note = data['note']
+		note = data['note'] or ''
 
 		print(f'sending swap to {shaketag} with {amount} and {note}')
-		pass
+		
+		return flask.Response(status = 201)
 
 	def check_spelling(self, shaketag):
 		usernames = search(shaketag)

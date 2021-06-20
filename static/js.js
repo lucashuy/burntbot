@@ -37,7 +37,8 @@ function get_human_time(timestamp_difference) {
 	minutes = 60 * 60 * 24
 	amount = remaining_time / minutes
 	if (amount > 1) {
-		string += Math.floor(amount) + ' day '
+		amount = Math.floor(amount);
+		string += amount + ' day' + (amount >= 1 ? 's' : '') + ' '
 	}
 	remaining_time %= minutes
 
@@ -45,7 +46,8 @@ function get_human_time(timestamp_difference) {
 	minutes = 60 * 60
 	amount = remaining_time / minutes
 	if (amount > 1) {
-		string += Math.floor(amount) + ' hour '
+		amount = Math.floor(amount);
+		string += amount + ' hour' + (amount == 1 ? 's' : '') + ' '
 	}
 	remaining_time %= minutes
 
@@ -53,7 +55,8 @@ function get_human_time(timestamp_difference) {
 	minutes = 60
 	amount = remaining_time / minutes
 	if (amount > 1) {
-		string += Math.floor(amount) + ' minute'
+		amount = Math.floor(amount);
+		string += amount + ' minute' + (amount == 1 ? 's' : '') + ' '
 	}
 
 	return string;
