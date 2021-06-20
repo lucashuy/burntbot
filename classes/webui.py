@@ -21,10 +21,10 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-# class WebUI(threading.Thread):
-class WebUI():
+class WebUI(threading.Thread):
+# class WebUI():
 	def __init__(self):
-		# threading.Thread.__init__(self, daemon = True)
+		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -40,10 +40,10 @@ class WebUI():
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
 	def home_route(self):
-		# get_waitlist()
+		get_waitlist()
 
 		stats_calc = self.get_stats()
 		owe_calc = self.determine_balances()
