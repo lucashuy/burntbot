@@ -64,7 +64,7 @@ class WebUI(threading.Thread):
 		return flask.render_template('home.html', data = data)
 
 	def determine_balances(self) -> dict:
-		they = [{'shaketag': '@shaketag', 'amount': '5.0', 'timestamp': '2021-04-22T16:41:52.679Z'}]
+		they = []
 		we = []
 
 		for _, history in globals.history.items():
@@ -78,9 +78,9 @@ class WebUI(threading.Thread):
 				}
 
 				if (swap > 0):
-					they.append(obj)
-				else:
 					we.append(obj)
+				else:
+					they.append(obj)
 
 		return (they, we)
 
