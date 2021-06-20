@@ -15,7 +15,7 @@
 
 body {
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 15px;
+	font-size: 16px;
 	background-color: rgba(0, 0, 0, 0.9);
 	color: var(--white);
 }
@@ -82,7 +82,7 @@ p {
 .navigation {
 	position: fixed;
 	float: left;
-	padding: 2rem 1rem 0 1rem;
+	padding: 3rem 1rem 0 1rem;
 	width: var(--navigation-width);
 	background-color: rgba(0, 0, 0, 0.2);
 	height: 100%;
@@ -92,7 +92,7 @@ p {
 .navigation > .stick-bottom {
 	position: absolute;
 	bottom: 0;
-	padding: 0 1rem 4rem 1rem;
+	padding: 0 1rem 5rem 1rem;
 }
 
 .navigation .fas,
@@ -104,6 +104,33 @@ p {
 	display: inline-block;
 	text-align: top;
 	margin-right: 0.5rem;
+}
+
+.balance-content > div > p {
+	margin-top: 2rem;
+}
+
+.balance-content > div > div:not(:first-child) {
+	margin-top: 1rem;
+}
+
+.balance-content > div > div:first-child > * {
+	display: inline;
+	font-size: 1.5rem;
+}
+
+.balance-content > div > div:first-child > .fas {
+	margin-right: 0.5rem;
+}
+
+.balance-wrapper {
+	flex: 2;
+	margin-left: 5rem;
+	width: 100%;
+}
+
+.balance-content > div {
+	width: 47%;
 }
 
 .personal-banner > img {
@@ -131,7 +158,7 @@ p {
 	margin-top: 3rem;
 }
 
-.balance-wrapper > div {
+.blacklist-wrapper > div {
 	width: 40%;
 	margin-bottom: 2rem;
 }
@@ -145,6 +172,7 @@ p {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+	align-items: flex-start;
 }
 
 .flex-col {

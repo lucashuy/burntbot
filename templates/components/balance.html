@@ -1,6 +1,32 @@
-{% macro balance() %}
-	<div class = 'rounded' style = 'flex: 2; margin-left: 5rem;'>
+{% from 'components/balance_user.html' import balance_user %}
+
+{% macro balance(they_owe, we_owe) %}
+	<div class = 'rounded balance-wrapper'>
 		<h2>Balance</h2>
-		<p>Coming soon!</p>
+		<p>Checkout the current balances and see who owes who.</p>
+		<p>(See that you owe someone but the bot is running? Wait a bit and refresh!)</p>
+		<div class = 'divider'></div>
+		<div class = 'flex-row balance-content'>
+			<div>
+				<div><i class="fas fa-angle-double-up"></i><h2>Sent</h2></div>
+				{% if they_owe | length > 0 %}
+					{% for obj in they_owe %}
+						{{ balance_user(obj['shaketag'], obj['amount'], obj['timestamp']) }}
+					{% endfor %}
+				{% else %}
+					<p class = 'center'>clean slate, all done!</p>
+				{% endif %}
+			</div>
+			<div>
+				<div><i class="fas fa-angle-double-down"></i><h2>Recieve</h2></div>
+				{% if we_owe | length > 0 %}
+					{% for obj in we_owe %}
+						{{ balance_user(obj['shaketag'], obj['amount'], obj['timestamp']) }}
+					{% endfor %}
+				{% else %}
+					<p class = 'center'>clean slate, all done!</p>
+				{% endif %}
+			</div>
+		</div>
 	</div>
 {% endmacro %}

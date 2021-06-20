@@ -1,0 +1,11 @@
+{% macro balance_user(shaketag, amount, datetime) %}
+	<div class = 'rounded balance-user'>
+		<div style = 'margin-bottom: 1rem;'>
+			<span>{{ shaketag }}</span>
+			<span style = 'float: right;'>{{ amount }}</span>
+		</div>
+		<p>
+			{{ datetime }}
+		</p>
+	</div>
+{% endmacro %}

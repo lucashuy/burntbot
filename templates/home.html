@@ -21,6 +21,6 @@
 	</div>
 	<div class = 'flex-row other'>
 		{{ swap() }}
-		{{ balance() }}
+		{{ balance(data['they_owe'], data['we_owe']) }}
 	</div>
 {% endblock %}

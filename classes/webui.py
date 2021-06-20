@@ -21,11 +21,14 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-class WebUI(threading.Thread):
-# class WebUI():
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
+		self.app.template_folder = '../templates'
+		self.app.static_folder = '../static'
+
 		self.version = globals.version
 
 	def run(self):
@@ -37,25 +40,49 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
 	def home_route(self):
-		get_waitlist()
+		# get_waitlist()
 
-		calc = self.get_stats()
+		stats_calc = self.get_stats()
+		owe_calc = self.determine_balances()
 
 		data = {
 			'update': not is_even_version(),
 			'version': self.version,
 			'shaketag': f'{globals.shaketag}',
-			'unique': add_commas(calc[1]),
-			'points_today': add_commas(calc[0]),
+			'unique': add_commas(stats_calc[1]),
+			'points_today': add_commas(stats_calc[0]),
 			'position': add_commas(globals.waitlist_position),
 			'points_total': add_commas(globals.waitlist_points),
-			'paddles': globals.waitlist_paddles
+			'paddles': globals.waitlist_paddles,
+			'they_owe': owe_calc[0],
+			'we_owe': owe_calc[1],
 		}
 
 		return flask.render_template('home.html', data = data)
+
+	def determine_balances(self) -> dict:
+		they = [{'shaketag': '@shaketag', 'amount': '5.0', 'timestamp': '2021-04-22T16:41:52.679Z'}]
+		we = []
+
+		for _, history in globals.history.items():
+			swap = history.get_swap()
+
+			if (swap != 0.):
+				obj = {
+					'shaketag': history.get_shaketag(),
+					'amount': abs(swap),
+					'timestamp': history.get_timestamp()
+				}
+
+				if (swap > 0):
+					they.append(obj)
+				else:
+					we.append(obj)
+
+		return (they, we)
 
 	def balance_route(self):
 		return flask.render_template('blacklist.html', data = globals.blacklist)

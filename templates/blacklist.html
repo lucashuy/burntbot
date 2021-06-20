@@ -3,17 +3,17 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-	<div class = 'flex-col balance-wrapper'>
-		<div class = 'rounded balance-add'>
+	<div class = 'flex-col blacklist-wrapper'>
+		<div class = 'rounded'>
 			<h1>Blacklist</h1>
 			<p>Gave money to a family member or received money from a friend? Set their balances here to prevent the bot from keeping grudges!</p>
 			<p class = 'warn-text m-top-1'>Any changes require a restart to take effect!</p>
 			<div class = 'divider'></div>
 			<div>
-				<form id = 'balance' autocomplete = 'off'>
+				<form id = 'blacklist' autocomplete = 'off'>
 					<div>
-						<input id = 'balance-shaketag' type = 'text' placeholder = '@shaketag'>
-						<input id = 'balance-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
+						<input id = 'blacklist-shaketag' type = 'text' placeholder = '@shaketag'>
+						<input id = 'blacklist-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
 					</div>
 					<div class = 'm-top-1'>
 						<div>
@@ -45,8 +45,8 @@
 		function submit(event) {
 			event.preventDefault();
 
-			let shaketag = document.getElementById('balance-shaketag').value;
-			let amount = document.getElementById('balance-amount').value;
+			let shaketag = document.getElementById('blacklist-shaketag').value;
+			let amount = document.getElementById('blacklist-amount').value;
 			let direction = document.querySelector('input[name=direction]:checked').value;
 
 			if (shaketag && amount > 0 && direction) {
@@ -72,6 +72,6 @@
 			}
 		}
 
-		document.getElementById('balance').addEventListener('submit', submit)
+		document.getElementById('blacklist').addEventListener('submit', submit)
 	</script>
 {% endblock %}
