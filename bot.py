@@ -75,6 +75,7 @@ class SwapBot(threading.Thread):
 
 				# iterate through transactions and apply adjustments and pay back those need swaps
 				# instead of adjust, then swap, do it together, saves CPU time
+				# additionally, check for donation to @cfcc for a "pizza paddle"
 				for _, history in globals.history.items():
 					shaketag = history.get_shaketag()
 
@@ -88,6 +89,10 @@ class SwapBot(threading.Thread):
 					if (amount > 0.):
 						log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
 						swap(shaketag, amount)
+
+					if (shaketag == '@cfcc'):
+						with open('./static/pizza.txt') as file:
+							globals.waitlist_paddles.append({'icon': file.read()})
 
 				# this isnt 100% accurate since there maybe late send backs
 				log(f'Waiting {wait_time} seconds for rate limit expiry')
