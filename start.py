@@ -97,21 +97,9 @@ def load_persistence_data():
 	# save data
 	upsert_persistence(persistence)
 
-def read_version() -> str:
-	version = '0.0.0'
-
-	try:
-		log('Reading version')
-		with open('.version') as file:
-			version = file.readline()
-	except: pass
-
-	return version
-
 if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
-	globals.version = read_version()
 
 	# start ui thread
 	log('Starting WebUI')
