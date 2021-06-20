@@ -4,8 +4,9 @@ import secrets
 import getpass
 
 import globals
-import bot
-import webui
+
+from classes.bot import SwapBot
+from classes.webui import WebUI
 
 from service.requests.users import users
 from service.requests.wallet import get_wallet
@@ -103,10 +104,10 @@ if (__name__ == '__main__'):
 
 	# start ui thread
 	log('Starting WebUI')
-	ui = webui.WebUI()
+	ui = WebUI()
 	ui.start()
 
-	swap_bot = bot.SwapBot()
+	swap_bot = SwapBot()
 	swap_bot.start()
 
 	# main thread busy
@@ -116,7 +117,7 @@ if (__name__ == '__main__'):
 		if (not ui.is_alive()):
 			log('Restarting WebUI')
 
-			ui = webui.WebUI()
+			ui = WebUI()
 			ui.start()
 
 		if (not swap_bot.is_alive()):

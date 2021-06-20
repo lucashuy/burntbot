@@ -26,6 +26,7 @@ class WebUI(threading.Thread):
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
+		self.version = globals.version
 
 	def run(self):
 		self.app.add_url_rule('/', view_func = self.home_route)
@@ -45,7 +46,7 @@ class WebUI(threading.Thread):
 
 		data = {
 			'update': not is_even_version(),
-			'version': globals.version,
+			'version': self.version,
 			'shaketag': f'{globals.shaketag}',
 			'unique': add_commas(calc[1]),
 			'points_today': add_commas(calc[0]),
