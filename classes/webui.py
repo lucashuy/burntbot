@@ -21,10 +21,10 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-class WebUI(threading.Thread):
-# class WebUI():
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -32,18 +32,19 @@ class WebUI(threading.Thread):
 		self.version = globals.version
 
 	def run(self):
-		self.app.add_url_rule('/', view_func = self.home_route)
+		self.app.add_url_rule('/', view_func = self.home_page)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = self.check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = self.check_spelling)
 		self.app.add_url_rule('/swap/<string:shaketag>', view_func = self.swap, methods = ['POST'])
-		self.app.add_url_rule('/blacklist/', view_func = self.balance_route)
-		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_add, methods = ['POST'])
-		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.balance_delete, methods = ['DELETE'])
+		self.app.add_url_rule('/blacklist/', view_func = self.blacklist_page)
+		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.blacklist_add, methods = ['POST'])
+		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.blacklist_delete, methods = ['DELETE'])
+		self.app.add_url_rule('/settings/', view_func = self.settings_page)
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
-	def home_route(self):
-		get_waitlist()
+	def home_page(self):
+		# get_waitlist()
 
 		stats_calc = self.get_stats()
 		owe_calc = self.determine_balances()
@@ -63,6 +64,13 @@ class WebUI(threading.Thread):
 
 		return flask.render_template('home.html', data = data)
 
+	def settings_page(self):
+		data = {
+			'version': self.version
+		}
+
+		return flask.render_template('settings.html', data = data)
+
 	def determine_balances(self) -> dict:
 		they = []
 		we = []
@@ -73,7 +81,7 @@ class WebUI(threading.Thread):
 			if (swap != 0.):
 				obj = {
 					'shaketag': history.get_shaketag(),
-					'amount': abs(swap),
+					'amount': f'${abs(swap):.2f}',
 					'timestamp': history.get_timestamp()
 				}
 
@@ -84,10 +92,10 @@ class WebUI(threading.Thread):
 
 		return (they, we)
 
-	def balance_route(self):
+	def blacklist_page(self):
 		return flask.render_template('blacklist.html', data = globals.blacklist)
 
-	def balance_add(self, shaketag):
+	def blacklist_add(self, shaketag):
 		data = flask.request.get_json()
 		
 		amount = float(data['amount'])
@@ -102,7 +110,7 @@ class WebUI(threading.Thread):
 			
 		return flask.Response(status = 400)
 
-	def balance_delete(self, shaketag):
+	def blacklist_delete(self, shaketag):
 		if (shaketag in globals.blacklist):
 			del globals.blacklist[shaketag]
 

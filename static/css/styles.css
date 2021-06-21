@@ -30,7 +30,7 @@ h2 {
 	margin-bottom: 1rem;
 }
 
-h1, h2 {
+h1, h2, h3 {
 	font-weight: normal;
 }
 
@@ -173,6 +173,22 @@ p {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: flex-start;
+}
+
+.settings-wrapper > div {
+	width: 50%;
+}
+
+.settings-wrapper > .settings-block:not(:first-child) {
+	margin-top: 3rem;
+}
+
+.settings-block > .setting:not(:last-child) {
+	margin-bottom: 2rem;
+}
+
+.setting > .setting-header {
+	margin-bottom: 0.5rem;
 }
 
 .flex-col {

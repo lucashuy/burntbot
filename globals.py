@@ -35,7 +35,7 @@ flags = {
 }
 
 # version of bot for update checking
-version = '0.4.1'
+version = '0.5.0'
 
 # webui host and port
 webui_host = '127.0.0.1'

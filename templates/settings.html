@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+	<div class = 'flex-col settings-wrapper'>
+		<div class = 'rounded settings-block'>
+			<h2>Bot Settings</h2>
+			<div class = 'divider'></div>
+			<div class = 'setting'>
+				<div class = 'setting-header'>Return Note</div>
+				<div class = 'flex-row'>
+					<p>Change the bot's auto-return note.</p>
+					<input>
+				</div>
+			</div>
+			<div class = 'setting'>
+				<div class = 'setting-header'>Poll Rate</div>
+				<div class = 'flex-row'>
+					<p>Change the rate at which the bot gets new transactions. (minimum: 4 seconds)</p>
+					<p>a</p>
+				</div>
+			</div>
+		</div>
+		<div class = 'rounded settings-block'>
+			<h2>Misc Settings</h2>
+			<div class = 'divider'></div>
+			<div class = 'setting'>
+				<div class = 'setting-header'>Auto-Shake</div>
+				<div class = 'flex-row'>
+					<p>Toggle the "auto-shake" feature.</p>
+					<p>a</p>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
