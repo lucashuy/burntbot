@@ -41,9 +41,9 @@
 					let status = document.getElementById('check-status')
 
 					if (json['swapped']) {
-						status.textContent = `Already swapped today`;
+						status.textContent = `Already swapped!`;
 					} else {
-						status.textContent = `Have not swapped today`;
+						status.textContent = `Have not swapped!`;
 					}
 
 					status.textContent += ` (${readable_time})`;
@@ -62,10 +62,10 @@
 					body: JSON.stringify(body)
 				}).then(async (data) => {
 					if (await data.ok) {
-						document.getElementById('check-status').textContent = 'Successfully swapped with ' + shaketag;
+						document.getElementById('check-status').innerHTML = 'U+FE0F';
 						toggle_form_buttons(true);
 					} else {
-						document.getElementById('check-status').textContent = `Failed to send (do you have enough funds?)`;
+						document.getElementById('check-status').textContent = `Failed to send!`;
 					}
 				})
 			}

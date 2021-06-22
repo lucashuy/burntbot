@@ -6,7 +6,7 @@
 	<div class = 'flex-col blacklist-wrapper'>
 		<div class = 'rounded'>
 			<h1>Blacklist</h1>
-			<p>Gave money to a family member or received money from a friend? Set their balances here to prevent the bot from keeping grudges!</p>
+			<p> See something off in the balances on the home page? Gave money to a family member? Set their balances here to prevent the bot from keeping grudges!</p>
 			<p class = 'warn-text m-top-1'>Any changes require a restart to take effect!</p>
 			<div class = 'divider'></div>
 			<div>
@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		
-		{% if data | length > 0 %}
+		{% if data['blacklist'] | length > 0 %}
 			<div class = 'rounded'>
 				{% for shaketag, amount in data.items() %}
 					{{ user(shaketag, amount) }}

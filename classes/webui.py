@@ -66,7 +66,9 @@ class WebUI():
 
 	def settings_page(self):
 		data = {
-			'version': self.version
+			'version': self.version,
+			'poll_rate': globals.poll_rate,
+			'note': globals.note
 		}
 
 		return flask.render_template('settings.html', data = data)
@@ -93,7 +95,12 @@ class WebUI():
 		return (they, we)
 
 	def blacklist_page(self):
-		return flask.render_template('blacklist.html', data = globals.blacklist)
+		data = {
+			'version': self.version,
+			'blacklist': globals.blacklist
+		}
+
+		return flask.render_template('blacklist.html', data = data)
 
 	def blacklist_add(self, shaketag):
 		data = flask.request.get_json()
