@@ -21,10 +21,10 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-class WebUI(threading.Thread):
-# class WebUI():
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -39,12 +39,13 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/blacklist/', view_func = self.blacklist_page)
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.blacklist_add, methods = ['POST'])
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = self.blacklist_delete, methods = ['DELETE'])
-		self.app.add_url_rule('/settings/', view_func = self.settings_page)
+		self.app.add_url_rule('/settings/', view_func = self.settings_page, methods = ['GET'])
+		self.app.add_url_rule('/settings/', view_func = self.settings_save, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
 	def home_page(self):
-		get_waitlist()
+		# get_waitlist()
 
 		stats_calc = self.get_stats()
 		owe_calc = self.determine_balances()
@@ -67,17 +68,24 @@ class WebUI(threading.Thread):
 	def settings_page(self):
 		data = {
 			'version': self.version,
-			'poll_rate': globals.poll_rate,
-			'note': globals.note
+			'poll_rate': globals.bot_poll_rate,
+			'note': globals.bot_note
 		}
 
 		return flask.render_template('settings.html', data = data)
+
+	def settings_save(self):
+		data = flask.request.get_json()
+
+		print(data)
+
+		return flask.Response(status = 201)
 
 	def determine_balances(self) -> dict:
 		they = []
 		we = []
 
-		for _, history in globals.history.items():
+		for _, history in globals.bot_history.items():
 			swap = history.get_swap()
 
 			if (swap != 0.):
@@ -97,7 +105,7 @@ class WebUI(threading.Thread):
 	def blacklist_page(self):
 		data = {
 			'version': self.version,
-			'blacklist': globals.blacklist
+			'blacklist': globals.bot_blacklist
 		}
 
 		return flask.render_template('blacklist.html', data = data)
@@ -109,19 +117,19 @@ class WebUI(threading.Thread):
 		amount = amount * (1 if data['direction'] == 'debit' else -1)
 
 		if (data):
-			globals.blacklist[shaketag] = amount
+			globals.bot_blacklist[shaketag] = amount
 
-			upsert_persistence({'blacklist': globals.blacklist})
+			upsert_persistence({'blacklist': globals.bot_blacklist})
 
 			return flask.Response(status = 201)
 			
 		return flask.Response(status = 400)
 
 	def blacklist_delete(self, shaketag):
-		if (shaketag in globals.blacklist):
-			del globals.blacklist[shaketag]
+		if (shaketag in globals.bot_blacklist):
+			del globals.bot_blacklist[shaketag]
 
-			upsert_persistence({'blacklist': globals.blacklist})
+			upsert_persistence({'blacklist': globals.bot_blacklist})
 
 			return flask.Response(status = 201)
 			
@@ -134,7 +142,7 @@ class WebUI(threading.Thread):
 		points_today = 0
 		unique_swappers = 0
 
-		for _, history in globals.history.items():
+		for _, history in globals.bot_history.items():
 			last_swap = string_to_datetime(history.get_timestamp())
 
 			# add to today points
@@ -151,10 +159,10 @@ class WebUI(threading.Thread):
 		}
 
 		# oh no, an O(n) search
-		for userid, history in globals.history.items():
+		for userid, history in globals.bot_history.items():
 			if (history.get_shaketag() == shaketag):
 				reset_date = get_reset_datetime()
-				last_swap_date = string_to_datetime(globals.history[userid].get_timestamp())
+				last_swap_date = string_to_datetime(globals.bot_history[userid].get_timestamp())
 
 				if (last_swap_date > reset_date):
 					result['swapped'] = True

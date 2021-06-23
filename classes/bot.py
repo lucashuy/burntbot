@@ -70,17 +70,17 @@ class SwapBot(threading.Thread):
 				wait_time = self.init_history()
 
 				# adjust swaps by our blacklist function
-				for shaketag, amount in globals.blacklist.items():
+				for shaketag, amount in globals.bot_blacklist.items():
 					pass
 
 				# iterate through transactions and apply adjustments and pay back those need swaps
 				# instead of adjust, then swap, do it together, saves CPU time
 				# additionally, check for donation to @cfcc for a "pizza paddle"
-				for _, history in globals.history.items():
+				for _, history in globals.bot_history.items():
 					shaketag = history.get_shaketag()
 
-					if (shaketag in globals.blacklist):
-						history.adjust_swap(globals.blacklist[shaketag])
+					if (shaketag in globals.bot_blacklist):
+						history.adjust_swap(globals.bot_blacklist[shaketag])
 
 					amount = history.get_swap()
 
@@ -106,14 +106,14 @@ class SwapBot(threading.Thread):
 					swap_list = get_swaps(response_json['data'])
 
 					for userid in swap_list:
-						user_details = globals.history[userid]
+						user_details = globals.bot_history[userid]
 						
 						shaketag = user_details.get_shaketag()
 						amount = user_details.get_swap()
 						
 						swap(shaketag, amount)
 						
-					time.sleep(globals.poll_rate)
+					time.sleep(globals.bot_poll_rate)
 			except ClientException:
 				log('Bot died due to HTTP client error, stopping')
 				upsert_persistence({'token': ''})
@@ -123,7 +123,7 @@ class SwapBot(threading.Thread):
 				log(f'Crashed due to: {e}')
 				log(traceback.format_exc())
 
-				globals.history = {}
+				globals.bot_history = {}
 
 				time_now = time.time()
 

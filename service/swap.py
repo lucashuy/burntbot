@@ -14,13 +14,20 @@ def swap(shaketag: str, amount: float, override: bool = False, is_return: bool =
 	if (not custom_note == None):
 		note = custom_note
 	else:
-		note = globals.note.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
+		note = globals.bot_note.format_map(Map(shaketag = shaketag, amount = '${}'.format(amount)))
 
-	response = labrie_check(shaketag, 'return')
-	do_send = response['data']['allow_return' if is_return else 'allow_initiate']
+	pass_check = True
+	
+	# check shaketag against DB if enabled
+	if (globals.bot_return_check):
+		# query DB
+		response = labrie_check(shaketag, 'return')
 
-	if (response['success'] and do_send) or (override):
-		if (globals.flags['listen']):
+		if (response['success']):
+			pass_check = response['data']['allow_return' if is_return else 'allow_initiate']
+
+	if (pass_check or override):
+		if (globals.bot_flags['listen']):
 			log(f'Simulate sending ${amount} to {shaketag} with note: {note}')
 		else:
 			log(f'Sending ${amount} to {shaketag}')

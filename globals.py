@@ -1,5 +1,5 @@
-note = ''
-poll_rate = 10
+bot_note = ''
+bot_poll_rate = 10
 
 # create constants for API endpoints
 _host = 'https://api.shakepay.com/'
@@ -26,10 +26,10 @@ waitlist_points = 0
 waitlist_paddles = []
 
 # trading history hash table
-history = {}
+bot_history = {}
 
 # bot specific flags
-flags = {
+bot_flags = {
 	'listen': False,
 	'verbose': False
 }
@@ -42,4 +42,7 @@ webui_host = '127.0.0.1'
 webui_port = '5000'
 
 # blacklist and balance
-blacklist = {}
+bot_blacklist = {}
+
+# check shaketag against database before returning
+bot_return_check = False

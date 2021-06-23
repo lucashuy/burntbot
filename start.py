@@ -19,10 +19,10 @@ def read_flags():
 	for arg in sys.argv[1:]:
 		if (arg == '-v'):
 			log(f'-v setting verbose logging')
-			globals.flags['verbose'] = True
+			globals.bot_flags['verbose'] = True
 		elif (arg == '-l'):
 			log(f'-l setting listen only mode - no auto returns')
-			globals.flags['listen'] = True
+			globals.bot_flags['listen'] = True
 		elif (arg[0:2] == '-r') and ('=' in arg) and (':' in arg):
 			split_args = arg.split('=')
 			split_args = split_args[1].split(':')
@@ -87,13 +87,15 @@ def load_persistence_data():
 	if (not 'blacklist' in persistence): persistence['blacklist'] = {}
 	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
 	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
+	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
 
 	# set global variables
-	globals.note = persistence['note']
-	globals.poll_rate = persistence['poll_rate']
+	globals.bot_note = persistence['note']
+	globals.bot_poll_rate = persistence['poll_rate']
 	globals.shaketag = persistence['shaketag']
 	globals.wallet_id = persistence['wallet_id']
-	globals.blacklist = persistence['blacklist']
+	globals.bot_blacklist = persistence['blacklist']
+	globals.bot_return_check = persistence['bot_return_check']
 
 	# save data
 	upsert_persistence(persistence)

@@ -9,14 +9,21 @@
 				<div class = 'setting-header'>Return Note</div>
 				<div class = 'flex-row'>
 					<p>Change the bot's auto-return note.</p>
-					<input>
+					<input id = 'setting-note' type = 'text' value = '{{ data["note"] }}'>
 				</div>
 			</div>
 			<div class = 'setting'>
 				<div class = 'setting-header'>Poll Rate</div>
 				<div class = 'flex-row'>
 					<p>Change the rate at which the bot gets new transactions. (minimum: 4 seconds)</p>
-					<p>a</p>
+					<input id = 'setting-poll-rate' type = 'number' min = '0' value = '{{ data["poll_rate"] }}'>
+				</div>
+			</div>
+			<div class = 'setting'>
+				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>@domi167's Swapper Database</a></div>
+				<div class = 'flex-row'>
+					<p>Prevent send back to scammers and those that don't send back</p>
+					<input id = 'setting-auto-check' type = 'checkbox'>
 				</div>
 			</div>
 		</div>
@@ -26,10 +33,48 @@
 			<div class = 'setting'>
 				<div class = 'setting-header'>Auto-Shake</div>
 				<div class = 'flex-row'>
-					<p>Toggle the "auto-shake" feature.</p>
-					<p>a</p>
+					<p>Coming soon!</p>
+					<!-- <p>Turn on to auto-shake for shaking sats</p>
+					<input id = 'setting-auto-shake' type = 'checkbox'> -->
 				</div>
 			</div>
 		</div>
+		<div class = 'settings-save'>
+			<button id = 'submit' type = 'submit' class = 'contained'>SAVE</button>
+			<div id = 'settings-status' class = 'spinner'></div>
+		</div>
 	</div>
+
+	<script type = 'text/javascript'>
+		function save(event) {
+			let note = document.getElementById('setting-note').value;
+			let poll_rate = document.getElementById('setting-poll-rate').value;
+			let return_check = document.getElementById('setting-auto-check').checked;
+
+			set_checkmark(document.getElementById('settings-status'));
+
+			if (poll_rate < 4) {
+
+			} else {
+				fetch('/settings/', {
+					method: 'PATCH',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						note: note,
+						poll_rate: poll_rate,
+						return_check: return_check
+					})
+				})
+				.then(async (data) => {
+					if (await data.ok) {
+						console.log('good')
+					} else {
+						console.log('bad')
+					}
+				});
+			}
+		}
+
+		document.getElementById('submit').addEventListener('click', save);
+	</script>
 {% endblock %}

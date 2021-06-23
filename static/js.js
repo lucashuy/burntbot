@@ -63,3 +63,12 @@ function get_human_time(timestamp_difference) {
 
 	return string;
 }
+
+function set_checkmark(container) {
+	let check = document.createElement('i');
+	check.classList.add('fas');
+	check.classList.add('fa-check');
+
+	container.innerHTML = '';
+	container.appendChild(check);
+}
