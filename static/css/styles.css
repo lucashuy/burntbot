@@ -107,6 +107,7 @@ p {
 .navigation .fas,
 .navigation .fab {
 	margin-bottom: 2rem;
+	vertical-align: middle;
 }
 
 .personal-banner > * {
@@ -117,6 +118,10 @@ p {
 
 .balance-content > div > p {
 	margin-top: 1rem;
+}
+
+.balance-content .fas {
+	vertical-align: auto;
 }
 
 .balance-content > div > div:not(:first-child) {
