@@ -42,7 +42,7 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/settings/', view_func = self.settings_page, methods = ['GET'])
 		self.app.add_url_rule('/settings/', view_func = self.settings_save, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
 	def home_page(self):
 		get_waitlist()
