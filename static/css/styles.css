@@ -3,6 +3,7 @@
 	--white: #f2f2f2;
 	--less-white: #afafaf;
 	--border: rgba(100, 100, 100, 0.5);
+	--border-accent: rgba(100, 100, 100, 0.7);
 	--yellow: rgb(209, 206, 4);
 	--navigation-width: 3rem;
 	--background: rgba(0, 0, 0, 0.9)
@@ -36,6 +37,7 @@ h1, h2, h3 {
 }
 
 input {
+	box-sizing: border-box;
 	font-size: 0.9rem;
 	border: none;
 	border: 1.5px solid rgba(255, 255, 255, 0.5);
@@ -61,6 +63,7 @@ button {
 }
 
 button.emphasis {
+	border: 1px solid var(--accent);
 	color: var(--accent);
 }
 
@@ -152,8 +155,34 @@ p {
 	direction: rtl;
 }
 
-.button-wrapper > * {
-	display: inline-block;
+.button-wrapper > button {
+	width: 47%;
+}
+
+#swap-note {
+	width: 100%;
+}
+
+#swap-tag {
+	width: 100%;
+}
+
+.swap-input-content {
+	width: 72%;
+}
+
+#swap-amount {
+	width: 25%;
+}
+
+.swap-input-wrapper {
+	justify-content: space-between;
+}
+
+#swap-status {
+	margin-top: 1rem;
+	padding: 0.25rem 0 0.25rem 0.5rem;
+	border-left: 2px solid var(--border-accent);
 }
 
 .content {
@@ -163,6 +192,10 @@ p {
 .content > div:not(:first-child),
 .vertical > div:not(:first-child) {
 	margin-top: 3rem;
+}
+
+.hidden {
+	display: none;
 }
 
 .blacklist-wrapper > div {
@@ -212,6 +245,10 @@ p {
 	color: green;
 }
 
+.fa-times {
+	color: rgb(194, 0, 0);
+}
+
 .flex-col {
 	display: flex;
 	flex-direction: column;
@@ -245,10 +282,6 @@ p {
 	padding: 1rem;
 }
 
-#swap-amount {
-	width: 5rem;
-}
-
 .center {
 	text-align: center;
 }
@@ -271,11 +304,6 @@ p {
 	width: 30%;
 }
 
-.swap-input-wrapper {
-	display: inline-block;
-	vertical-align: top;
-}
-
 p#swap-input-subtext {
 	margin-top: 0.25rem;
 	font-size: 0.75rem;
@@ -286,10 +314,44 @@ p#swap-input-subtext {
 	color: var(--accent);
 }
 
-.underline-red {
-	border-bottom: 1.5px solid rgba(255, 0, 0, 0.7);
+.border-red {
+	border-color: rgba(255, 0, 0, 0.7);
 }
 
-.underline-green {
-	border-bottom: 1.5px solid rgba(0, 255, 0, 0.7);
+.border-green {
+	border-bottom: rgba(0, 255, 0, 0.7);
 }
+
+.loading {
+	display: inline-block;
+	position: relative;
+	width: 0.9rem;
+	height: 0.9rem;
+}
+
+.loading div {
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	width: 1rem;
+	height: 1rem;
+	margin: 2px;
+	border: 2px solid var(--less-white);
+	border-radius: 50%;
+	animation: loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	border-color: var(--less-white) transparent transparent transparent;
+}
+
+.loading div:nth-child(1) {
+	animation-delay: -0.45s;
+}
+
+.loading div:nth-child(2) {
+	animation-delay: -0.3s;
+}
+
+@keyframes loading {
+	0% {transform: rotate(0deg);}
+	100% {transform: rotate(360deg);}
+}
+  

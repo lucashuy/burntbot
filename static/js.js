@@ -72,3 +72,21 @@ function set_checkmark(container) {
 	container.innerHTML = '';
 	container.appendChild(check);
 }
+
+function set_loading(container) {
+	let loading = document.createElement('div');
+	loading.classList.add('loading');
+	loading.innerHTML = '<div></div><div></div>';
+
+	container.innerHTML = '';
+	container.appendChild(loading);
+}
+
+function set_x(container) {
+	let check = document.createElement('i');
+	check.classList.add('fas');
+	check.classList.add('fa-times');
+
+	container.innerHTML = '';
+	container.appendChild(check);
+}

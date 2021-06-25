@@ -21,10 +21,10 @@ def add_commas(amount):
 	else:
 		return int_rep
 
-# class WebUI(threading.Thread):
-class WebUI():
+class WebUI(threading.Thread):
+# class WebUI():
 	def __init__(self):
-		# threading.Thread.__init__(self, daemon = True)
+		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -45,7 +45,7 @@ class WebUI():
 		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
 	def home_page(self):
-		# get_waitlist()
+		get_waitlist()
 
 		stats_calc = self.get_stats()
 		owe_calc = self.determine_balances()
@@ -75,10 +75,32 @@ class WebUI():
 		return flask.render_template('settings.html', data = data)
 
 	def settings_save(self):
+		save_data = {}
 		data = flask.request.get_json()
 
-		print(data)
+		# dont know if this is the right choice for validation:
+		# i am only checking for certain keys and saving those while ignoring the rest
 
+		if ('note' in data):
+			save_data['note'] = data['note']
+			globals.bot_note = data['note']
+
+		# also make sure poll rate doesnt break API rate limit
+		if ('poll_rate' in data):
+			cast_poll_rate = float(data['poll_rate'])
+
+			if (cast_poll_rate < 4):
+				flask.Response(status = 400)
+			else:
+				save_data['poll_rate'] = cast_poll_rate
+				globals.bot_poll_rate = cast_poll_rate
+
+		if ('return_check' in data):
+			save_data['bot_return_check'] = data['return_check']
+			globals.bot_return_check = data['return_check']
+
+		upsert_persistence(save_data)
+		
 		return flask.Response(status = 201)
 
 	def determine_balances(self) -> dict:

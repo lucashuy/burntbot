@@ -4,19 +4,19 @@
 		<p>Send $5 to another swapper</p>
 		<div class = 'divider'></div>
 		<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
-			<div>
-				<div class = 'swap-input-wrapper'>
+			<div class = 'flex-row swap-input-wrapper'>
+				<div class = 'swap-input-content'>
 					<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
 					<p id = 'swap-input-subtext'>&nbsp</p>
 				</div>
 				<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount' value = '5'>
-				<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
 			</div>
-			<div class = 'button-wrapper m-top-1'>
+			<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
+			<div class = 'button-wrapper m-top-1 flex-row'>
 				<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
 				<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
-				<div id = 'check-status'></div>
 			</div>
+			<div id = 'swap-status'>sample text</div>
 		</form>
 	</div>
 	<script type = 'text/javascript'>
@@ -32,23 +32,33 @@
 			
 			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
 
+			// easier than removing text and styling
+			let status = document.getElementById('swap-status');
+			status.classList.add('hidden');
+
 			if (event.submitter.id === 'check') {
+				let check_button = document.getElementById('check');
+				set_loading(check_button);
+
 				fetch('/check/' + shaketag)
 				.then(async (data) => {
 					json = await data.json();
-					console.log(json)
+					
 					let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
-					let status = document.getElementById('check-status')
+					let status = document.getElementById('swap-status')
 
 					if (json['swapped']) {
 						status.textContent = `Already swapped!`;
 					} else {
 						status.textContent = `Have not swapped!`;
 					}
-
-					status.textContent += ` (${readable_time})`;
 				})
+
+				check_button.innerHTML = 'CHECK';
 			} else {
+				let send_button = document.getElementById('submit');
+				set_loading(send_button);
+
 				toggle_form_buttons(false);
 
 				let body = {
@@ -62,22 +72,26 @@
 					body: JSON.stringify(body)
 				}).then(async (data) => {
 					if (await data.ok) {
-						document.getElementById('check-status').innerHTML = 'U+FE0F';
+						document.getElementById('swap-status').textContent = `Sent to ${shaketag}`;
 						toggle_form_buttons(true);
 					} else {
-						document.getElementById('check-status').textContent = `Failed to send!`;
+						document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;
 					}
 				})
+
+				send_button.innerHTML = 'SEND';
 			}
+			
+			status.classList.remove('hidden');
 		}
 
 		function delay_search(event) {
 			clearTimeout(swap_input_timer);
 			
-			input = document.getElementById('swap-tag');
-			input.classList.remove('underline-red', 'underline-green')
+			let input = document.getElementById('swap-tag');
+			input.classList.remove('border-red', 'border-green')
 
-			subtext = document.getElementById('swap-input-subtext');
+			let subtext = document.getElementById('swap-input-subtext');
 			subtext.innerHTML = '&nbsp';
 
 			swap_input_timer = setTimeout(async () => {
@@ -92,16 +106,17 @@
 						json = await data.json();
 
 						if (json.found && json.match !== shaketag) {
+							subtext.innerHTML = '';
 							subtext.append('Did you mean: ');
 							subtext.append(create_put_link(json.match));
 							subtext.append('?');
 
-							input.classList.add('underline-red')
+							input.classList.add('border-red')
 						} else if (!json.found) {
 							subtext.textContent = 'No results found.';
-							input.classList.add('underline-red')
+							input.classList.add('border-red')
 						} else {
-							input.classList.add('underline-green')
+							input.classList.add('border-green')
 							toggle_form_buttons(true)
 						}
 					})

@@ -9,21 +9,21 @@
 				<div class = 'setting-header'>Return Note</div>
 				<div class = 'flex-row'>
 					<p>Change the bot's auto-return note.</p>
-					<input id = 'setting-note' type = 'text' value = '{{ data["note"] }}'>
+					<input id = 'setting-note' type = 'text' value = '{{ data["note"] }}' autocomplete = 'off'>
 				</div>
 			</div>
 			<div class = 'setting'>
 				<div class = 'setting-header'>Poll Rate</div>
 				<div class = 'flex-row'>
 					<p>Change the rate at which the bot gets new transactions. (minimum: 4 seconds)</p>
-					<input id = 'setting-poll-rate' type = 'number' min = '0' value = '{{ data["poll_rate"] }}'>
+					<input id = 'setting-poll-rate' type = 'number' min = '0' value = '{{ data["poll_rate"] }}' autocomplete = 'off'>
 				</div>
 			</div>
 			<div class = 'setting'>
 				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>@domi167's Swapper Database</a></div>
 				<div class = 'flex-row'>
 					<p>Prevent send back to scammers and those that don't send back</p>
-					<input id = 'setting-auto-check' type = 'checkbox'>
+					<input id = 'setting-auto-check' type = 'checkbox' autocomplete = 'off'>
 				</div>
 			</div>
 		</div>
@@ -35,27 +35,39 @@
 				<div class = 'flex-row'>
 					<p>Coming soon!</p>
 					<!-- <p>Turn on to auto-shake for shaking sats</p>
-					<input id = 'setting-auto-shake' type = 'checkbox'> -->
+					<input id = 'setting-auto-shake' type = 'checkbox' autocomplete = 'off'> -->
 				</div>
 			</div>
 		</div>
 		<div class = 'settings-save'>
 			<button id = 'submit' type = 'submit' class = 'contained'>SAVE</button>
-			<div id = 'settings-status' class = 'spinner'></div>
+			<div id = 'settings-status'></div>
+			<div class="lds-ring"><div></div><div></div></div>
 		</div>
 	</div>
 
 	<script type = 'text/javascript'>
+		function toggle_settings_save(enabled) {
+			let save_button = document.getElementById('submit');
+			save_button.disabled = !enabled;
+
+			if (enabled) {
+				save_button.innerHTML = 'SAVE'
+			} else {
+				set_loading(save_button);
+			}
+		}
+
 		function save(event) {
 			let note = document.getElementById('setting-note').value;
 			let poll_rate = document.getElementById('setting-poll-rate').value;
 			let return_check = document.getElementById('setting-auto-check').checked;
 
-			set_checkmark(document.getElementById('settings-status'));
-
 			if (poll_rate < 4) {
-
+				
 			} else {
+				toggle_settings_save(false);
+
 				fetch('/settings/', {
 					method: 'PATCH',
 					headers: {'Content-Type': 'application/json'},
@@ -66,11 +78,15 @@
 					})
 				})
 				.then(async (data) => {
+					let status = document.getElementById('settings-status');
+
 					if (await data.ok) {
-						console.log('good')
+						set_checkmark(status);
 					} else {
-						console.log('bad')
+						set_x(status);
 					}
+					
+					toggle_settings_save(true);
 				});
 			}
 		}
