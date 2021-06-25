@@ -8,8 +8,8 @@ function create_put_link(shaketag) {
 	element.addEventListener('click', () => {
 		let tag = document.getElementById('swap-tag');
 		tag.value = local_shaketag;
-		tag.classList.remove('underline-red');
-		tag.classList.add('underline-green');
+		tag.classList.remove('border-red');
+		tag.classList.add('border-green');
 
 		document.getElementById('swap-input-subtext').innerHTML = '&nbsp';
 

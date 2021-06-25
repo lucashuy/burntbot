@@ -86,7 +86,6 @@ p {
 .fas, .fab {
 	color: var(--less-white);
 	font-size: 2rem;
-	vertical-align: middle;
 }
 
 .navigation {
@@ -305,7 +304,7 @@ p {
 }
 
 p#swap-input-subtext {
-	margin-top: 0.25rem;
+	margin: 0.25rem 0 0.5rem 0;
 	font-size: 0.75rem;
 }
 
@@ -319,7 +318,7 @@ p#swap-input-subtext {
 }
 
 .border-green {
-	border-bottom: rgba(0, 255, 0, 0.7);
+	border-color: rgba(0, 255, 0, 0.7);
 }
 
 .loading {

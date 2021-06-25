@@ -113,7 +113,6 @@ class SwapBot(threading.Thread):
 						
 						swap(shaketag, amount)
 						
-					print(globals.bot_poll_rate)
 					time.sleep(globals.bot_poll_rate)
 			except ClientException:
 				log('Bot died due to HTTP client error, stopping')

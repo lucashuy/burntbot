@@ -16,7 +16,7 @@
 				<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
 				<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
 			</div>
-			<div id = 'swap-status hidden'></div>
+			<div id = 'swap-status' class = 'hidden'></div>
 		</form>
 	</div>
 	<script type = 'text/javascript'>
@@ -44,17 +44,22 @@
 				.then(async (data) => {
 					json = await data.json();
 					
-					let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
 					let status = document.getElementById('swap-status')
 
 					if (json['swapped']) {
-						status.textContent = `Already swapped!`;
+						status.textContent = 'Already swapped today!';
 					} else {
-						status.textContent = `Have not swapped!`;
+						if (json.hasOwnProperty('last_date')) {
+							// let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
+							status.textContent = 'Have not swapped today!';
+						} else {
+							status.textContent = 'Fresh meat, never swapped!';
+						}
 					}
-				})
 
-				check_button.innerHTML = 'CHECK';
+					status.classList.remove('hidden');
+					check_button.innerHTML = 'CHECK';
+				})
 			} else {
 				let send_button = document.getElementById('submit');
 				set_loading(send_button);
@@ -77,12 +82,11 @@
 					} else {
 						document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;
 					}
-				})
 
-				send_button.innerHTML = 'SEND';
+					status.classList.remove('hidden');
+					send_button.innerHTML = 'SEND';
+				})
 			}
-			
-			status.classList.remove('hidden');
 		}
 
 		function delay_search(event) {
@@ -90,9 +94,11 @@
 			
 			let input = document.getElementById('swap-tag');
 			input.classList.remove('border-red', 'border-green')
-
 			let subtext = document.getElementById('swap-input-subtext');
 			subtext.innerHTML = '&nbsp';
+
+			// hide status text
+			document.getElementById('swap-status').classList.add('hidden');
 
 			swap_input_timer = setTimeout(async () => {
 				toggle_form_buttons(false)
@@ -116,6 +122,7 @@
 							subtext.textContent = 'No results found.';
 							input.classList.add('border-red')
 						} else {
+							subtext.innerHTML = '&nbsp';
 							input.classList.add('border-green')
 							toggle_form_buttons(true)
 						}
