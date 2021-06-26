@@ -9,6 +9,7 @@ endpoint_swap = _host + 'transactions'
 endpoint_authenticate = _host + 'authentication'
 endpoint_users = _host + 'users'
 endpoint_waitlist = _host + 'card/waitlist'
+endpoint_shaking_sats = _host + 'shaking-sats'
 
 # headers required for requests
 headers = {'User-Agent': 'Shakepay App v1.6.100 (16100) on samsung SM-G930W8 (Android 8.0.0)'}

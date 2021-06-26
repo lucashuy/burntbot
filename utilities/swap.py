@@ -1,8 +1,8 @@
 import globals
 
-from service.log import log
-from service.requests.labrie_check import labrie_check
-from service.requests.transactions import send_transaction
+from utilities.log import log
+from api.labrie_check import labrie_check
+from api.transactions import send_transaction
 
 class Map(dict):
 	def __missing__(self, key): return key

@@ -1,32 +1,38 @@
-<div align = center>
-	<h1>SwapPong</h1>
-	<p>Mange the automatic returns and initiations of swaps with SwapPong, a Python bot.</p>
-</div>
+# burntbot
+Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts with the Shakepay API.
 
-![](.github/header.png)
-## Requirements
-This project is written for Python 3.6+. Required packages can be found in `requirements.txt` and can be installed using `pip3`.
+---
 
-```
-pip3 install -r requirements.txt
-```
+## Features
+* Auto-return swaps of any amount to the sender
+* Initiate swaps quickly with less button presses
+* Check balances and see who owes you
+* Auto-shake using the bot to get shaking sats
 
-The usage of a [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) is recommended.
+## Installation
+Please refer to [INSTALLING.MD](INSTALLING.MD) for instructions on how to install the bot.
 
-## Usage
-You can start the bot by invoking with the the Python executable
+## Quick Start
+This is ment for a quick refresher for those that already have the bot installed. It is highly recommended you view the installing document before you continue.
+
+Running `python start.py` will start the bot. Startup flags can be found below:
 ```
-python3 start.py
-```
-Additionally, startup flags can be used:
-```
-python3 start.py -v		# verbose logging mode: more debug messages
-python3 start.py -l		# listen mode: the bot will not auto-return swaps
-python3 start.py -v -l		# verbose and listen: a combination of the above
+python start.py [-v | --verbose] [-l | --listen] [-r=host:port]
+	-v, --verbose	turns on verbose mode, which prints more information
+	-l, --listen	turns on listen mode, which turns off the bot's auto-return feature
+	-r=host:port	change the host address and port which the web UI binds to
 ```
 
 ## Contributing
 Missing a feature you want? Something broken? Create an issue or pull request and help grow this project.
 
+## Donating
+Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay. Make sure you include a note that says `no return`, otherwise my own bot might return it!
+
 ## License
 This entire project is licensed under AGPL-3.0-or-later.
+
+## Acknowledgements
+This project contains code or assets that are not mine, but reproduced or copied with permission:
+* [Font Awesome Free](https://fontawesome.com/license/free)
+* [css-spinner](https://github.com/loadingio/css-spinner/)

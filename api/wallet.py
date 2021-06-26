@@ -2,8 +2,8 @@ import requests
 
 import globals
 
-from service.requests.exception import raise_exception
-from service.log import log
+from api.exception import raise_exception
+from utilities.log import log
 
 def get_wallet():
 	response = requests.get(globals.endpoint_wallet, headers = globals.headers)

@@ -4,13 +4,13 @@ import traceback
 
 import globals
 
-from service.requests.transactions import get_transactions
-from service.requests.exception import ClientException
-from service.transaction_parser import populate_history, get_swaps
-from service.datetime import get_swap_datetime, string_to_datetime
-from service.persistence import upsert_persistence
-from service.log import log
-from service.swap import swap
+from api.transactions import get_transactions
+from api.exception import ClientException
+from utilities.transaction_parser import populate_history, get_swaps
+from utilities.datetime import get_swap_datetime, string_to_datetime
+from utilities.persistence import upsert_persistence
+from utilities.log import log
+from utilities.swap import swap
 
 class SwapBot(threading.Thread):
 	def __init__(self):

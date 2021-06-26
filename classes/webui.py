@@ -4,14 +4,14 @@ import json
 
 import globals
 
-from service.datetime import get_reset_datetime, string_to_datetime
-from service.requests.version import is_even_version
-from service.requests.waitlist import get_waitlist
-from service.requests.users import search
-from service.requests.wallet import get_wallet
-from service.swap import swap
-from service.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
-from service.persistence import upsert_persistence
+from utilities.datetime import get_reset_datetime, string_to_datetime
+from api.version import is_even_version
+from api.waitlist import get_waitlist
+from api.users import search
+from api.wallet import get_wallet
+from utilities.swap import swap
+from utilities.datetime import string_to_datetime, get_reset_datetime, get_paddle_datetime
+from utilities.persistence import upsert_persistence
 
 def add_commas(amount):
 	int_rep = int(amount)

@@ -1,9 +1,9 @@
 import globals
 
 from classes.user_history import UserHistory
-from service.datetime import string_to_datetime
-from service.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
-from service.log import log
+from utilities.datetime import string_to_datetime
+from utilities.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
+from utilities.log import log
 
 def create_history(userid: str, shaketag: str, timestamp: str, swap: float):
 	globals.bot_history[userid] = UserHistory(shaketag, timestamp, swap)

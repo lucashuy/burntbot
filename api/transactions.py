@@ -3,8 +3,8 @@ import json
 
 import globals
 
-from service.requests.exception import raise_exception
-from service.log import log
+from api.exception import raise_exception
+from utilities.log import log
 
 def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 	# copy headers to append content type

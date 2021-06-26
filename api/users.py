@@ -2,8 +2,8 @@ import requests
 
 import globals
 
-from service.requests.exception import raise_exception
-from service.log import log
+from api.exception import raise_exception
+from utilities.log import log
 
 def users(user_id: str) -> dict:
 	log(f'str build: {globals.endpoint_users}/{user_id}', True)

@@ -3,8 +3,8 @@ import json
 
 import globals
 
-from service.requests.exception import raise_exception
-from service.log import log
+from api.exception import raise_exception
+from utilities.log import log
 
 def pre_login(email: str, password: str) -> str:
 	# copy headers to append content type

@@ -8,19 +8,20 @@ import globals
 from classes.bot import SwapBot
 from classes.webui import WebUI
 
-from service.requests.users import users
-from service.requests.wallet import get_wallet
-from service.requests.login import pre_login, mfa_login
-from service.persistence import read_persistence, upsert_persistence
-from service.log import log
-from service.decode_payload import decode
+from api.users import users
+from api.wallet import get_wallet
+from api.login import pre_login, mfa_login
+from api.shakingsats import shaking_stats
+from utilities.persistence import read_persistence, upsert_persistence
+from utilities.log import log
+from utilities.decode_payload import decode
 
 def read_flags():
 	for arg in sys.argv[1:]:
-		if (arg == '-v'):
+		if (arg == '-v') or (arg == '--verbose'):
 			log(f'-v setting verbose logging')
 			globals.bot_flags['verbose'] = True
-		elif (arg == '-l'):
+		elif (arg == '-l') or (arg == '--listen'):
 			log(f'-l setting listen only mode - no auto returns')
 			globals.bot_flags['listen'] = True
 		elif (arg[0:2] == '-r') and ('=' in arg) and (':' in arg):
@@ -103,6 +104,8 @@ def load_persistence_data():
 if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
+
+	shaking_stats()
 
 	# start ui thread
 	log('Starting WebUI')

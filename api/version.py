@@ -2,7 +2,7 @@ import requests
 
 import globals
 
-from service.log import log
+from utilities.log import log
 
 def is_even_version() -> bool:
 	response = requests.get('https://raw.githubusercontent.com/itslupus/swappong/master/.version')
