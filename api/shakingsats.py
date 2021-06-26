@@ -5,8 +5,8 @@ import globals
 
 from utilities.log import log
 
-def shaking_stats():
-	# copy headers to append content type
+def shaking_sats():
+	# all these headers are required for shaking sats
 	local_headers = globals.headers.copy()
 	local_headers['X-Device-Brand'] = 'samsung'
 	local_headers['X-Device-Model'] = 'SM-G930W8'

@@ -86,6 +86,7 @@ p {
 .fas, .fab {
 	color: var(--less-white);
 	font-size: 2rem;
+	vertical-align: middle;
 }
 
 .navigation {
@@ -135,6 +136,7 @@ p {
 
 .balance-content > div > div:first-child > .fas {
 	margin-right: 0.5rem;
+	vertical-align: baseline;
 }
 
 .balance-wrapper {

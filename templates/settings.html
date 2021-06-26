@@ -23,7 +23,7 @@
 				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>@domi167's Swapper Database</a></div>
 				<div class = 'flex-row'>
 					<p>Prevent send back to scammers and those that don't send back</p>
-					<input id = 'setting-auto-check' type = 'checkbox' autocomplete = 'off'>
+					<input id = 'setting-auto-check' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['return_check'] else '' }}>
 				</div>
 			</div>
 		</div>
@@ -33,9 +33,8 @@
 			<div class = 'setting'>
 				<div class = 'setting-header'>Auto-Shake</div>
 				<div class = 'flex-row'>
-					<p>Coming soon!</p>
-					<!-- <p>Turn on to auto-shake for shaking sats</p>
-					<input id = 'setting-auto-shake' type = 'checkbox' autocomplete = 'off'> -->
+					<p>Turn on to auto-shake for shaking sats</p>
+					<input id = 'setting-auto-shake' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['shaking_sats_enabled'] else '' }}>
 				</div>
 			</div>
 		</div>
@@ -62,6 +61,7 @@
 			let note = document.getElementById('setting-note').value;
 			let poll_rate = document.getElementById('setting-poll-rate').value;
 			let return_check = document.getElementById('setting-auto-check').checked;
+			let shaking_sats = document.getElementById('setting-auto-shake').checked;
 
 			if (poll_rate < 4) {
 				
@@ -74,7 +74,8 @@
 					body: JSON.stringify({
 						note: note,
 						poll_rate: poll_rate,
-						return_check: return_check
+						return_check: return_check,
+						shaking_sats_enabled: shaking_sats
 					})
 				})
 				.then(async (data) => {

@@ -7,11 +7,11 @@ import globals
 
 from classes.bot import SwapBot
 from classes.webui import WebUI
+from classes.shaker import ShakingSats
 
 from api.users import users
 from api.wallet import get_wallet
 from api.login import pre_login, mfa_login
-from api.shakingsats import shaking_stats
 from utilities.persistence import read_persistence, upsert_persistence
 from utilities.log import log
 from utilities.decode_payload import decode
@@ -32,7 +32,6 @@ def read_flags():
 
 			globals.webui_host = split_args[0]
 			globals.webui_port = split_args[1]
-
 		else:
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
@@ -89,6 +88,7 @@ def load_persistence_data():
 	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
 	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
 	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
+	if (not 'shaking_sats_enabled' in persistence): persistence['shaking_sats_enabled'] = False
 
 	# set global variables
 	globals.bot_note = persistence['note']
@@ -97,6 +97,7 @@ def load_persistence_data():
 	globals.wallet_id = persistence['wallet_id']
 	globals.bot_blacklist = persistence['blacklist']
 	globals.bot_return_check = persistence['bot_return_check']
+	globals.shaking_sats_enabled = persistence['shaking_sats_enabled']
 
 	# save data
 	upsert_persistence(persistence)
@@ -104,8 +105,6 @@ def load_persistence_data():
 if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
-
-	shaking_stats()
 
 	# start ui thread
 	log('Starting WebUI')
@@ -115,12 +114,14 @@ if (__name__ == '__main__'):
 	swap_bot = SwapBot()
 	swap_bot.start()
 
+	shaking_sats = ShakingSats()
+
 	# main thread busy
 	while (1):
 		time.sleep(10)
 
 		if (not ui.is_alive()):
-			log('Restarting WebUI')
+			log('WebUI is down, restarting thread')
 
 			ui = WebUI()
 			ui.start()
@@ -129,3 +130,9 @@ if (__name__ == '__main__'):
 			log('Bot died, stopping program')
 
 			raise SystemExit(0)
+
+		if (not shaking_sats.is_alive()) and (globals.shaking_sats_enabled):
+			log('Shaking is down, restarting thread')
+
+			shaking_sats = ShakingSats()
+			shaking_sats.start()

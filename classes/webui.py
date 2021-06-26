@@ -69,7 +69,9 @@ class WebUI(threading.Thread):
 		data = {
 			'version': self.version,
 			'poll_rate': globals.bot_poll_rate,
-			'note': globals.bot_note
+			'note': globals.bot_note,
+			'return_check': globals.bot_return_check,
+			'shaking_sats_enabled': globals.shaking_sats_enabled
 		}
 
 		return flask.render_template('settings.html', data = data)
@@ -98,6 +100,10 @@ class WebUI(threading.Thread):
 		if ('return_check' in data):
 			save_data['bot_return_check'] = data['return_check']
 			globals.bot_return_check = data['return_check']
+
+		if ('shaking_sats_enabled' in data):
+			save_data['shaking_sats_enabled'] = data['shaking_sats_enabled']
+			globals.shaking_sats_enabled = data['shaking_sats_enabled']
 
 		upsert_persistence(save_data)
 		

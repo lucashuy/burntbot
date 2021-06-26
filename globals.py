@@ -36,10 +36,10 @@ bot_flags = {
 }
 
 # version of bot for update checking
-version = '0.5.0'
+version = '0.6.0'
 
 # webui host and port
-webui_host = '127.0.0.1'
+webui_host = '0.0.0.0'
 webui_port = '5000'
 
 # blacklist and balance
@@ -47,3 +47,6 @@ bot_blacklist = {}
 
 # check shaketag against database before returning
 bot_return_check = False
+
+# whether or not to enable auto shake
+shaking_sats_enabled = False
