@@ -1,8 +1,6 @@
 # burntbot
 Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts with the Shakepay API.
 
----
-
 ## Features
 * Auto-return swaps of any amount to the sender
 * Initiate swaps quickly with less button presses
@@ -10,7 +8,7 @@ Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts
 * Auto-shake using the bot to get shaking sats
 
 ## Installation
-Please refer to [INSTALLING.MD](INSTALLING.MD) for instructions on how to install the bot.
+Please refer to [INSTALLING.md](INSTALLING.md) for instructions on how to install the bot.
 
 ## Quick Start
 This is ment for a quick refresher for those that already have the bot installed. It is highly recommended you view the installing document before you continue.

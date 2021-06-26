@@ -1,12 +1,17 @@
 {% macro user(shaketag, amount) %}
-	<div class = 'blacklist-user'>
-		<p>{{ shaketag }}: {{ amount }}</p>
-		<button type = 'submit' class = 'contained' value = '{{ shaketag }}' onclick = remove(this)>DELETE</button>
+	<div class = 'blacklist-user rounded flex-row'>
+		<div>
+			<p class = 'blacklist-user-shaketag'>{{ shaketag }}</p>
+			<p>{{ amount }}</p>
+		</div>
+		<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove(this)><i class="far fa-trash-alt"></i></button>
 	</div>
 
 	<script>
 		function remove(event) {
 			let shaketag = event.value;
+			
+			set_loading(event);
 
 			fetch('/blacklist/' + shaketag, {
 				method: 'DELETE'

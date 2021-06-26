@@ -1,0 +1,28 @@
+{% from 'components/blacklist_user.html' import user %}
+
+{% macro balance(they_sent, we_sent) %}
+	<div class = 'rounded blacklist-balance-wrapper'>
+		<div class = 'flex-row balance-content'>
+			<div>
+				<div><i class="fas fa-angle-double-up"></i><h2>Sent</h2></div>
+				{% if they_sent | length > 0 %}
+					{% for obj in they_sent %}
+						{{ user(obj['shaketag'], obj['amount']) }}
+					{% endfor %}
+				{% else %}
+					<p>nothing here!</p>
+				{% endif %}
+			</div>
+			<div>
+				<div><i class="fas fa-angle-double-down"></i><h2>Recieved</h2></div>
+				{% if we_sent | length > 0 %}
+					{% for obj in we_sent %}
+						{{ user(obj['shaketag'], obj['amount']) }}
+					{% endfor %}
+				{% else %}
+					<p>nothing here!</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endmacro %}

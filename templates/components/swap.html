@@ -77,7 +77,7 @@
 					body: JSON.stringify(body)
 				}).then(async (data) => {
 					if (await data.ok) {
-						document.getElementById('swap-status').textContent = `Sent to ${shaketag}`;
+						document.getElementById('swap-status').textContent = `Sent to ${shaketag}!`;
 						toggle_form_buttons(true);
 					} else {
 						document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;

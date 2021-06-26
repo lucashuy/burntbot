@@ -6,7 +6,8 @@
 	--border-accent: rgba(100, 100, 100, 0.7);
 	--yellow: rgb(209, 206, 4);
 	--navigation-width: 3rem;
-	--background: rgba(0, 0, 0, 0.9)
+	--background: rgba(0, 0, 0, 0.9);
+	--red: rgb(194, 0, 0);
 }
 
 * {
@@ -71,6 +72,11 @@ button.contained {
 	background-color: var(--accent);
 }
 
+button.delete {
+	border: 1px solid var(--red);
+	color: var(--red);
+}
+
 button:disabled {
 	cursor: not-allowed;
 }
@@ -83,10 +89,16 @@ p {
 	color: var(--less-white);
 }
 
-.fas, .fab {
+.fas, .fab, .far {
 	color: var(--less-white);
 	font-size: 2rem;
 	vertical-align: middle;
+}
+
+.far.fa-trash-alt {
+	font-size: 1rem;
+	color: var(--red);
+	min-width: 0;
 }
 
 .navigation {
@@ -205,8 +217,12 @@ p {
 }
 
 .blacklist-wrapper > div {
-	width: 40%;
+	width: 50%;
 	margin-bottom: 2rem;
+}
+
+.blacklist-button-wrapper {
+	direction: rtl;
 }
 
 .divider {
@@ -252,7 +268,7 @@ p {
 }
 
 .fa-times {
-	color: rgb(194, 0, 0);
+	color: var(--red);
 }
 
 .flex-col {
@@ -269,8 +285,37 @@ p {
 	margin-top: 1rem;
 }
 
-.blacklist-user > * {
+.blacklist-user-shaketag {
+	margin-bottom: 0.5rem;
+	color: var(--white);
+}
+
+.blacklist-user > button.delete {
+	align-self: center;
+}
+
+#blacklist > .flex-row {
+	justify-content: space-evenly;
+}
+
+#blacklist > .flex-col {
+	justify-content: space-between;
+}
+
+#blacklist .blacklist-direction {
 	display: inline-block;
+}
+
+#blacklist .blacklist-direction:first-child {
+	margin-right: 1rem;
+}
+
+.blacklist-input {
+	align-self: center;
+}
+
+#blacklist-amount {
+	margin-top: 1rem;
 }
 
 .stats > div {

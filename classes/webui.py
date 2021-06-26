@@ -5,7 +5,7 @@ import json
 import globals
 
 from utilities.datetime import get_reset_datetime, string_to_datetime
-from api.version import is_even_version
+from api.version import get_master_version
 from api.waitlist import get_waitlist
 from api.users import search
 from api.wallet import get_wallet
@@ -42,7 +42,7 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/settings/', view_func = self.settings_page, methods = ['GET'])
 		self.app.add_url_rule('/settings/', view_func = self.settings_save, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
 
 	def home_page(self):
 		get_waitlist()
@@ -50,8 +50,11 @@ class WebUI(threading.Thread):
 		stats_calc = self.get_stats()
 		owe_calc = self.determine_balances()
 
+		master_version = get_master_version()
+
 		data = {
-			'update': not is_even_version(),
+			'update': master_version != self.version,
+			'master_version': master_version,
 			'version': self.version,
 			'shaketag': f'{globals.shaketag}',
 			'unique': add_commas(stats_calc[1]),
@@ -131,10 +134,24 @@ class WebUI(threading.Thread):
 		return (they, we)
 
 	def blacklist_page(self):
+		they_sent = []
+		we_sent = []
+
+		for user, amount in globals.bot_blacklist.items():
+			insert = {'shaketag': user, 'amount': f'${abs(amount):.2f}'}
+
+			if (amount > 0):
+				they_sent.append(insert)
+			else:
+				we_sent.append(insert)
+
 		data = {
 			'version': self.version,
-			'blacklist': globals.bot_blacklist
+			'they_sent': they_sent,
+			'we_sent': we_sent
 		}
+
+		print(data)
 
 		return flask.render_template('blacklist.html', data = data)
 
@@ -145,7 +162,7 @@ class WebUI(threading.Thread):
 		amount = amount * (1 if data['direction'] == 'debit' else -1)
 
 		if (data):
-			globals.bot_blacklist[shaketag] = amount
+			globals.bot_blacklist[shaketag.lower()] = amount
 
 			upsert_persistence({'blacklist': globals.bot_blacklist})
 
@@ -188,7 +205,7 @@ class WebUI(threading.Thread):
 
 		# oh no, an O(n) search
 		for userid, history in globals.bot_history.items():
-			if (history.get_shaketag() == shaketag):
+			if (history.get_shaketag() == shaketag.lower()):
 				reset_date = get_reset_datetime()
 				last_swap_date = string_to_datetime(globals.bot_history[userid].get_timestamp())
 

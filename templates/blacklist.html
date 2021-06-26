@@ -1,4 +1,4 @@
-{% from 'components/blacklist_user.html' import user %}
+{% from 'components/blacklist_balances.html' import balance %}
 
 {% extends 'layout.html' %}
 
@@ -7,38 +7,34 @@
 		<div class = 'rounded'>
 			<h1>Blacklist</h1>
 			<p> See something off in the balances on the home page? Gave money to a family member? Set their balances here to prevent the bot from keeping grudges!</p>
-			<p class = 'warn-text m-top-1'>Any changes require a restart to take effect!</p>
+			<p class = 'warn-text m-top-1'>Any changes require a restart to take effect! Additionally, this only takes into account previous transactions, not those that haven't happened yet!</p>
 			<div class = 'divider'></div>
-			<div>
-				<form id = 'blacklist' autocomplete = 'off'>
-					<div>
+			<form id = 'blacklist' autocomplete = 'off'>
+				<div class = 'flex-row'>
+					<div class = 'flex-col blacklist-input'>
 						<input id = 'blacklist-shaketag' type = 'text' placeholder = '@shaketag'>
 						<input id = 'blacklist-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount'>
 					</div>
-					<div class = 'm-top-1'>
-						<div>
+					<div class = 'rounded'>
+						<div>Who sent the money?</div>
+						<div class = 'divider'></div>
+						<div class = 'blacklist-direction'>
 							<input id = 'debit' type = 'radio' name = 'direction' value = 'debit'>
 							<label for = 'debit'>I sent them</label>
 						</div>
-						<div>
+						<div class = 'blacklist-direction'>
 							<input id = 'credit' type = 'radio' name = 'direction' value = 'credit'>
 							<label for = 'credit'>They sent me</label>
 						</div>
 					</div>
-					<div class = 'button-wrapper m-top-1'>
-						<button id = 'submit' type = 'submit' class = 'contained'>ADD</button>
-					</div>
-				</form>
-			</div>
+				</div>
+				<div class = 'blacklist-button-wrapper m-top-1'>
+					<button id = 'submit' type = 'submit' class = 'contained'>ADD</button>
+				</div>
+			</form>
 		</div>
 		
-		{% if data['blacklist'] | length > 0 %}
-			<div class = 'rounded'>
-				{% for shaketag, amount in data.items() %}
-					{{ user(shaketag, amount) }}
-				{% endfor %}
-			</div>
-		{% endif %}
+		{{ balance(data['they_sent'], data['we_sent']) }}
 	</div>
 
 	<script type = 'text/javascript'>
@@ -50,6 +46,10 @@
 			let direction = document.querySelector('input[name=direction]:checked').value;
 
 			if (shaketag && amount > 0 && direction) {
+				let submit = document.getElementById('submit');
+				submit.disabled = true;
+				set_loading(submit);
+
 				shaketag = append_shaketag(shaketag);
 
 				let body = {

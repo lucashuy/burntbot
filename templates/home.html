@@ -7,7 +7,7 @@
 
 {% block body %}
 	{% if data['update'] %}
-		{{ update_notification() }}
+		{{ update_notification(data['version'], data['master_version']) }}
 	{% endif %}
 	<div class = 'home-general'>
 		<div class = 'personal-banner'>
