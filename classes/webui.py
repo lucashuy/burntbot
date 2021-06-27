@@ -1,3 +1,4 @@
+from api.labrie_check import labrie_check
 import flask
 import threading
 import json
@@ -42,7 +43,7 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/settings/', view_func = self.settings_page, methods = ['GET'])
 		self.app.add_url_rule('/settings/', view_func = self.settings_save, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)
 
 	def home_page(self):
 		get_waitlist()
@@ -200,12 +201,15 @@ class WebUI(threading.Thread):
 
 	def check_swapped(self, shaketag):
 		result = {
-			'swapped': False
+			'swapped': False,
+			'do_swap': True
 		}
+
+		lower_shaketag = shaketag.lower()
 
 		# oh no, an O(n) search
 		for userid, history in globals.bot_history.items():
-			if (history.get_shaketag() == shaketag.lower()):
+			if (history.get_shaketag() == lower_shaketag):
 				reset_date = get_reset_datetime()
 				last_swap_date = string_to_datetime(globals.bot_history[userid].get_timestamp())
 
@@ -215,6 +219,12 @@ class WebUI(threading.Thread):
 				result['last_date'] = last_swap_date.timestamp()
 
 				break
+
+		response = labrie_check(lower_shaketag, 'initiate')
+		
+		if (response['success']) and (not response['data']['allow_initiate']):
+			result['do_swap'] = False
+			result['reason'] = response['data']['reason'] or ''
 
 		return json.dumps(result)
 

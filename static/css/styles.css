@@ -366,11 +366,11 @@ p#swap-input-subtext {
 }
 
 .border-red {
-	border-color: rgba(255, 0, 0, 0.7);
+	border-color: rgba(255, 0, 0, 0.7) !important;
 }
 
 .border-green {
-	border-color: rgba(0, 255, 0, 0.7);
+	border-color: rgba(0, 255, 0, 0.7) !important;
 }
 
 .loading {

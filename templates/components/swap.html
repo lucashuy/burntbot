@@ -42,19 +42,25 @@
 
 				fetch('/check/' + shaketag)
 				.then(async (data) => {
-					json = await data.json();
-					
+					let json = await data.json();
 					let status = document.getElementById('swap-status')
 
-					if (json['swapped']) {
-						status.textContent = 'Already swapped today!';
-					} else {
-						if (json.hasOwnProperty('last_date')) {
-							// let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
-							status.textContent = 'Have not swapped today!';
+					if (json['do_swap']) {
+						status.classList.remove('border-red');
+
+						if (json['swapped']) {
+							status.textContent = 'Already swapped today!';
 						} else {
-							status.textContent = 'Fresh meat, never swapped!';
+							if (json.hasOwnProperty('last_date')) {
+								// let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
+								status.textContent = 'Have not swapped today!';
+							} else {
+								status.textContent = 'Fresh meat, never swapped!';
+							}
 						}
+					} else {
+						status.classList.add('border-red');
+						status.textContent = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['reason']})`;
 					}
 
 					status.classList.remove('hidden');
