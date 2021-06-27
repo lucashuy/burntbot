@@ -11,7 +11,7 @@ Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts
 Please refer to [INSTALLING.md](INSTALLING.md) for instructions on how to install the bot.
 
 ## Quick Start
-This is ment for a quick refresher for those that already have the bot installed. It is highly recommended you view the installing document before you continue.
+This is ment for a quick refresher for those that already have the bot installed. It is highly recommended you view the [INSTALLING.md](INSTALLING.md) document before you continue.
 
 Running `python start.py` will start the bot. Startup flags can be found below:
 ```
@@ -27,7 +27,7 @@ This project also has a web UI. This can be found on port `5000`. The web UI bin
 Missing a feature you want? Something broken? Create an issue or pull request and help grow this project.
 
 ## Donating
-Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay. Make sure you include a note that says `no return`, otherwise my own bot might return it!
+Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay, my shaketag is `@burnttoaster`. Make sure you include a note that says `no return`, otherwise my own bot might return it!
 
 ## License
 This entire project is licensed under AGPL-3.0-or-later.
