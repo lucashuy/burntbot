@@ -3,7 +3,7 @@ Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts
 
 ## Features
 * Auto-return swaps of any amount to the sender
-* Initiate swaps quickly with less button presses
+* Initiate swaps quickly with fewer button presses
 * Check balances and see who owes you
 * Auto-shake using the bot to get shaking sats
 
@@ -20,6 +20,8 @@ python start.py [-v | --verbose] [-l | --listen] [-r=host:port]
 	-l, --listen	turns on listen mode, which turns off the bot's auto-return feature
 	-r=host:port	change the host address and port which the web UI binds to
 ```
+
+This project also has a web UI. This can be found on port `5000`. The web UI binds itself to `0.0.0.0` by default, this means that you can connect to it from any device on the same network if you go to the local machine's IP address in a web browser.
 
 ## Contributing
 Missing a feature you want? Something broken? Create an issue or pull request and help grow this project.
