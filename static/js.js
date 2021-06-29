@@ -82,6 +82,11 @@ function set_loading(container) {
 	container.appendChild(loading);
 }
 
+function unset_loading(container) {
+	loading.classList.remove('loading');
+	container.innerHTML = '';
+}
+
 function set_x(container) {
 	let check = document.createElement('i');
 	check.classList.add('fas');

@@ -6,7 +6,11 @@
 		<form id = 'swap' class = 'm-top-1' autocomplete = 'off'>
 			<div class = 'flex-row swap-input-wrapper'>
 				<div class = 'swap-input-content'>
-					<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
+					<div>
+						<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
+						<div id = 'swap-indicator'>
+						</div>
+					</div>
 					<p id = 'swap-input-subtext'>&nbsp</p>
 				</div>
 				<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount' value = '5'>
@@ -14,7 +18,6 @@
 			<input id = 'swap-note' type = 'text' placeholder = 'note (optional)'>
 			<div class = 'button-wrapper m-top-1 flex-row'>
 				<button id = 'submit' type = 'submit' class = 'contained' disabled>SWAP</button>
-				<button id = 'check' type = 'submit' class = 'emphasis' disabled>CHECK</button>
 			</div>
 			<div id = 'swap-status' class = 'hidden'></div>
 		</form>
@@ -22,11 +25,6 @@
 	<script type = 'text/javascript'>
 		let swap_input_timer;
 
-		function toggle_form_buttons(enabled) {
-			document.getElementById('check').disabled = !enabled;
-			document.getElementById('submit').disabled = !enabled;
-		}
-		
 		function swap_form(event) {
 			event.preventDefault();
 			
@@ -36,70 +34,39 @@
 			let status = document.getElementById('swap-status');
 			status.classList.add('hidden');
 
-			if (event.submitter.id === 'check') {
-				let check_button = document.getElementById('check');
-				set_loading(check_button);
+			let send_button = document.getElementById('submit');
+			set_loading(send_button);
 
-				fetch('/check/' + shaketag)
-				.then(async (data) => {
-					let json = await data.json();
-					let status = document.getElementById('swap-status')
+			document.getElementById('submit').disabled = true;
 
-					if (json['do_swap']) {
-						status.classList.remove('border-red');
+			let body = {
+				note: document.getElementById('swap-note').value,
+				amount: document.getElementById('swap-amount').value
+			}
 
-						if (json['swapped']) {
-							status.textContent = 'Already swapped today!';
-						} else {
-							if (json.hasOwnProperty('last_date')) {
-								// let readable_time = get_human_time((Date.now() / 1000) - json['last_date']);
-								status.textContent = 'Have not swapped today!';
-							} else {
-								status.textContent = 'Fresh meat, never swapped!';
-							}
-						}
-					} else {
-						status.classList.add('border-red');
-						status.textContent = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['reason']})`;
-					}
-
-					status.classList.remove('hidden');
-					check_button.innerHTML = 'CHECK';
-				})
-			} else {
-				let send_button = document.getElementById('submit');
-				set_loading(send_button);
-
-				toggle_form_buttons(false);
-
-				let body = {
-					note: document.getElementById('swap-note').value,
-					amount: document.getElementById('swap-amount').value
+			fetch('/swap/' + shaketag, {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify(body)
+			}).then(async (data) => {
+				if (await data.ok) {
+					document.getElementById('swap-status').textContent = `Sent to ${shaketag}!`;
+					document.getElementById('submit').disabled = false;
+				} else {
+					document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;
 				}
 
-				fetch('/swap/' + shaketag, {
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify(body)
-				}).then(async (data) => {
-					if (await data.ok) {
-						document.getElementById('swap-status').textContent = `Sent to ${shaketag}!`;
-						toggle_form_buttons(true);
-					} else {
-						document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;
-					}
-
-					status.classList.remove('hidden');
-					send_button.innerHTML = 'SEND';
-				})
-			}
+				status.classList.remove('hidden');
+				send_button.innerHTML = 'SEND';
+			})
 		}
 
 		function delay_search(event) {
 			clearTimeout(swap_input_timer);
 			
 			let input = document.getElementById('swap-tag');
-			input.classList.remove('border-red', 'border-green')
+			input.classList.remove('border-red');
+
 			let subtext = document.getElementById('swap-input-subtext');
 			subtext.innerHTML = '&nbsp';
 
@@ -107,10 +74,12 @@
 			document.getElementById('swap-status').classList.add('hidden');
 
 			swap_input_timer = setTimeout(async () => {
-				toggle_form_buttons(false)
+				document.getElementById('submit').disabled = true;
 				shaketag = event.target.value.trim();
 
 				if (shaketag !== '' && shaketag !== '@') {
+					set_loading(document.getElementById('swap-indicator'));
+
 					shaketag = append_shaketag(shaketag);
 
 					fetch('/search/' + shaketag)
@@ -123,18 +92,48 @@
 							subtext.append(create_put_link(json.match));
 							subtext.append('?');
 
-							input.classList.add('border-red')
+							input.classList.add('border-red');
 						} else if (!json.found) {
 							subtext.textContent = 'No results found.';
-							input.classList.add('border-red')
+							input.classList.add('border-red');
 						} else {
 							subtext.innerHTML = '&nbsp';
-							input.classList.add('border-green')
-							toggle_form_buttons(true)
+							input.classList.remove('border-red');
+							document.getElementById('submit').disabled = false;
+
+							check()
 						}
 					})
 				}
 			}, 500);
+		}
+
+		function check(shaketag) {
+			fetch('/check/' + shaketag)
+			.then(async (data) => {
+				let json = await data.json();
+				let status = document.getElementById('swap-status')
+
+				if (json['do_swap']) {
+					status.classList.remove('border-red');
+
+					if (json['swapped']) {
+						status.textContent = 'Already swapped today!';
+					} else {
+						if (json.hasOwnProperty('last_date')) {
+							status.textContent = 'Have not swapped today!';
+						} else {
+							status.textContent = 'Fresh meat, never swapped!';
+						}
+					}
+				} else {
+					status.classList.add('border-red');
+					status.textContent = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['reason']})`;
+				}
+
+				unset_loading(document.getElementById('swap-indicator'));
+				status.classList.remove('hidden');
+			})
 		}
 
 		document.getElementById('swap').addEventListener('submit', swap_form)

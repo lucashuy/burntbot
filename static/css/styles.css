@@ -174,7 +174,7 @@ p {
 }
 
 .button-wrapper > button {
-	width: 47%;
+	width: 100%;
 }
 
 #swap-note {
@@ -201,6 +201,12 @@ p {
 	margin-top: 1rem;
 	padding: 0.25rem 0 0.25rem 0.5rem;
 	border-left: 2px solid var(--border-accent);
+}
+
+#swap-indicator {
+	position: absolute;
+	right: 10px;
+	top: 8px;
 }
 
 .content {

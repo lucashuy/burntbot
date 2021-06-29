@@ -20,7 +20,6 @@ class SwapBot(threading.Thread):
 		self.last_restart = time.time()
 
 	def init_history(self) -> float:
-		# rowsPerPage other than 2000 breaks FOR SOME REASON
 		body = {
 			'filterParams': {'type': 'peer'},
 			'pagination': {
