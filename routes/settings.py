@@ -10,7 +10,8 @@ def settings_page():
 		'poll_rate': globals.bot_poll_rate,
 		'note': globals.bot_note,
 		'return_check': globals.bot_return_check,
-		'shaking_sats_enabled': globals.shaking_sats_enabled
+		'shaking_sats_enabled': globals.shaking_sats_enabled,
+		'heart_beat': globals.heart_beat_enabled
 	}
 
 	return flask.render_template('settings.html', data = data)
@@ -43,6 +44,10 @@ def settings_save():
 	if ('shaking_sats_enabled' in data):
 		save_data['shaking_sats_enabled'] = data['shaking_sats_enabled']
 		globals.shaking_sats_enabled = data['shaking_sats_enabled']
+
+	if ('heart_beat' in data):
+		save_data['heart_beat'] = data['heart_beat']
+		globals.heart_beat_enabled = data['heart_beat']
 
 	upsert_persistence(save_data)
 	
