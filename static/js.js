@@ -9,11 +9,9 @@ function create_put_link(shaketag) {
 		let tag = document.getElementById('swap-tag');
 		tag.value = local_shaketag;
 		tag.classList.remove('border-red');
-		tag.classList.add('border-green');
+		tag.dispatchEvent(new Event('input'));
 
 		document.getElementById('swap-input-subtext').innerHTML = '&nbsp';
-
-		toggle_form_buttons(true)
 	})
 
 	return element;
@@ -83,7 +81,7 @@ function set_loading(container) {
 }
 
 function unset_loading(container) {
-	loading.classList.remove('loading');
+	container.classList.remove('loading');
 	container.innerHTML = '';
 }
 

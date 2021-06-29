@@ -28,7 +28,8 @@
 		function swap_form(event) {
 			event.preventDefault();
 			
-			let shaketag = append_shaketag(document.getElementById('swap-tag').value);
+			let shaketag_input = document.getElementById('swap-tag');
+			let shaketag = append_shaketag(shaketag_input.value);
 
 			// easier than removing text and styling
 			let status = document.getElementById('swap-status');
@@ -51,9 +52,12 @@
 			}).then(async (data) => {
 				if (await data.ok) {
 					document.getElementById('swap-status').textContent = `Sent to ${shaketag}!`;
-					document.getElementById('submit').disabled = false;
+
+					shaketag_input.value = '';
+					shaketag_input.placeholder = shaketag;
 				} else {
 					document.getElementById('swap-status').textContent = `Failed to send, do you have enough funds?`;
+					document.getElementById('submit').disabled = false;
 				}
 
 				status.classList.remove('hidden');
@@ -77,8 +81,10 @@
 				document.getElementById('submit').disabled = true;
 				shaketag = event.target.value.trim();
 
+				let indicator = document.getElementById('swap-indicator');
+
 				if (shaketag !== '' && shaketag !== '@') {
-					set_loading(document.getElementById('swap-indicator'));
+					set_loading(indicator);
 
 					shaketag = append_shaketag(shaketag);
 
@@ -93,17 +99,23 @@
 							subtext.append('?');
 
 							input.classList.add('border-red');
+							unset_loading(indicator);
 						} else if (!json.found) {
 							subtext.textContent = 'No results found.';
+
 							input.classList.add('border-red');
+							unset_loading(indicator);
 						} else {
 							subtext.innerHTML = '&nbsp';
 							input.classList.remove('border-red');
 							document.getElementById('submit').disabled = false;
 
-							check()
+							check(shaketag)
 						}
 					})
+				} else {
+					unset_loading(indicator);
+					input.classList.remove('border-red');
 				}
 			}, 500);
 		}

@@ -6,6 +6,7 @@ import globals
 from api.labrie_check import labrie_check
 from api.wallet import get_wallet
 from api.users import search
+from utilities.swap import swap as sswap
 from utilities.datetime import string_to_datetime, get_reset_datetime
 
 def check_swapped(shaketag):
@@ -57,7 +58,7 @@ def swap(shaketag):
 
 	note = data['note'] or ''
 
-	swap(shaketag, amount, override = True, is_return = False, custom_note = note)
+	sswap(shaketag, amount, override = True, is_return = False, custom_note = note)
 	
 	return flask.Response(status = 201)
 
