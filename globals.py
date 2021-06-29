@@ -14,8 +14,9 @@ endpoint_shaking_sats = _host + 'shaking-sats'
 # headers required for requests
 headers = {'User-Agent': 'Shakepay App v1.6.100 (16100) on samsung SM-G930W8 (Android 8.0.0)'}
 
-# CAD wallet ID
+# info about us
 wallet_id = ''
+user_id = ''
 
 # our shaketag
 shaketag = ''
@@ -36,7 +37,7 @@ bot_flags = {
 }
 
 # version of bot for update checking
-version = '0.6.0'
+version = '0.0.0'
 
 # webui host and port
 webui_host = '0.0.0.0'
@@ -50,3 +51,7 @@ bot_return_check = False
 
 # whether or not to enable auto shake
 shaking_sats_enabled = False
+
+# whether or not to broadcast bot alive status to API
+heart_beat_enabled = False
+heart_beat_extra = False

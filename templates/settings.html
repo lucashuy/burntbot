@@ -20,7 +20,7 @@
 				</div>
 			</div>
 			<div class = 'setting'>
-				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>@domi167's Swapper Database</a></div>
+				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>Community Swapper Database</a></div>
 				<div class = 'flex-row'>
 					<p>Prevent send back to scammers and those that don't send back</p>
 					<input id = 'setting-auto-check' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['return_check'] else '' }}>
@@ -35,6 +35,20 @@
 				<div class = 'flex-row'>
 					<p>Turn on to auto-shake for shaking sats</p>
 					<input id = 'setting-auto-shake' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['shaking_sats_enabled'] else '' }}>
+				</div>
+			</div>
+			<div class = 'setting'>
+				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>Bot Heart Beat</a></div>
+				<div class = 'flex-row'>
+					<p>Enable the bot to broadcast whether it is alive or not</p>
+					<input id = 'setting-heart-beat' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat'] else '' }}>
+				</div>
+			</div>
+			<div class = 'setting'>
+				<div class = 'setting-header'>Bot Heart Beat (extra)</div>
+				<div class = 'flex-row'>
+					<p>Enable extra information to be sent when performing heart beat (points, position, etc)</p>
+					<input id = 'setting-heart-beat-extra' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_extra'] else '' }}>
 				</div>
 			</div>
 		</div>
@@ -58,10 +72,7 @@
 		}
 
 		function save(event) {
-			let note = document.getElementById('setting-note').value;
 			let poll_rate = document.getElementById('setting-poll-rate').value;
-			let return_check = document.getElementById('setting-auto-check').checked;
-			let shaking_sats = document.getElementById('setting-auto-shake').checked;
 
 			if (poll_rate < 4) {
 				
@@ -72,10 +83,12 @@
 					method: 'PATCH',
 					headers: {'Content-Type': 'application/json'},
 					body: JSON.stringify({
-						note: note,
+						note: document.getElementById('setting-note').value,
 						poll_rate: poll_rate,
-						return_check: return_check,
-						shaking_sats_enabled: shaking_sats
+						return_check: document.getElementById('setting-auto-check').checked,
+						shaking_sats_enabled: document.getElementById('setting-auto-shake').checked,
+						heart_beat: document.getElementById('setting-heart-beat').checked,
+						heart_beat_extra: document.getElementById('setting-heart-beat-extra').checked
 					})
 				})
 				.then(async (data) => {

@@ -8,6 +8,7 @@ import globals
 from classes.bot import SwapBot
 from classes.webui import WebUI
 from classes.shaker import ShakingSats
+from classes.heartbeat import HeartBeat
 
 from api.users import users
 from api.wallet import get_wallet
@@ -74,11 +75,11 @@ def load_persistence_data():
 	globals.headers['Authorization'] = persistence['token']
 
 	# add other key values to persistence
-	user_id = decode(persistence['token'].split('.')[1])['userId']
+	globals.user_id = decode(persistence['token'].split('.')[1])['userId']
 
-	log(f'userid is {user_id}', True)
+	log(f'userid is {globals.user_id}', True)
 
-	user_data = users(user_id)
+	user_data = users(globals.user_id)
 
 	log(user_data, True)
 
@@ -89,6 +90,8 @@ def load_persistence_data():
 	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
 	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
 	if (not 'shaking_sats_enabled' in persistence): persistence['shaking_sats_enabled'] = False
+	if (not 'heart_beat' in persistence): persistence['heart_beat'] = False
+	if (not 'heart_beat_extra' in persistence): persistence['heart_beat_extra'] = False
 
 	# set global variables
 	globals.bot_note = persistence['note']
@@ -98,6 +101,8 @@ def load_persistence_data():
 	globals.bot_blacklist = persistence['blacklist']
 	globals.bot_return_check = persistence['bot_return_check']
 	globals.shaking_sats_enabled = persistence['shaking_sats_enabled']
+	globals.heart_beat_enabled = persistence['heart_beat']
+	globals.heart_beat_extra = persistence['heart_beat_extra']
 
 	# save data
 	upsert_persistence(persistence)
@@ -106,15 +111,26 @@ if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
 
+	# read version in
+	try:
+		with open('./.version') as file:
+			globals.version = file.read()
+	except: pass
+
 	# start ui thread
 	log('Starting WebUI')
 	ui = WebUI()
 	ui.start()
 
+	# start bot thread
 	swap_bot = SwapBot()
 	swap_bot.start()
 
+	# initialize shake thread
 	shaking_sats = ShakingSats()
+
+	# initialize heart beat thread
+	api_heart_beat = HeartBeat()
 
 	# main thread busy
 	while (1):
@@ -136,3 +152,9 @@ if (__name__ == '__main__'):
 
 			shaking_sats = ShakingSats()
 			shaking_sats.start()
+
+		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled):
+			log('Heart beat is down, restarting thread')
+
+			api_heart_beat = HeartBeat()
+			api_heart_beat.start()
