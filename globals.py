@@ -37,7 +37,7 @@ bot_flags = {
 }
 
 # version of bot for update checking
-version = '0.6.0'
+version = '0.0.0'
 
 # webui host and port
 webui_host = '0.0.0.0'
@@ -54,3 +54,4 @@ shaking_sats_enabled = False
 
 # whether or not to broadcast bot alive status to API
 heart_beat_enabled = False
+heart_beat_extra = False

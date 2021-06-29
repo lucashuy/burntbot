@@ -91,6 +91,7 @@ def load_persistence_data():
 	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
 	if (not 'shaking_sats_enabled' in persistence): persistence['shaking_sats_enabled'] = False
 	if (not 'heart_beat' in persistence): persistence['heart_beat'] = False
+	if (not 'heart_beat_extra' in persistence): persistence['heart_beat_extra'] = False
 
 	# set global variables
 	globals.bot_note = persistence['note']
@@ -101,6 +102,7 @@ def load_persistence_data():
 	globals.bot_return_check = persistence['bot_return_check']
 	globals.shaking_sats_enabled = persistence['shaking_sats_enabled']
 	globals.heart_beat_enabled = persistence['heart_beat']
+	globals.heart_beat_extra = persistence['heart_beat_extra']
 
 	# save data
 	upsert_persistence(persistence)
@@ -108,6 +110,12 @@ def load_persistence_data():
 if (__name__ == '__main__'):
 	read_flags()
 	load_persistence_data()
+
+	# read version in
+	try:
+		with open('./.version') as file:
+			globals.version = file.read()
+	except: pass
 
 	# start ui thread
 	log('Starting WebUI')

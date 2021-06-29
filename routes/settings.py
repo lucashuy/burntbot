@@ -49,6 +49,10 @@ def settings_save():
 		save_data['heart_beat'] = data['heart_beat']
 		globals.heart_beat_enabled = data['heart_beat']
 
+	if ('heart_beat_extra' in data):
+		save_data['heart_beat_extra'] = data['heart_beat_extra']
+		globals.heart_beat_extra = data['heart_beat_extra']
+
 	upsert_persistence(save_data)
 	
 	return flask.Response(status = 201)
