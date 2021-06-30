@@ -91,7 +91,8 @@ def load_persistence_data():
 	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
 	if (not 'shaking_sats_enabled' in persistence): persistence['shaking_sats_enabled'] = False
 	if (not 'heart_beat' in persistence): persistence['heart_beat'] = False
-	if (not 'heart_beat_extra' in persistence): persistence['heart_beat_extra'] = False
+	if (not 'heart_beat_swaps' in persistence): persistence['heart_beat_swaps'] = False
+	if (not 'heart_beat_points' in persistence): persistence['heart_beat_points'] = False
 
 	# set global variables
 	globals.bot_note = persistence['note']
@@ -102,7 +103,8 @@ def load_persistence_data():
 	globals.bot_return_check = persistence['bot_return_check']
 	globals.shaking_sats_enabled = persistence['shaking_sats_enabled']
 	globals.heart_beat_enabled = persistence['heart_beat']
-	globals.heart_beat_extra = persistence['heart_beat_extra']
+	globals.heart_beat_swaps = persistence['heart_beat_swaps']
+	globals.heart_beat_points = persistence['heart_beat_points']
 
 	# save data
 	upsert_persistence(persistence)

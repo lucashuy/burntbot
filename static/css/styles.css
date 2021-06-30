@@ -264,6 +264,14 @@ p {
 	direction: rtl;
 }
 
+.setting-extra {
+	margin-top: 1rem;
+}
+
+.setting-extra > div.flex-row:not(:first-child) {
+	margin-top: 1rem;
+}
+
 #settings-status {
 	display: inline;
 	margin-right: 1rem;

@@ -54,4 +54,5 @@ shaking_sats_enabled = False
 
 # whether or not to broadcast bot alive status to API
 heart_beat_enabled = False
-heart_beat_extra = False
+heart_beat_points = False
+heart_beat_swaps = False
