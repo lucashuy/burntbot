@@ -4,7 +4,7 @@ import globals
 
 def labrie_check(shaketag: str, type: str) -> dict:
 	data =  {
-		'source': f'@burnttoaster bot v{globals.version}',
+		'source': globals.headers['X-Device-Unique-Id'],
 		'shaketag': shaketag,
 		'step': type
 	}
