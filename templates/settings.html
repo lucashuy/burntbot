@@ -44,7 +44,10 @@
 					<input id = 'setting-heart-beat' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat'] else '' }}>
 				</div>
 				<div class = 'rounded setting-extra'>
-					<div>Enabling any of these options will also report waitlist position!</div>
+					<div class = 'flex-row'>
+						<p>Report waitlist position</p>
+						<input id = 'setting-heart-beat-position' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_position'] else '' }}>
+					</div>
 					<div class = 'flex-row'>
 						<p>Report waitlist points</p>
 						<input id = 'setting-heart-beat-points' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_points'] else '' }}>
@@ -94,7 +97,8 @@
 						shaking_sats_enabled: document.getElementById('setting-auto-shake').checked,
 						heart_beat: document.getElementById('setting-heart-beat').checked,
 						heart_beat_points: document.getElementById('setting-heart-beat-points').checked,
-						heart_beat_swaps: document.getElementById('setting-heart-beat-swaps').checked
+						heart_beat_swaps: document.getElementById('setting-heart-beat-swaps').checked,
+						heart_beat_position: document.getElementById('setting-heart-beat-position').checked
 					})
 				})
 				.then(async (data) => {

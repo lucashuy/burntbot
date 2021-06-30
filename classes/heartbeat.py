@@ -13,4 +13,5 @@ class HeartBeat(threading.Thread):
 		while (globals.heart_beat_enabled):
 			heart_beat()
 
-			time.sleep(60 * 5)
+			# time.sleep(60 * 5)
+			time.sleep(5)

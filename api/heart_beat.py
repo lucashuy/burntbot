@@ -16,22 +16,33 @@ def heart_beat():
 
 	if (globals.heart_beat_points):
 		# fetch any new data
-		if (not fetched_waitlist): get_waitlist()
+		if (not fetched_waitlist):
+			get_waitlist()
+			fetched_waitlist = True
 
 		metadata["points"] = globals.waitlist_points
-		metadata["position"] = globals.waitlist_position
 
 	if (globals.heart_beat_swaps):
 		# fetch any new data
-		if (not fetched_waitlist): get_waitlist()
+		if (not fetched_waitlist):
+			get_waitlist()
+			fetched_waitlist = True
 
 		metadata["swapsToday"] = _count_swaps_today()
+
+	if (globals.heart_beat_position):
+		# fetch any new data
+		if (not fetched_waitlist):
+			get_waitlist()
+			fetched_waitlist = True
+
 		metadata["position"] = globals.waitlist_position
 
 	if (len(metadata) > 0):
 		data['metadata'] = metadata
 
-	requests.post('https://swap.labrie.ca/api/ping/', json = data)
+	# requests.post('https://swap.labrie.ca/api/ping/', json = data)
+	print(data)
 
 def _count_swaps_today() -> int:
 	swaps_today = 0

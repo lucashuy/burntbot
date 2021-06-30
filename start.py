@@ -93,6 +93,7 @@ def load_persistence_data():
 	if (not 'heart_beat' in persistence): persistence['heart_beat'] = False
 	if (not 'heart_beat_swaps' in persistence): persistence['heart_beat_swaps'] = False
 	if (not 'heart_beat_points' in persistence): persistence['heart_beat_points'] = False
+	if (not 'heart_beat_position' in persistence): persistence['heart_beat_position'] = False
 
 	# set global variables
 	globals.bot_note = persistence['note']
@@ -105,6 +106,7 @@ def load_persistence_data():
 	globals.heart_beat_enabled = persistence['heart_beat']
 	globals.heart_beat_swaps = persistence['heart_beat_swaps']
 	globals.heart_beat_points = persistence['heart_beat_points']
+	globals.heart_beat_position = persistence['heart_beat_position']
 
 	# save data
 	upsert_persistence(persistence)

@@ -56,3 +56,4 @@ shaking_sats_enabled = False
 heart_beat_enabled = False
 heart_beat_points = False
 heart_beat_swaps = False
+heart_beat_position = False

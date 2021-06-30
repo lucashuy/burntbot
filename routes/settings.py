@@ -13,7 +13,8 @@ def settings_page():
 		'shaking_sats_enabled': globals.shaking_sats_enabled,
 		'heart_beat': globals.heart_beat_enabled,
 		'heart_beat_points': globals.heart_beat_points,
-		'heart_beat_swaps': globals.heart_beat_swaps
+		'heart_beat_swaps': globals.heart_beat_swaps,
+		'heart_beat_position': globals.heart_beat_position,
 	}
 
 	return flask.render_template('settings.html', data = data)
@@ -58,6 +59,10 @@ def settings_save():
 	if ('heart_beat_swaps' in data):
 		save_data['heart_beat_swaps'] = data['heart_beat_swaps']
 		globals.heart_beat_swaps = data['heart_beat_swaps']
+
+	if ('heart_beat_position' in data):
+		save_data['heart_beat_position'] = data['heart_beat_position']
+		globals.heart_beat_position = data['heart_beat_position']
 
 	upsert_persistence(save_data)
 	
