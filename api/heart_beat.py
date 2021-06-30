@@ -25,7 +25,7 @@ def heart_beat():
 		# fetch any new data
 		if (not fetched_waitlist): get_waitlist()
 
-		metadata["swapsToday"] = globals._count_swaps_today()
+		metadata["swapsToday"] = _count_swaps_today()
 		metadata["position"] = globals.waitlist_position
 
 	if (len(metadata) > 0):
