@@ -31,8 +31,7 @@ def heart_beat():
 			"swapsToday" : _count_swaps_today()
 		}
 
-	# requests.post('https://swap.labrie.ca/api/ping/', json = data)
-	print(data)
+	requests.post('https://swap.labrie.ca/api/ping/', json = data)
 
 def _count_swaps_today() -> int:
 	swaps_today = 0
