@@ -14,7 +14,7 @@
 				{% endif %}
 			</div>
 			<div>
-				<div><i class="fas fa-angle-double-down"></i><h2>Recieved</h2></div>
+				<div><i class="fas fa-angle-double-down"></i><h2>Received</h2></div>
 				{% if we_owe | length > 0 %}
 					{% for obj in we_owe %}
 						{{ balance_user(obj['shaketag'], obj['amount'], obj['timestamp']) }}

@@ -14,7 +14,7 @@
 				{% endif %}
 			</div>
 			<div>
-				<div><i class="fas fa-angle-double-down"></i><h2>Recieved</h2></div>
+				<div><i class="fas fa-angle-double-down"></i><h2>Received</h2></div>
 				{% if we_sent | length > 0 %}
 					{% for obj in we_sent %}
 						{{ user(obj['shaketag'], obj['amount']) }}
