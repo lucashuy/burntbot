@@ -12,8 +12,8 @@ def settings_page():
 		'return_check': globals.bot_return_check,
 		'shaking_sats_enabled': globals.shaking_sats_enabled,
 		'heart_beat': globals.heart_beat_enabled,
-		'heart_beat_points': globals.heart_beat_enabled,
-		'heart_beat_swaps': globals.heart_beat_enabled
+		'heart_beat_points': globals.heart_beat_points,
+		'heart_beat_swaps': globals.heart_beat_swaps
 	}
 
 	return flask.render_template('settings.html', data = data)
