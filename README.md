@@ -36,3 +36,5 @@ This entire project is licensed under AGPL-3.0-or-later.
 This project contains code or assets that are not mine, but reproduced or copied with permission:
 * [Font Awesome Free](https://fontawesome.com/license/free)
 * [css-spinner](https://github.com/loadingio/css-spinner/)
+
+Thanks to [@domi167](https://github.com/dlabrie) for the API that this bot draws from for swapper information.
