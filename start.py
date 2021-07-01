@@ -151,14 +151,14 @@ if (__name__ == '__main__'):
 
 			raise SystemExit(0)
 
-		if (not shaking_sats.is_alive()) and (globals.shaking_sats_enabled):
-			log('Shaking is down, restarting thread')
+		if (not shaking_sats.is_alive()) and (globals.shaking_sats_enabled) and (globals.bot_state):
+			log('Starting shaking sats thread')
 
 			shaking_sats = ShakingSats()
 			shaking_sats.start()
 
-		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled):
-			log('Heart beat is down, restarting thread')
+		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled) and (globals.bot_state):
+			log('Starting heart beat thread')
 
 			api_heart_beat = HeartBeat()
 			api_heart_beat.start()
