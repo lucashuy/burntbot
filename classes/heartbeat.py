@@ -10,7 +10,7 @@ class HeartBeat(threading.Thread):
 		threading.Thread.__init__(self, daemon = True)
 
 	def run(self):
-		while (globals.heart_beat_enabled):
+		while (globals.heart_beat_enabled and globals.bot_state):
 			heart_beat()
 
 			time.sleep(60 * 5)

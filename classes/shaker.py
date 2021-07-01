@@ -10,7 +10,7 @@ class ShakingSats(threading.Thread):
 		threading.Thread.__init__(self, daemon = True)
 
 	def run(self):
-		while (globals.shaking_sats_enabled):
+		while (globals.shaking_sats_enabled and globals.bot_state):
 			shaking_sats()
 
 			# 12 hour cooldown between shakes

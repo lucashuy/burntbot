@@ -99,6 +99,8 @@ class SwapBot(threading.Thread):
 
 				log('Bot ready')
 
+				globals.bot_state = 1
+
 				# start polling
 				while (1):
 					(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
@@ -119,6 +121,8 @@ class SwapBot(threading.Thread):
 
 				raise SystemExit(0)
 			except Exception as e:
+				globals.bot_state = 0
+
 				log(f'Crashed due to: {e}')
 				log(traceback.format_exc())
 
@@ -130,7 +134,7 @@ class SwapBot(threading.Thread):
 				if (self.last_restart + (60 * 10) < time_now):
 					self.restarts = 0
 
-				if (self.restarts > 5):
+				if (self.restarts > 3):
 					log('Bot died from too many deaths, stopping')
 					
 					raise SystemExit(0)
