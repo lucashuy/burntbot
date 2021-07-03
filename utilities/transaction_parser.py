@@ -1,7 +1,7 @@
 import globals
 
 from classes.user_history import UserHistory
-from utilities.datetime import string_to_datetime
+from utilities.datetime import string_to_datetime, get_swap_datetime
 from utilities.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
 from utilities.log import log
 
@@ -15,6 +15,8 @@ def check_no_return(transaction: dict, userid: str, swap: float):
 
 def populate_history(data: list):
 	for transaction in data:
+		if (string_to_datetime(transaction['timestamp']) < get_swap_datetime): break
+
 		userid = determine_userid(transaction)
 		shaketag = determine_shaketag(transaction)
 		swap = determine_swap_amnt(transaction)
