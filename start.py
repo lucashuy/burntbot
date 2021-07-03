@@ -58,11 +58,17 @@ def load_persistence_data():
 	if (not 'token' in persistence) or (persistence['token'] == ''):
 		log('Existing session not found, logging in to Shakepay...')
 
-		password = getpass.getpass('> password: ')
-		email = input('> email: ')
+		password = getpass.getpass('> Password: ')
+		email = input('> Email: ')
 
 		try:
 			pre_auth_token = pre_login(email, password)
+
+			if (pre_auth_token == False):
+				log('Please check your email for an email from Shakepay to authenticate the IP address!')
+				input('> Press ENTER when you confirmed the IP address...')
+				
+				pre_auth_token = pre_login(email, password)
 
 			code = input('> 2FA code: ')
 
@@ -157,7 +163,7 @@ if (__name__ == '__main__'):
 			shaking_sats = ShakingSats()
 			shaking_sats.start()
 
-		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled) and (globals.bot_state):
+		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled) and (globals.bot_state) and (not globals.bot_flags['listen']):
 			log('Starting heart beat thread')
 
 			api_heart_beat = HeartBeat()
