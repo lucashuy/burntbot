@@ -10,7 +10,7 @@ def create_history(userid: str, shaketag: str, timestamp: str, swap: float):
 
 def check_no_return(transaction: dict, userid: str, swap: float):
 	# check if the note contains "no return"
-	if ('no return' == transaction['note']):
+	if ('no return' in transaction['note']):
 		globals.bot_history[userid].adjust_swap(-swap)
 
 def populate_history(data: list):
