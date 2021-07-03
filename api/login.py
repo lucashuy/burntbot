@@ -6,7 +6,9 @@ import globals
 from api.exception import raise_exception
 from utilities.log import log
 
-def pre_login(email: str, password: str) -> str:
+# returns False on email verification
+# returns accessToken for 2FA on success
+def pre_login(email: str, password: str):
 	# copy headers to append content type
 	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
@@ -19,8 +21,9 @@ def pre_login(email: str, password: str) -> str:
 		'username': email
 	}))
 
-	# make sure we have 2xx status
-	if (not response.ok):
+	if (response.status_code == 403):
+		return False
+	elif (not response.ok):
 		log('Something went wrong when login (pre 2FA): {}'.format(response.text))
 		
 		raise_exception(response.status_code)
