@@ -15,7 +15,7 @@ def check_no_return(transaction: dict, userid: str, swap: float):
 
 def populate_history(data: list):
 	for transaction in data:
-		if (string_to_datetime(transaction['timestamp']) < get_swap_datetime): break
+		if (string_to_datetime(transaction['timestamp']) < get_swap_datetime()): break
 
 		userid = determine_userid(transaction)
 		shaketag = determine_shaketag(transaction)
