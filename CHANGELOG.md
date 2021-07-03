@@ -3,6 +3,7 @@
 ## 0.8.0 (TBA)
 Additions:
 * Added the ability to swap to people in a list
+* Added the ability to update the bot from the web UI
 
 Changes:
 * Fixed "recieved" typo
