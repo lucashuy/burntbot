@@ -7,11 +7,11 @@
 			<div class = 'flex-row swap-input-wrapper'>
 				<div class = 'swap-input-content'>
 					<div>
-						<input id = 'swap-tag' type = 'text' placeholder = '@shaketag'>
-						<div id = 'swap-indicator'>
+						<input id = 'check-tag' type = 'text' placeholder = '@shaketag'>
+						<div id = 'check-indicator'>
 						</div>
 					</div>
-					<p id = 'swap-input-subtext'>&nbsp</p>
+					<p id = 'check-input-subtext'>&nbsp</p>
 				</div>
 				<input id = 'swap-amount' type = 'number' min = 0 step = '0.01' placeholder = 'amount' value = '5'>
 			</div>
@@ -28,7 +28,7 @@
 		function swap_form(event) {
 			event.preventDefault();
 			
-			let shaketag_input = document.getElementById('swap-tag');
+			let shaketag_input = document.getElementById('check-tag');
 			let shaketag = append_shaketag(shaketag_input.value);
 
 			// easier than removing text and styling
@@ -68,10 +68,10 @@
 		function delay_search(event) {
 			clearTimeout(swap_input_timer);
 			
-			let input = document.getElementById('swap-tag');
+			let input = document.getElementById('check-tag');
 			input.classList.remove('border-red');
 
-			let subtext = document.getElementById('swap-input-subtext');
+			let subtext = document.getElementById('check-input-subtext');
 			subtext.innerHTML = '&nbsp';
 
 			// hide status text
@@ -81,7 +81,7 @@
 				document.getElementById('submit').disabled = true;
 				shaketag = event.target.value.trim();
 
-				let indicator = document.getElementById('swap-indicator');
+				let indicator = document.getElementById('check-indicator');
 
 				if (shaketag !== '' && shaketag !== '@') {
 					set_loading(indicator);
@@ -143,12 +143,12 @@
 					status.textContent = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['reason']})`;
 				}
 
-				unset_loading(document.getElementById('swap-indicator'));
+				unset_loading(document.getElementById('check-indicator'));
 				status.classList.remove('hidden');
 			})
 		}
 
 		document.getElementById('swap').addEventListener('submit', swap_form)
-		document.getElementById('swap-tag').addEventListener('input', delay_search)
+		document.getElementById('check-tag').addEventListener('input', delay_search)
 	</script>
 {% endmacro %}

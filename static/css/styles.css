@@ -181,7 +181,7 @@ p {
 	width: 100%;
 }
 
-#swap-tag {
+#check-tag {
 	width: 100%;
 }
 
@@ -203,7 +203,7 @@ p {
 	border-left: 2px solid var(--border-accent);
 }
 
-#swap-indicator {
+#check-indicator {
 	position: absolute;
 	right: 10px;
 	top: 8px;
@@ -369,7 +369,7 @@ p {
 	width: 30%;
 }
 
-p#swap-input-subtext {
+p#check-input-subtext {
 	margin: 0.25rem 0 0.5rem 0;
 	font-size: 0.75rem;
 }
@@ -419,4 +419,20 @@ p#swap-input-subtext {
 	0% {transform: rotate(0deg);}
 	100% {transform: rotate(360deg);}
 }
-  
+
+.list-header {
+	width: 75%;
+	margin-bottom: 3rem;
+}
+
+.list-users-wrapper {
+	justify-content: space-between;
+}
+
+.list-send-wrapper > * {
+	display: inline-block;
+}
+
+.list-send-wrapper > button#send {
+	float: right;
+}

@@ -6,12 +6,12 @@ function create_put_link(shaketag) {
 	element.classList.add('add-link');
 
 	element.addEventListener('click', () => {
-		let tag = document.getElementById('swap-tag');
+		let tag = document.getElementById('check-tag');
 		tag.value = local_shaketag;
 		tag.classList.remove('border-red');
 		tag.dispatchEvent(new Event('input'));
 
-		document.getElementById('swap-input-subtext').innerHTML = '&nbsp';
+		document.getElementById('check-input-subtext').innerHTML = '&nbsp';
 	})
 
 	return element;

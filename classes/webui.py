@@ -7,11 +7,12 @@ from routes.home import home_page
 from routes.swap import swap, check_spelling, check_swapped
 from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
 from routes.settings import settings_page, settings_save
+from routes.list import list_page
 
-class WebUI(threading.Thread):
-# class WebUI():
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -26,5 +27,6 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = blacklist_delete, methods = ['DELETE'])
 		self.app.add_url_rule('/settings/', view_func = settings_page, methods = ['GET'])
 		self.app.add_url_rule('/settings/', view_func = settings_save, methods = ['PATCH'])
+		self.app.add_url_rule('/list/', view_func = list_page)
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
