@@ -13,6 +13,7 @@ def pre_login(email: str, password: str):
 	local_headers = globals.headers.copy()
 	local_headers['Content-Type'] = 'application/json'
 	local_headers['X-Device-Model'] = 'SM-G930W8'
+	local_headers['X-Device-System-Name'] = 'Android'
 	local_headers['X-Device-System-Version'] = '8.0.0'
 
 	# pre 2FA POST
@@ -39,6 +40,7 @@ def mfa_login(code: str, pre_token: str) -> str:
 	local_headers['Content-Type'] = 'application/json'
 	local_headers['Authorization'] = pre_token
 	local_headers['X-Device-Model'] = 'SM-G930W8'
+	local_headers['X-Device-System-Name'] = 'Android'
 	local_headers['X-Device-System-Version'] = '8.0.0'
 
 	# 2FA POST
