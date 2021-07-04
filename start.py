@@ -42,7 +42,7 @@ def _load_persistence_data():
 
 	def bind_setting(key: str, value):
 		if (not key in persistence): persistence[key] = value
-		setattr(globals, key, value)
+		setattr(globals, key, persistence[key])
 
 	# read or create persistence file
 	try:
