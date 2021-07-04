@@ -7,8 +7,8 @@ Additions:
 
 Changes:
 * Made the check for `no return` in note to be less strict: it now checks for `no return` in sentence vs only `no return`
+* Fixed initial startup pulling transactions from before the swapping start date
 
-Changes:
 ## 0.7.4 (July 3rd 2021)
 Changes:
 * Improved login process which involves waiting for email confirmation
