@@ -17,7 +17,7 @@ from utilities.persistence import read_persistence, upsert_persistence
 from utilities.log import log
 from utilities.decode_payload import decode
 
-def read_flags():
+def _read_flags():
 	for arg in sys.argv[1:]:
 		if (arg == '-v') or (arg == '--verbose'):
 			log(f'-v setting verbose logging')
@@ -37,8 +37,12 @@ def read_flags():
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
 
-def load_persistence_data():
+def _load_persistence_data():
 	persistence = {}
+
+	def bind_setting(key: str, value):
+		if (not key in persistence): persistence[key] = value
+		setattr(globals, key, value)
 
 	# read or create persistence file
 	try:
@@ -88,38 +92,25 @@ def load_persistence_data():
 	user_data = users(globals.user_id)
 
 	log(user_data, True)
-
-	if (not 'shaketag' in persistence): persistence['shaketag'] = f'@{user_data["username"]}'
-	if (not 'note' in persistence): persistence['note'] = ''
-	if (not 'blacklist' in persistence): persistence['blacklist'] = {}
-	if (not 'poll_rate' in persistence): persistence['poll_rate'] = 10
-	if (not 'wallet_id' in persistence): persistence['wallet_id'] = get_wallet()['id']
-	if (not 'bot_return_check' in persistence): persistence['bot_return_check'] = False
-	if (not 'shaking_sats_enabled' in persistence): persistence['shaking_sats_enabled'] = False
-	if (not 'heart_beat' in persistence): persistence['heart_beat'] = False
-	if (not 'heart_beat_swaps' in persistence): persistence['heart_beat_swaps'] = False
-	if (not 'heart_beat_points' in persistence): persistence['heart_beat_points'] = False
-	if (not 'heart_beat_position' in persistence): persistence['heart_beat_position'] = False
-
-	# set global variables
-	globals.bot_note = persistence['note']
-	globals.bot_poll_rate = persistence['poll_rate']
-	globals.shaketag = persistence['shaketag']
-	globals.wallet_id = persistence['wallet_id']
-	globals.bot_blacklist = persistence['blacklist']
-	globals.bot_return_check = persistence['bot_return_check']
-	globals.shaking_sats_enabled = persistence['shaking_sats_enabled']
-	globals.heart_beat_enabled = persistence['heart_beat']
-	globals.heart_beat_swaps = persistence['heart_beat_swaps']
-	globals.heart_beat_points = persistence['heart_beat_points']
-	globals.heart_beat_position = persistence['heart_beat_position']
-
+	
+	bind_setting('shaketag', f'@{user_data["username"]}')
+	bind_setting('note', '')
+	bind_setting('blacklist', {})
+	bind_setting('poll_rate', 10)
+	bind_setting('wallet_id', get_wallet()['id'])
+	bind_setting('bot_return_check', False)
+	bind_setting('shaking_sats_enabled', False)
+	bind_setting('heart_beat', False)
+	bind_setting('heart_beat_swaps', False)
+	bind_setting('heart_beat_points', False)
+	bind_setting('heart_beat_position', False)
+	
 	# save data
 	upsert_persistence(persistence)
 
 if (__name__ == '__main__'):
-	read_flags()
-	load_persistence_data()
+	_read_flags()
+	_load_persistence_data()
 
 	# read version in
 	try:
