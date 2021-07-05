@@ -3,11 +3,10 @@
 ## 0.8.0 (TBA)
 Additions:
 * Added the ability to swap to people in a list
-* Added the ability to update the bot from the web UI
 
 Changes:
-* Made the check for `no return` in note to be less strict: it now checks for `no return` in sentence vs only `no return`
 * Fixed initial startup pulling transactions from before the swapping start date
+* Removed unofficial pizza paddle
 
 ## 0.7.4 (July 3rd 2021)
 Changes:
