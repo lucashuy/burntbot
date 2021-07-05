@@ -46,6 +46,9 @@ webui_port = '5000'
 # blacklist and balance
 bot_blacklist = {}
 
+# auto sendlist
+bot_send_list = {}
+
 # check shaketag against database before returning
 bot_return_check = False
 

@@ -6,26 +6,69 @@
 			<h2>List</h2>
 			<p>Add people to your daily send list!</p>
 			<div>
-				<input autocomplete = 'off' id = 'list-tag'>
-				<button id = 'submit' type = 'submit' class = 'contained' disabled>ADD</button>
+				<form id = 'submit' autocomplete = 'off'>
+					<input autocomplete = 'off' id = 'list-tag'>
+					<button type = 'submit' class = 'contained'>ADD</button>
+				</form>
 			</div>
 		</div>
 		<div class = 'flex-row list-users-wrapper'>
 			<div class = 'rounded'>
 				<div class = 'list-send-wrapper'>
 					<h2><i class="fas fa-list-ul"></i> Not Sent</h2>
-					<button id = 'send' type = 'submit' class = 'contained' disabled>SEND</button>
+					<button id = 'send' type = 'submit' class = 'contained'>SEND</button>
 				</div>
 				<p>You haven't sent to these people yet</p>
+				<div>
+					{% for shaketag in data['to_send'] %}
+						<div class = 'rounded'>{{ shaketag }}</div>
+					{% endfor %}
+				</div>
 			</div>
 			<div class = 'rounded'>
 				<h2><i class="far fa-clock"></i> Waiting</h2>
 				<p>Waiting for returns from these people</p>
+				<div>
+					{% for shaketag in data['waiting'] %}
+						<div class = 'rounded'>{{ shaketag }}</div>
+					{% endfor %}
+				</div>
 			</div>
 			<div class = 'rounded'>
 				<h2><i class="fas fa-check"></i> Done</h2>
 				<p>All done for today, come back next reset</p>
+				<div>
+					{% for shaketag in data['done'] %}
+						<div class = 'rounded'>{{ shaketag }}</div>
+					{% endfor %}
+				</div>
 			</div>
 		</div>
 	</div>
+
+	<script>
+		function add_shaketags(event) {event.preventDefault()
+			let input = document.getElementById('list-tag');
+			let data = [];
+
+			// dont care about valid tags, validate on server
+			for (let shaketag of input.value.split(',')) {
+				data.push(shaketag);
+			}
+
+			console.log(data);
+
+			fetch('/list/', {
+				method: 'PATCH',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify(
+					{
+						shaketags: data
+					}
+				)
+			});
+		}
+
+		document.getElementById('submit').addEventListener('submit', add_shaketags);
+	</script>
 {% endblock %}

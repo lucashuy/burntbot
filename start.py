@@ -104,6 +104,7 @@ def _load_persistence_data():
 	bind_setting('heart_beat_swaps', False)
 	bind_setting('heart_beat_points', False)
 	bind_setting('heart_beat_position', False)
+	bind_setting('bot_send_list', {})
 	
 	# save data
 	upsert_persistence(persistence)
@@ -115,7 +116,7 @@ if (__name__ == '__main__'):
 	# read version in
 	try:
 		with open('./.version') as file:
-			globals.version = file.read()
+			globals.version = file.read().strip()
 	except: pass
 
 	# start ui thread
