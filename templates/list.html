@@ -14,7 +14,7 @@
 				<div>
 					<form id = 'submit' autocomplete = 'off' class = 'flex-col'>
 						<input id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
-						<button type = 'submit' class = 'contained'>ADD</button>
+						<button id = 'list-add-submit' type = 'submit' class = 'contained'>ADD</button>
 					</form>
 				</div>
 				<div class = 'flex-col'>
@@ -61,6 +61,10 @@
 		function add_shaketags(event) {
 			event.preventDefault();
 
+			let submit = document.getElementById('list-add-submit');
+			set_loading(submit);
+			submit.disabled = true;
+
 			let input = document.getElementById('list-tag');
 			let data = [];
 
@@ -68,8 +72,6 @@
 			for (let shaketag of input.value.split(',')) {
 				data.push(shaketag);
 			}
-
-			console.log(event);
 
 			fetch('/list/', {
 				method: 'PATCH',
@@ -93,14 +95,11 @@
 
 			let waiting = document.getElementById('list-waiting');
 			stream.onmessage = (event) => {
-				console.log('message', event);
-
 				if (event.data === 'done') {
 					console.log('done');
 					stream.close();
 
-					button.innerHTML = 'SEND ALL'
-					button.disabled = false;
+					set_checkmark(button);
 				} else {
 					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
 
@@ -115,8 +114,6 @@
 			}
 
 			stream.onerror = (event) => {
-				console.log('error, stopped');
-				console.log('error', event);
 				stream.close();
 			}
 		}
