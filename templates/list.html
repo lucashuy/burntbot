@@ -31,7 +31,7 @@
 			<div class = 'rounded'>
 				<h2><i class="far fa-clock"></i> Waiting</h2>
 				<p>Waiting for returns from these people</p>
-				<div>
+				<div id = 'list-waiting'>
 					{% for shaketag, children in data['waiting'].items() %}
 						{{ user(shaketag, children) }}
 					{% endfor %}
@@ -72,14 +72,40 @@
 			});
 		}
 
-		function send_list() {
+		function send_list(click_event) {
+			let button = click_event.target;
+			
+			set_loading(button);
+			button.disabled = true;
+
 			let stream = new EventSource('/list/send/');
+
+			let waiting = document.getElementById('list-waiting');
 			stream.onmessage = (event) => {
-				console.log(event);
+				console.log('message', event);
+
 				if (event.data === 'done') {
 					console.log('done');
 					stream.close();
+
+					// window.location.reload();
+				} else {
+					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
+
+					// remove the override button in case the user gets any funny ideas
+					let buttons = list_user.querySelectorAll('button');
+					if (buttons.length > 1) {
+						buttons[0].remove();
+					}
+
+					waiting.append(list_user);
 				}
+			}
+
+			stream.onerror = (event) => {
+				console.log('error, stopped');
+				console.log('error', event);
+				stream.close();
 			}
 		}
 

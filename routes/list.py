@@ -1,11 +1,11 @@
 import flask
-from werkzeug.datastructures import ContentSecurityPolicy
 
 import globals
-import time
 
 from utilities.persistence import upsert_persistence
 from utilities.datetime import get_reset_datetime, string_to_datetime
+from utilities.swap import swap
+
 from api.users import search
 from api.labrie_check import labrie_check_multi
 
@@ -56,9 +56,10 @@ def delete_user(shaketag):
 
 def list_send():
 	def _generate():
-		for x in range(5):
-			yield f'data: {x}\n\n'
-			time.sleep(2)
+		for shaketag in globals.bot_send_list:
+			swap(shaketag, 5.0, override = True, is_return = False)
+			yield f'data: {shaketag}\n\n'
+
 		yield 'data: done\n\n'
 
 	return flask.Response(_generate(), mimetype = 'text/event-stream')
@@ -82,8 +83,8 @@ def _generate_scammers_from_list() -> dict:
 
 def _classify_list() -> dict:
 	to_send = {'@test1': {}, '@test2': {'do_not_send': 'test message'}}
-	waiting = {'@test1': {'timestamp': 'abc123', 'do_not_send': 'test message'}, '@test2': {'timestamp': 'def456'}}
-	done = {'@test1': {}, '@test2': {}}
+	waiting = {'@test3': {'timestamp': 'abc123', 'do_not_send': 'test message'}, '@test4': {'timestamp': 'def456'}}
+	done = {'@test5': {}, '@test6': {}}
 
 	usernames_local = {}
 	# create local cache of usernames <-> user ids

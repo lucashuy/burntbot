@@ -1,5 +1,5 @@
 {% macro user(shaketag, data, is_initiate) %}
-	<div class = 'rounded list-user {% if "do_not_send" in data %}border-red{% endif %}'>
+	<div class = 'rounded list-user {% if "do_not_send" in data %}border-red{% endif %}' data-shaketag = {{ shaketag }}>
 		<div class = 'list-user-header flex-row'>
 			{{ shaketag }}
 			<div class = 'list-user-buttons'>
