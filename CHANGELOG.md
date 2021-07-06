@@ -1,13 +1,15 @@
 # burntbot - Changelog
 
-## 0.8.0 (TBA)
+## 0.8.0 (July 6th 2021)
 Additions:
 * Added the ability to swap to people in a list
+* Added banner to startup logs
 
 Changes:
 * Fixed initial startup pulling transactions from before the swapping start date
 * Removed unofficial pizza paddle
 * Clarified documentation to note that blacklist only considers transactions during the swapping period
+* Removed web UI output from logs if not in verbose mode
 
 ## 0.7.4 (July 3rd 2021)
 Changes:

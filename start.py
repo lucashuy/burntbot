@@ -110,16 +110,22 @@ def _load_persistence_data():
 	# save data
 	upsert_persistence(persistence)
 
-if (__name__ == '__main__'):
-	_read_flags()
-	_load_persistence_data()
+def _print_startup():
+	log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+	log('\tburntbot, created by @burnttoaster')
+	log(f'\tv{globals.version}')
+	log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
+if (__name__ == '__main__'):
 	# read version in
 	try:
 		with open('./.version') as file:
 			globals.version = file.read().strip()
 	except: pass
 
+	_print_startup()
+	_read_flags()
+	_load_persistence_data()
 
 	# start bot thread
 	swap_bot = SwapBot()
