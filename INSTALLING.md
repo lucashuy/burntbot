@@ -31,6 +31,8 @@ Once a terminal window is open, type `pip install -r requirements.txt` to instal
 > TODO: add gif here
 
 ## 4. Add people and their balances
+**This section only applies to transactions sent during the swapping period (April 21st and onward)!**
+
 Since not everyone is crazy and only swaps CAD with each other to move up the waitlist, some of you might have some money that you sent to a friend or vice versa. You need to tell the bot that, otherwise the bot might return that $10 uncle Tommy sent you for gas money.
 
 To do this, first start up the bot in listen mode. This mode will not return any money to anyone. Do this by typing `python start.py --listen`. Now, you will need to wait until the bot says that it is ready, this will happen when it is finished fetching your transactions.

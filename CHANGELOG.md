@@ -7,6 +7,7 @@ Additions:
 Changes:
 * Fixed initial startup pulling transactions from before the swapping start date
 * Removed unofficial pizza paddle
+* Clarified documentation to note that blacklist only considers transactions during the swapping period
 
 ## 0.7.4 (July 3rd 2021)
 Changes:

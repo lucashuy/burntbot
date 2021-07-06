@@ -27,7 +27,7 @@ This project also has a web UI. This can be found on port `5000`. The web UI bin
 Missing a feature you want? Something broken? Create an issue or pull request and help grow this project.
 
 ## Donating
-Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay, my shaketag is `@burnttoaster`. Make sure you include a note that says `no return`, otherwise my own bot might return it!
+Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay, my shaketag is `@burnttoaster`. Make sure you include a note that says `no return`, that way both our bots will ignore the donation!
 
 ## License
 This entire project is licensed under AGPL-3.0-or-later.
