@@ -484,3 +484,8 @@ button > .loading {
 	font-size: 0.9rem;
 	color: var(--white);
 }
+
+.button-icon-override > * {
+	color: var(--white);
+	font-size: 0.9rem;
+}

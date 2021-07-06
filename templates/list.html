@@ -100,6 +100,7 @@
 					stream.close();
 
 					set_checkmark(button);
+					button.classList.add('button-icon-override');
 				} else {
 					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
 

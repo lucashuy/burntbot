@@ -20,8 +20,7 @@ def labrie_check(shaketag: str, type: str) -> dict:
 
 def labrie_check_multi(shaketags: list, type: str) -> dict:
 	data =  {
-		'source': 'burntbot dev',
-		# 'source': globals.headers['X-Device-Unique-Id'],
+		'source': globals.headers['X-Device-Unique-Id'],
 		'shaketags': shaketags,
 		'step': type
 	}

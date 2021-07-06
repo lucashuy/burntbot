@@ -10,6 +10,7 @@ Changes:
 * Removed unofficial pizza paddle
 * Clarified documentation to note that blacklist only considers transactions during the swapping period
 * Removed web UI output from logs if not in verbose mode
+* Changed web UI thread to follow other thread behaviour: only startup after bot ready
 
 ## 0.7.4 (July 3rd 2021)
 Changes:
