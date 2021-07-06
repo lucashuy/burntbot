@@ -43,8 +43,6 @@ def add_shaketags():
 		if (len(results) == 1) and (results[0] == local_tag):
 			globals.bot_send_list[local_tag] = 1
 
-	print(globals.bot_send_list)
-
 	upsert_persistence({'bot_send_list': globals.bot_send_list})
 
 	return flask.Response(status = 201)
