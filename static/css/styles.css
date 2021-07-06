@@ -458,13 +458,17 @@ p#check-input-subtext {
 	margin-left: 0.5rem;
 }
 
-.list-header-input {
-	margin-top: 1rem;
+.list-header-input > * {
+	width: 47%;
 }
 
-#list-tag {
-	flex: 2;
-	margin-right: 1rem;
+.list-header-input > div input,
+.list-header-input > div button {
+	width: 100%;
+}
+
+.list-header-input > div button {
+	margin-top: 1rem;
 }
 
 button > .loading {
@@ -474,4 +478,9 @@ button > .loading {
 
 .list-user-header {
 	align-items: center;
+}
+
+#list-note-save > * {
+	font-size: 0.9rem;
+	color: var(--white);
 }

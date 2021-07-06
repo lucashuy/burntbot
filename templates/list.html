@@ -8,11 +8,19 @@
 			<h2>List</h2>
 			<p style = 'margin-bottom: 0.25rem;'>Add people to your daily send list!</p>
 			<p>Enter a single @shaketag, or a comma separated list and hit add. To delete existing shaketags, just press the <i class="far fa-trash-alt"></i> button!</p>
-			<div class = 'list-header-input'>
-				<form id = 'submit' autocomplete = 'off' class = 'flex-row'>
-					<input autocomplete = 'off' id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
-					<button type = 'submit' class = 'contained'>ADD</button>
-				</form>
+			<p class = 'warn-text m-top-1'>Something not right here? Come back later! The bot has to fetch new transactions for this page to update.</p>
+			<div class = 'divider'></div>
+			<div class = 'list-header-input flex-row'>
+				<div>
+					<form id = 'submit' autocomplete = 'off' class = 'flex-col'>
+						<input id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
+						<button type = 'submit' class = 'contained'>ADD</button>
+					</form>
+				</div>
+				<div class = 'flex-col'>
+					<input autocomplete = 'off' id = 'list-note' placeholder = 'custom note (optional)' value = '{{ data["note"] }}'>
+					<button id = 'list-note-save' type = 'submit' class = 'contained' onclick = save_list_note(this)>SAVE</button>
+				</div>
 			</div>
 		</div>
 		<div class = 'flex-row list-users-wrapper'>
@@ -51,6 +59,8 @@
 
 	<script>
 		function add_shaketags(event) {
+			event.preventDefault();
+
 			let input = document.getElementById('list-tag');
 			let data = [];
 
@@ -59,16 +69,17 @@
 				data.push(shaketag);
 			}
 
-			console.log(data);
+			console.log(event);
 
 			fetch('/list/', {
 				method: 'PATCH',
 				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify(
-					{
-						shaketags: data
-					}
-				)
+				body: JSON.stringify({shaketags: data})
+			})
+			.then((data) => {
+				if (data.ok) {
+					// window.location.reload();
+				}
 			});
 		}
 
@@ -88,7 +99,8 @@
 					console.log('done');
 					stream.close();
 
-					// window.location.reload();
+					button.innerHTML = 'SEND ALL'
+					button.disabled = false;
 				} else {
 					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
 
@@ -107,6 +119,25 @@
 				console.log('error', event);
 				stream.close();
 			}
+		}
+
+		function save_list_note(button) {
+			button.disabled = true;
+			set_loading(button);
+
+			let note = document.getElementById('list-note').value;
+
+			fetch('/list/note/', {
+				method: 'PATCH',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({note: note})
+			})
+			.then((data) => {
+				if (data.ok) {
+					button.disabled = false;
+					set_checkmark(button);
+				}
+			});
 		}
 
 		document.getElementById('submit').addEventListener('submit', add_shaketags);

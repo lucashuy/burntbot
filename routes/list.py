@@ -8,6 +8,7 @@ from utilities.swap import swap
 
 from api.users import search
 from api.labrie_check import labrie_check_multi
+from api.wallet import get_wallet
 
 def list_page():
 	list_results = _classify_list()
@@ -16,7 +17,8 @@ def list_page():
 		'version': globals.version,
 		'to_send': list_results['to_send'],
 		'waiting': list_results['waiting'],
-		'done': list_results['done']
+		'done': list_results['done'],
+		'note': globals.list_note
 	}
 
 	return flask.render_template('list.html', data = data)
@@ -56,13 +58,50 @@ def delete_user(shaketag):
 
 def list_send():
 	def _generate():
-		for shaketag in globals.bot_send_list:
-			swap(shaketag, 5.0, override = True, is_return = False)
-			yield f'data: {shaketag}\n\n'
+		to_send = _classify_list()['to_send']
+		balance = _get_wallet_balance()
+
+		for shaketag, data in to_send.items():
+			if (balance < 5.): break
+
+			if (not 'do_not_send' in data):
+				swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
+
+				balance = balance - 5.
+
+				yield f'data: {shaketag}\n\n'
 
 		yield 'data: done\n\n'
 
 	return flask.Response(_generate(), mimetype = 'text/event-stream')
+
+def change_note():
+	data = flask.request.get_json()
+
+	globals.list_note = data['note'] or ''
+
+	upsert_persistence({'list_note': globals.list_note})
+
+	return flask.Response(status = 201)
+
+def override_send(shaketag: str):
+	balance = _get_wallet_balance()
+
+	if (balance >= 5.):
+		swap(shaketag, 5., True, False, globals.list_note)
+		return flask.Response(status = 201)
+	else:
+		return flask.Response(status = 400)
+
+# gets the amount of money we have minus swaps
+def _get_wallet_balance() -> float:
+	wallet = float(get_wallet()['balance'])
+
+	for _, history in globals.bot_history.items():
+		balance = history.get_swap()
+		if (balance > 0): wallet = wallet - balance
+
+	return wallet
 
 def _generate_scammers_from_list() -> dict:
 	send_list_array = []
@@ -81,16 +120,20 @@ def _generate_scammers_from_list() -> dict:
 
 	return do_not_send
 
-def _classify_list() -> dict:
-	to_send = {'@test1': {}, '@test2': {'do_not_send': 'test message'}}
-	waiting = {'@test3': {'timestamp': 'abc123', 'do_not_send': 'test message'}, '@test4': {'timestamp': 'def456'}}
-	done = {'@test5': {}, '@test6': {}}
-
+def _username_history_cache() -> dict:
 	usernames_local = {}
 	# create local cache of usernames <-> user ids
 	for userid, history in globals.bot_history.items():
 		usernames_local[history.get_shaketag()] = userid
 
+	return usernames_local
+
+def _classify_list() -> dict:
+	to_send = {}
+	waiting = {}
+	done = {}
+
+	usernames_local = _username_history_cache()
 	do_not_send = _generate_scammers_from_list()
 
 	reset = get_reset_datetime()
@@ -99,13 +142,17 @@ def _classify_list() -> dict:
 		user_id = None
 		user_history = None
 
+		is_swap_today = True
+		is_waiting = True
+
 		try:
 			user_id = usernames_local[shaketag]
 			user_history = globals.bot_history[user_id]
+
+			is_swap_today = string_to_datetime(user_history.get_timestamp()) > reset
+			is_waiting = user_history.get_swap() < 0
 		except KeyError: pass
 
-		is_swap_today = string_to_datetime(user_history.get_timestamp()) > reset
-		is_waiting = user_history.get_swap() < 0
 		
 		insert_obj = {}
 

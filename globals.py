@@ -65,3 +65,6 @@ heart_beat_position = False
 # 0 = restarting
 # 1 = alive
 bot_state = 0
+
+# note for list sends
+list_note = ''

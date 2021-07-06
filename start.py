@@ -105,6 +105,7 @@ def _load_persistence_data():
 	bind_setting('heart_beat_points', False)
 	bind_setting('heart_beat_position', False)
 	bind_setting('bot_send_list', {})
+	bind_setting('list_note', '')
 	
 	# save data
 	upsert_persistence(persistence)
@@ -119,14 +120,13 @@ if (__name__ == '__main__'):
 			globals.version = file.read().strip()
 	except: pass
 
-	# start ui thread
-	log('Starting WebUI')
-	ui = WebUI()
-	ui.start()
 
 	# start bot thread
 	swap_bot = SwapBot()
 	swap_bot.start()
+
+	# initialize ui thread
+	ui = WebUI()
 
 	# initialize shake thread
 	shaking_sats = ShakingSats()
@@ -138,8 +138,8 @@ if (__name__ == '__main__'):
 	while (1):
 		time.sleep(10)
 
-		if (not ui.is_alive()):
-			log('WebUI is down, restarting thread')
+		if (not ui.is_alive() and (globals.bot_state)):
+			log('Starting web UI thread')
 
 			ui = WebUI()
 			ui.start()

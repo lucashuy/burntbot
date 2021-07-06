@@ -4,7 +4,7 @@
 			{{ shaketag }}
 			<div class = 'list-user-buttons'>
 				{% if 'do_not_send' in data and is_initiate %}
-					<button type = 'submit' value = '{{ shaketag }}' class = 'emphasis'>SEND ANYWAY</button>
+					<button type = 'submit' value = '{{ shaketag }}' class = 'emphasis' onclick = list_override_send(this)>SEND ANYWAY</button>
 				{% endif %}
 				<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
 			</div>
