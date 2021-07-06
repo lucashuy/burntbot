@@ -17,3 +17,20 @@ def labrie_check(shaketag: str, type: str) -> dict:
 		response = {'success': False}
 
 	return response
+
+def labrie_check_multi(shaketags: list, type: str) -> dict:
+	data =  {
+		'source': 'burntbot dev',
+		# 'source': globals.headers['X-Device-Unique-Id'],
+		'shaketags': shaketags,
+		'step': type
+	}
+
+	response = requests.post('https://swap.labrie.ca/api/multi/', json = data)
+
+	if (response.ok):
+		response = response.json()
+	else:
+		response = {'success': False}
+
+	return response

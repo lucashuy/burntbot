@@ -4,25 +4,6 @@
 			<p class = 'blacklist-user-shaketag'>{{ shaketag }}</p>
 			<p>{{ amount }}</p>
 		</div>
-		<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove(this)><i class="far fa-trash-alt"></i></button>
+		<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_blacklist_user(this)><i class="far fa-trash-alt"></i></button>
 	</div>
-
-	<script>
-		function remove(event) {
-			let shaketag = event.value;
-			
-			set_loading(event);
-
-			fetch('/blacklist/' + shaketag, {
-				method: 'DELETE'
-			})
-			.then(async (data) => {
-				if (await data.ok) {
-					window.location.reload()
-				} else {
-					console.log(`not deleted ${shaketag}`)
-				}
-			})
-		}
-	</script>
 {% endmacro %}

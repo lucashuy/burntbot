@@ -93,3 +93,38 @@ function set_x(container) {
 	container.innerHTML = '';
 	container.appendChild(check);
 }
+
+function remove_list_user(event) {
+	let shaketag = event.value;
+	
+	set_loading(event);
+	event.disabled = true;
+
+	fetch('/list/' + shaketag, {
+		method: 'DELETE'
+	})
+	.then(async (data) => {
+		if (await data.ok) {
+			event.parentElement.parentElement.parentElement.remove();
+		} else {
+			console.log('list', `not deleted ${shaketag}`);
+		}
+	})
+}
+
+function remove_blacklist_user(event) {
+	let shaketag = event.value;
+	
+	set_loading(event);
+
+	fetch('/blacklist/' + shaketag, {
+		method: 'DELETE'
+	})
+	.then(async (data) => {
+		if (await data.ok) {
+			window.location.reload();
+		} else {
+			console.log('blacklist', `not deleted ${shaketag}`);
+		}
+	})
+}

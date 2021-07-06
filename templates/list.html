@@ -1,13 +1,16 @@
+{% from 'components/list_user.html' import user %}
+
 {% extends 'layout.html' %}
 
 {% block body %}
 	<div class = 'flex-col list-wrapper'>
 		<div class = 'rounded list-header'>
 			<h2>List</h2>
-			<p>Add people to your daily send list!</p>
-			<div>
-				<form id = 'submit' autocomplete = 'off'>
-					<input autocomplete = 'off' id = 'list-tag'>
+			<p style = 'margin-bottom: 0.25rem;'>Add people to your daily send list!</p>
+			<p>Enter a single @shaketag, or a comma separated list and hit add. To delete existing shaketags, just press the <i class="far fa-trash-alt"></i> button!</p>
+			<div class = 'list-header-input'>
+				<form id = 'submit' autocomplete = 'off' class = 'flex-row'>
+					<input autocomplete = 'off' id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
 					<button type = 'submit' class = 'contained'>ADD</button>
 				</form>
 			</div>
@@ -16,12 +19,12 @@
 			<div class = 'rounded'>
 				<div class = 'list-send-wrapper'>
 					<h2><i class="fas fa-list-ul"></i> Not Sent</h2>
-					<button id = 'send' type = 'submit' class = 'contained'>SEND</button>
+					<button id = 'send' type = 'submit' class = 'contained'>SEND ALL</button>
 				</div>
 				<p>You haven't sent to these people yet</p>
 				<div>
-					{% for shaketag in data['to_send'] %}
-						<div class = 'rounded'>{{ shaketag }}</div>
+					{% for shaketag, children in data['to_send'].items() %}
+						{{ user(shaketag, children, 1) }}
 					{% endfor %}
 				</div>
 			</div>
@@ -29,8 +32,8 @@
 				<h2><i class="far fa-clock"></i> Waiting</h2>
 				<p>Waiting for returns from these people</p>
 				<div>
-					{% for shaketag in data['waiting'] %}
-						<div class = 'rounded'>{{ shaketag }}</div>
+					{% for shaketag, children in data['waiting'].items() %}
+						{{ user(shaketag, children) }}
 					{% endfor %}
 				</div>
 			</div>
@@ -38,8 +41,8 @@
 				<h2><i class="fas fa-check"></i> Done</h2>
 				<p>All done for today, come back next reset</p>
 				<div>
-					{% for shaketag in data['done'] %}
-						<div class = 'rounded'>{{ shaketag }}</div>
+					{% for shaketag, children in data['done'].items() %}
+						{{ user(shaketag, children) }}
 					{% endfor %}
 				</div>
 			</div>
@@ -47,7 +50,7 @@
 	</div>
 
 	<script>
-		function add_shaketags(event) {event.preventDefault()
+		function add_shaketags(event) {
 			let input = document.getElementById('list-tag');
 			let data = [];
 
@@ -69,6 +72,18 @@
 			});
 		}
 
+		function send_list() {
+			let stream = new EventSource('/list/send/');
+			stream.onmessage = (event) => {
+				console.log(event);
+				if (event.data === 'done') {
+					console.log('done');
+					stream.close();
+				}
+			}
+		}
+
 		document.getElementById('submit').addEventListener('submit', add_shaketags);
+		document.getElementById('send').addEventListener('click', send_list);
 	</script>
 {% endblock %}
