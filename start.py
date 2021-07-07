@@ -40,9 +40,9 @@ def _read_flags():
 def _load_persistence_data():
 	persistence = {}
 
-	def bind_setting(key: str, value):
+	def bind_setting(key: str, value, globals_name = None):
 		if (not key in persistence): persistence[key] = value
-		setattr(globals, key, persistence[key])
+		setattr(globals, globals_name or key, persistence[key])
 
 	# read or create persistence file
 	try:
@@ -94,13 +94,13 @@ def _load_persistence_data():
 	log(user_data, True)
 	
 	bind_setting('shaketag', f'@{user_data["username"]}')
-	bind_setting('note', '')
-	bind_setting('blacklist', {})
-	bind_setting('poll_rate', 10)
+	bind_setting('note', '', 'bot_note')
+	bind_setting('blacklist', {}, 'bot_blacklist')
+	bind_setting('poll_rate', 10, 'bot_poll_rate')
 	bind_setting('wallet_id', get_wallet()['id'])
 	bind_setting('bot_return_check', False)
 	bind_setting('shaking_sats_enabled', False)
-	bind_setting('heart_beat', False)
+	bind_setting('heart_beat', False, 'heart_beat_enabled')
 	bind_setting('heart_beat_swaps', False)
 	bind_setting('heart_beat_points', False)
 	bind_setting('heart_beat_position', False)
