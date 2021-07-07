@@ -71,7 +71,7 @@ def list_send():
 				if (not 'do_not_send' in data):
 					# check first to make sure we are not over limit
 					# we need to let the bot fetch all those sends (and potentially send backs)
-					if (send_count > 75):
+					if (send_count > 50):
 						time.sleep(globals.bot_poll_rate + 1)
 
 						# reset state
