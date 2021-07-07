@@ -14,9 +14,8 @@ endpoint_shaking_sats = _host + 'shaking-sats'
 # headers required for requests
 headers = {'User-Agent': 'Shakepay App v1.6.100 (16100) on samsung SM-G930W8 (Android 8.0.0)'}
 
-# info about us
+# wallet id
 wallet_id = ''
-user_id = ''
 
 # our shaketag
 shaketag = ''
@@ -61,10 +60,17 @@ heart_beat_points = False
 heart_beat_swaps = False
 heart_beat_position = False
 
+# note for list sends
+list_note = ''
+
+######################################
+# state specific variables
+# not saved
+
 # bot state
 # 0 = restarting
 # 1 = alive
 bot_state = 0
 
-# note for list sends
-list_note = ''
+# shakepay user id
+user_id = ''

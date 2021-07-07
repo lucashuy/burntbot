@@ -1,6 +1,6 @@
 # burntbot - Changelog
 
-## 0.8.0 (July 6th 2021)
+## 0.8.0 (TBA)
 Additions:
 * Added the ability to swap to people in a list
 * Added banner to startup logs
