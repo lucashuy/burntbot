@@ -123,6 +123,9 @@ if (__name__ == '__main__'):
 			globals.version = file.read().strip()
 	except: pass
 
+	# update user agent header
+	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
+	
 	_print_startup()
 	_read_flags()
 	_load_persistence_data()
