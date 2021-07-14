@@ -23,7 +23,7 @@ def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 	
 	# make sure we have 2xx status
 	if (not response.ok):
-		('Something went wrong when swapping: {}'.format(response.text))
+		log('Something went wrong when swapping: {}'.format(response.text))
 
 		raise_exception(response.status_code)
 
