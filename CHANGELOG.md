@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.8.2 (July 14th 2021)
+Changes:
+* Fixed poll rate setting not changing (frontend still checked for >= 4)
+
 ## 0.8.1 (July 14th 2021)
 Changes:
 * Update API parameters according to new spec
