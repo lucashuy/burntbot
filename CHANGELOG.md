@@ -1,5 +1,11 @@
 # burntbot - Changelog
 
+## 0.8.1 (July 14th 2021)
+Changes:
+* Update API parameters according to new spec
+* Changed minimum poll rate to 1 second
+* Change list sending behaviour: when the account runs out of money it will check to see if anyone returned money, continuing if it still has money
+
 ## 0.8.0 (July 7th 2021)
 Additions:
 * Added the ability to swap to people in a list
