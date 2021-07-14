@@ -34,7 +34,7 @@ def settings_save():
 	if ('poll_rate' in data):
 		cast_poll_rate = float(data['poll_rate'])
 
-		if (cast_poll_rate < 4):
+		if (cast_poll_rate < 1):
 			flask.Response(status = 400)
 		else:
 			save_data['poll_rate'] = cast_poll_rate

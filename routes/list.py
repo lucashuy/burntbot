@@ -61,27 +61,19 @@ def list_send():
 			to_send = _classify_list()['to_send']
 			balance = _get_wallet_balance()
 
-			send_count = 0
-
 			for shaketag, data in to_send.items():
-				# stop when we have run out of money
-				if (balance < 5.): break
-
 				# only send if they are not marked in the database
 				if (not 'do_not_send' in data):
-					# check first to make sure we are not over limit
-					# we need to let the bot fetch all those sends (and potentially send backs)
-					if (send_count > 50):
-						time.sleep(globals.bot_poll_rate + 1)
-
-						# reset state
+					# if we ran out of money, check again to see if bot got any swaps back
+					if (balance < 5.):
 						balance = _get_wallet_balance()
-						send_count = 0
+						
+						# if we still dont have enough money, stop
+						if (balance < 5.): break
 
 					swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
 
 					balance = balance - 5.
-					send_count = send_count + 1
 
 					yield f'data: {shaketag}\n\n'
 		except: pass
