@@ -1,5 +1,7 @@
 import flask
 import threading
+import logging
+import click
 
 import globals
 
@@ -16,6 +18,16 @@ class WebUI(threading.Thread):
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
+
+		# disable logging if we dont have verbose
+		if (not globals.bot_flags['verbose']):
+			log = logging.getLogger('werkzeug')
+			log.setLevel(logging.ERROR)
+			
+			def echo(text, file = None, nl = None, err = None, color = None, **styles): pass
+
+			click.echo = echo
+			click.secho = echo
 
 	def run(self):
 		self.app.add_url_rule('/', view_func = home_page)

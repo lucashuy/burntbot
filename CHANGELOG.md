@@ -5,6 +5,7 @@ Changes:
 * Update API parameters according to new spec
 * Changed minimum poll rate to 1 second
 * Change list sending behaviour: when the account runs out of money it will check to see if anyone returned money, continuing if it still has money
+* Removed web UI output from logs if not in verbose mode (actually disabled it this time)
 
 ## 0.8.0 (July 7th 2021)
 Additions:
@@ -15,7 +16,6 @@ Changes:
 * Fixed initial startup pulling transactions from before the swapping start date
 * Removed unofficial pizza paddle
 * Clarified documentation to note that blacklist only considers transactions during the swapping period
-* Removed web UI output from logs if not in verbose mode
 * Changed web UI thread to follow other thread behaviour: only startup after bot ready
 
 ## 0.7.4 (July 3rd 2021)
