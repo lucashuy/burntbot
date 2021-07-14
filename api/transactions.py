@@ -29,12 +29,11 @@ def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 
 	return response
 
-def get_transactions(body: dict) -> tuple:
+def get_transactions(params: dict) -> tuple:
 	# copy headers to append content type
 	local_headers = globals.headers.copy()
-	local_headers['Content-Type'] = 'application/json'
-
-	response = requests.post(globals.endpoint_history, headers = local_headers, data = json.dumps(body))
+	
+	response = requests.get(globals.endpoint_history, headers = local_headers, params = params)
 	headers = response.headers
 
 	# make sure we have 2xx status

@@ -15,6 +15,10 @@ def check_no_return(transaction: dict, userid: str, swap: float):
 
 def populate_history(data: list):
 	for transaction in data:
+		# skip transaction if its not a swap in CDN
+		if (not transaction['type'] == 'peer') or (not transaction['currency'] == 'CAD'): continue
+
+		# stop if the transaction is before swapping started
 		if (string_to_datetime(transaction['timestamp']) < get_swap_datetime()): break
 
 		userid = determine_userid(transaction)
@@ -27,13 +31,9 @@ def populate_history(data: list):
 			create_history(userid, shaketag, transaction['timestamp'], swap)
 		else:
 			history = globals.bot_history[userid]
-
-			# otherwise, update their swap amount if this transaction does not exist
-			if (not history.transaction_exists(transaction['transactionId'])):
-				history.adjust_swap(swap)
+			history.adjust_swap(swap)
 
 		check_no_return(transaction, userid, swap)
-		globals.bot_history[userid].add_prev_transaction(transaction)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
@@ -54,10 +54,6 @@ def get_swaps(data: dict) -> dict:
 
 			log(f'Create new entry for {shaketag} ({userid})', True)
 		else:
-			# stop loop if we come across existing transaction by checking if their transaction exists
-			if (globals.bot_history[userid].transaction_exists(transaction['transactionId'])):
-				break
-
 			log(f'Adjust {shaketag} {globals.bot_history[userid].get_swap()} by {swap}', True)
 
 			# entry exists, update their swap
@@ -72,7 +68,6 @@ def get_swaps(data: dict) -> dict:
 			swap_list[userid] = True
 
 		check_no_return(transaction, userid, swap)
-		globals.bot_history[userid].add_prev_transaction(transaction)
 
 	# update swap list incase we also got returns from after we added the swap
 	for userid in swap_list.copy():

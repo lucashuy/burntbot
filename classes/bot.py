@@ -1,6 +1,7 @@
 import threading
 import time
 import traceback
+import datetime
 
 import globals
 
@@ -18,55 +19,50 @@ class SwapBot(threading.Thread):
 
 		self.restarts = 0
 		self.last_restart = time.time()
+		self.recent_transaction_datetime = None
+
+	def _offset_timestamp(self, timestamp: str, offset: int) -> datetime.datetime:
+		return string_to_datetime(timestamp) + datetime.timedelta(milliseconds = offset)
 
 	def init_history(self) -> float:
-		body = {
-			'filterParams': {'type': 'peer'},
-			'pagination': {
-				'descending': True,
-				'page': 1,
-				'rowsPerPage': 2000
-			}
+		params = {
+			'currency': 'CAD',
+			'limit': 2000,
+			'before': datetime.datetime.now(datetime.timezone.utc)
 		}
 
 		swapping_begin_datetime = get_swap_datetime()
-		last_time = int(time.time())
-		rate_limit_timeout = 0
+		
+		log(f'Fetching your transactions...')
 
 		while (1):
-			log(f'Fetching page {body["pagination"]["page"]} of transactions')
+			(response, headers) = get_transactions(params)
 
-			(response, headers) = get_transactions(body)
-			data = response['data']
+			# stop if we have an empty list
+			if (len(response) == 0): break
 
-			if (len(data) == 0): break
+			populate_history(response)
 
-			populate_history(data)
-			
-			rate_limit_timeout = headers['Retry-After']
+			# save the most recent transaction's timestamp for use in polling later
+			if (self.recent_transaction_datetime == None):
+				self.recent_transaction_datetime = self._offset_timestamp(response[0]['timestamp'], 1)
 
 			# check if we need to stop fetching history
-			log(f'{data[-1]["timestamp"]} vs {swapping_begin_datetime}', True)
-			if (string_to_datetime(data[-1]['timestamp']) < swapping_begin_datetime):
+			last_transaction_timestamp = response[-1]['timestamp']
+			last_transaction_datetime = string_to_datetime(last_transaction_timestamp)
+
+			log(f'{last_transaction_datetime} vs {swapping_begin_datetime}', True)
+			if (last_transaction_datetime < swapping_begin_datetime):
 				break
 
-			body['pagination']['page'] = body['pagination']['page'] + 1
-
-			# prevent rate limit by ensuring we maintain window between fetches
-			time_left = 5 - (int(time.time()) - last_time)
-			if (time_left > 0):
-				time.sleep(time_left)
-
-			last_time = int(time.time())
-
-		return rate_limit_timeout
+			params['before'] = self._offset_timestamp(last_transaction_timestamp, -1)
 
 	def run(self):
 		while (1):
 			try:
 				# init hash table of transactions
 				log('Initializing swap history today')
-				wait_time = self.init_history()
+				self.init_history()
 
 				# adjust swaps by our blacklist function
 				for shaketag, amount in globals.bot_blacklist.items():
@@ -88,18 +84,20 @@ class SwapBot(threading.Thread):
 						log(f'Late send ${amount} to {shaketag} ({history.get_timestamp()})')
 						swap(shaketag, amount)
 
-				# this isnt 100% accurate since there maybe late send backs
-				log(f'Waiting {wait_time} seconds for rate limit expiry')
-				time.sleep(float(wait_time))
-
 				log('Bot ready')
 
 				globals.bot_state = 1
 
 				# start polling
 				while (1):
-					(response_json, headers) = get_transactions({'filterParams': {'currencies': ['CAD']}})
-					swap_list = get_swaps(response_json['data'])
+					params = {
+						'currency': 'CAD',
+						'limit': 2000,
+						'since': self.recent_transaction_datetime.isoformat()
+					}
+
+					(response, headers) = get_transactions(params)
+					swap_list = get_swaps(response)
 
 					for userid in swap_list:
 						user_details = globals.bot_history[userid]
@@ -108,7 +106,11 @@ class SwapBot(threading.Thread):
 						amount = user_details.get_swap()
 						
 						swap(shaketag, amount)
-						
+
+					# update next transaction time if we have items in the list
+					if (len(response) > 0):
+						self.recent_transaction_datetime = self._offset_timestamp(response[0]['timestamp'], 1)
+
 					time.sleep(globals.bot_poll_rate)
 			except ClientException:
 				log('Bot died due to HTTP client error, stopping')
