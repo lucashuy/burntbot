@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.8.3 (July 15th 2021)
+Changes:
+* Fixed instance of double send by checking transaction dates
+
 ## 0.8.2 (July 14th 2021)
 Changes:
 * Fixed poll rate setting not changing (frontend still checked for >= 4)
