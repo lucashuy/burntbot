@@ -71,6 +71,8 @@ def list_send():
 						# if we still dont have enough money, stop
 						if (balance < 5.): break
 
+					if (not globals.bot_state): break
+
 					swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
 
 					balance = balance - 5.
