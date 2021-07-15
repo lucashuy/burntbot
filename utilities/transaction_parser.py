@@ -54,10 +54,15 @@ def get_swaps(data: dict) -> dict:
 
 			log(f'Create new entry for {shaketag} ({userid})', True)
 		else:
+			history = globals.bot_history[userid]
+
+			# stop if the transaction is old
+			if (string_to_datetime(transaction['timestamp']) <= string_to_datetime(history.get_timestamp())): break
+
 			log(f'Adjust {shaketag} {globals.bot_history[userid].get_swap()} by {swap}', True)
 
 			# entry exists, update their swap
-			globals.bot_history[userid].adjust_swap(swap)
+			history.adjust_swap(swap)
 
 		# update the transaction history if we havent already
 		if (not userid in history_updated):
