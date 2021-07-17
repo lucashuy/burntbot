@@ -68,11 +68,12 @@ def _load_persistence_data():
 		try:
 			pre_auth_token = pre_login(email, password)
 
-			if (pre_auth_token == False):
+			while (pre_auth_token == False):
 				log('Please check your email for an email from Shakepay to authenticate the IP address!')
 				input('> Press ENTER when you confirmed the IP address...')
 				
 				pre_auth_token = pre_login(email, password)
+				log('Checking...')
 
 			code = input('> 2FA code: ')
 
