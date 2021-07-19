@@ -1,0 +1,13 @@
+name: Testing
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+      - with:
+        python-version: '3.6'
+      - run: |
+          pip install -r requirements.txt
+          python -m unittest discover tests

@@ -15,7 +15,7 @@ def home_page():
 	master_version = get_master_version()
 
 	data = {
-		'update': master_version != globals.version,
+		'update': master_version > globals.version,
 		'master_version': master_version,
 		'version': globals.version,
 		'shaketag': f'{globals.shaketag}',

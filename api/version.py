@@ -2,6 +2,7 @@ import requests
 
 import globals
 
+from classes.version import Version
 from utilities.log import log
 
 def get_master_version() -> bool:
@@ -14,5 +15,4 @@ def get_master_version() -> bool:
 		# return current version if something goes wrong so that we dont display notification
 		return globals.version
 
-	master_version = response.text.strip()
-	return master_version
+	return Version(response.text.strip())

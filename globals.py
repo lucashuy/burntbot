@@ -1,3 +1,5 @@
+from classes.version import Version
+
 bot_note = ''
 bot_poll_rate = 10
 
@@ -36,7 +38,7 @@ bot_flags = {
 }
 
 # version of bot for update checking
-version = '0.0.0'
+version = Version('0.0.0')
 
 # webui host and port
 webui_host = '0.0.0.0'

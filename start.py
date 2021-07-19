@@ -9,6 +9,7 @@ from classes.bot import SwapBot
 from classes.webui import WebUI
 from classes.shaker import ShakingSats
 from classes.heartbeat import HeartBeat
+from classes.version import Version
 
 from api.users import users
 from api.wallet import get_wallet
@@ -121,7 +122,7 @@ if (__name__ == '__main__'):
 	# read version in
 	try:
 		with open('./.version') as file:
-			globals.version = file.read().strip()
+			globals.version = Version(file.read().strip())
 	except: pass
 
 	# update user agent header
