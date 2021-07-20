@@ -59,9 +59,6 @@ def get_swaps(data: dict) -> dict:
 		else:
 			history = globals.bot_history[userid]
 
-			# stop if the transaction is old
-			if (string_to_datetime(transaction['timestamp']) <= string_to_datetime(history.get_timestamp())): break
-
 			# stop if the transaction already exists in cache
 			if (history.is_transaction_cached(transaction['transactionId'])): break
 
