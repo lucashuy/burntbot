@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.8.4 (July 19th 2021)
+Changes:
+* Fixed instances of double sending by re-adding transaction cache
+
 ## 0.8.3 (July 15th 2021)
 Changes:
 * Fixed instance of double send by checking transaction dates

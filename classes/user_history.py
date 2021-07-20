@@ -3,6 +3,14 @@ class UserHistory():
 		self.shaketag = shaketag
 		self.timestamp = timestamp
 		self.swap = swap
+		self.transaction_cache = {}
+
+	def add_transaction_cache(self, transaction_id: str):
+		self.transaction_cache[transaction_id] = 1
+
+	def is_transaction_cached(self, transaction_id: str) -> bool:
+		return transaction_id in self.transaction_cache
+
 	def update_timestamp(self, timestamp: str):
 		self.timestamp = timestamp
 
