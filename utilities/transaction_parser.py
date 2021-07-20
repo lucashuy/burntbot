@@ -5,10 +5,10 @@ from utilities.datetime import string_to_datetime, get_swap_datetime
 from utilities.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
 from utilities.log import log
 
-def create_history(userid: str, shaketag: str, timestamp: str, swap: float):
+def _create_history(userid: str, shaketag: str, timestamp: str, swap: float):
 	globals.bot_history[userid] = UserHistory(shaketag, timestamp, swap)
 
-def check_no_return(transaction: dict, userid: str, swap: float):
+def _check_no_return(transaction: dict, userid: str, swap: float):
 	# check if the note is "no return"
 	if ('no return' == transaction['note']):
 		globals.bot_history[userid].adjust_swap(-swap)
@@ -28,7 +28,7 @@ def populate_history(data: list):
 		if (not userid in globals.bot_history):
 			# safe to assume that if the shaketag is NOT in history, this will be the most recent transaction from this person
 			# create history entry for them
-			create_history(userid, shaketag, transaction['timestamp'], swap)
+			_create_history(userid, shaketag, transaction['timestamp'], swap)
 		else:
 			history = globals.bot_history[userid]
 			history.adjust_swap(swap)
@@ -36,7 +36,7 @@ def populate_history(data: list):
 		# cache transaction id
 		globals.bot_history[userid].add_transaction_cache(transaction['transactionId'])
 
-		check_no_return(transaction, userid, swap)
+		_check_no_return(transaction, userid, swap)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
 def get_swaps(data: dict) -> dict:
@@ -53,7 +53,7 @@ def get_swaps(data: dict) -> dict:
 
 		if (not userid in globals.bot_history):
 			# create new history entry for this swapper
-			create_history(userid, shaketag, transaction['timestamp'], swap)
+			_create_history(userid, shaketag, transaction['timestamp'], swap)
 
 			log(f'Create new entry for {shaketag} ({userid})', True)
 		else:
@@ -78,7 +78,7 @@ def get_swaps(data: dict) -> dict:
 		if (transaction['direction'] == 'credit'):
 			swap_list[userid] = True
 
-		check_no_return(transaction, userid, swap)
+		_check_no_return(transaction, userid, swap)
 
 	# update swap list incase we also got returns from after we added the swap
 	for userid in swap_list.copy():
