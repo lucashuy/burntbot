@@ -33,6 +33,9 @@ def populate_history(data: list):
 			history = globals.bot_history[userid]
 			history.adjust_swap(swap)
 
+		# cache transaction id
+		globals.bot_history[userid].add_transaction_cache(transaction['transactionId'])
+
 		check_no_return(transaction, userid, swap)
 
 # this function is a bit of a mess since it also modifies the history (swap key)
@@ -56,13 +59,16 @@ def get_swaps(data: dict) -> dict:
 		else:
 			history = globals.bot_history[userid]
 
-			# stop if the transaction is old
-			if (string_to_datetime(transaction['timestamp']) <= string_to_datetime(history.get_timestamp())): break
+			# stop if the transaction already exists in cache
+			if (history.is_transaction_cached(transaction['transactionId'])): break
 
 			log(f'Adjust {shaketag} {globals.bot_history[userid].get_swap()} by {swap}', True)
 
 			# entry exists, update their swap
 			history.adjust_swap(swap)
+
+		# cache transaction id
+		globals.bot_history[userid].add_transaction_cache(transaction['transactionId'])
 
 		# update the transaction history if we havent already
 		if (not userid in history_updated):
