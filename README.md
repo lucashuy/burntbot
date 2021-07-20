@@ -11,7 +11,7 @@ Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts
 Please refer to [INSTALLING.md](INSTALLING.md) for instructions on how to install the bot.
 
 ## Quick Start
-This is ment for a quick refresher for those that already have the bot installed. It is highly recommended you view the [INSTALLING.md](INSTALLING.md) document before you continue.
+This is meant for a quick refresher for those that already have the bot installed. It is highly recommended you view the [INSTALLING.md](INSTALLING.md) document before you continue.
 
 Running `python start.py` will start the bot. Startup flags can be found below:
 ```
