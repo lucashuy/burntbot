@@ -489,3 +489,16 @@ button > .loading {
 	color: var(--white);
 	font-size: 0.9rem;
 }
+
+.down-wrapper > * {
+	font-size: 3rem;
+	margin: 0 auto;
+}
+
+.down-wrapper {
+	align-items: center;
+}
+
+.down-wrapper > *:first-child {
+	margin-bottom: 2rem;
+}

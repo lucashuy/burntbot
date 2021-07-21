@@ -11,10 +11,10 @@ from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
 from routes.settings import settings_page, settings_save
 from routes.list import list_page, add_shaketags, delete_user, list_send, change_note, override_send
 
-class WebUI(threading.Thread):
-# class WebUI():
+# class WebUI(threading.Thread):
+class WebUI():
 	def __init__(self):
-		threading.Thread.__init__(self, daemon = True)
+		# threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -29,7 +29,19 @@ class WebUI(threading.Thread):
 			click.echo = echo
 			click.secho = echo
 
+	def _check_bot_state(self):
+		request = flask.request
+		
+		if (globals.bot_state) and (not request.endpoint == '_down_page'):
+			return flask.redirect(flask.url_for('_down_page'))
+
+	def _down_page(self):
+		return (flask.render_template('down.html'), 503)
+
 	def run(self):
+		self.app.add_url_rule('/down/', view_func = self._down_page)
+		self.app.before_request(self._check_bot_state)
+
 		self.app.add_url_rule('/', view_func = home_page)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = check_spelling)
@@ -50,4 +62,4 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/list/send/<string:shaketag>', view_func = override_send, methods = ['POST'])
 		self.app.add_url_rule('/list/note/', view_func = change_note, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)
