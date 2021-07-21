@@ -131,12 +131,12 @@ class SwapBot(threading.Thread):
 				if (self.last_restart + (60 * 10) < time_now):
 					self.restarts = 0
 
-				if (self.restarts > 3):
-					log('Bot died from too many deaths, stopping')
+				if (self.restarts > 5):
+					log('Bot died five times in 10 minutes, stopping')
 					
 					raise SystemExit(0)
 				else:
-					log('Bot died due to uncaught exception, restarting after 60 seconds')
+					log(f'Bot died due to uncaught exception, restarting after 60 seconds')
 
 					self.restarts = self.restarts + 1
 					self.last_restart = time_now

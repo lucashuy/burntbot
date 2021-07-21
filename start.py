@@ -149,25 +149,36 @@ if (__name__ == '__main__'):
 	while (1):
 		time.sleep(10)
 
-		if (not ui.is_alive() and (globals.bot_state)):
-			log('Starting web UI thread')
+		if (globals.bot_state):
+			if (not ui.is_alive()):
+				log('Started web UI thread')
 
-			ui = WebUI()
-			ui.start()
+				ui = WebUI()
+				ui.start()
+
+			if (not shaking_sats.is_alive()) and (globals.shaking_sats_enabled):
+				log('Started shaking sats thread')
+
+				shaking_sats = ShakingSats()
+				shaking_sats.start()
+
+			if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled) and (not globals.bot_flags['listen']):
+				log('Started heart beat thread')
+
+				api_heart_beat = HeartBeat()
+				api_heart_beat.start()
+		else:
+			if (shaking_sats.is_alive()):
+				log('Stopping shaking sats thread')
+
+				shaking_sats.stop.set()
+
+			if (api_heart_beat.is_alive()):
+				log('Stopping heart beat thread')
+
+				api_heart_beat.stop.set()
 
 		if (not swap_bot.is_alive()):
 			log('Bot died, stopping program')
 
 			raise SystemExit(0)
-
-		if (not shaking_sats.is_alive()) and (globals.shaking_sats_enabled) and (globals.bot_state):
-			log('Starting shaking sats thread')
-
-			shaking_sats = ShakingSats()
-			shaking_sats.start()
-
-		if (not api_heart_beat.is_alive()) and (globals.heart_beat_enabled) and (globals.bot_state) and (not globals.bot_flags['listen']):
-			log('Starting heart beat thread')
-
-			api_heart_beat = HeartBeat()
-			api_heart_beat.start()
