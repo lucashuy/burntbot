@@ -118,3 +118,11 @@ class TransactionTest(unittest.TestCase):
 
 		self.assertEqual(len(list), 0)
 		self.assertEqual(globals.bot_history['US_XW5DC4SKPCAYZFU'].get_swap(), 0.)
+
+	def test_pull_empty(self):
+		list = get_swaps([])
+
+		self.assertEqual(len(list), 0)
+
+		for _, history in globals.bot_history.items():
+			self.assertEqual(history.get_swap(), 0.)
