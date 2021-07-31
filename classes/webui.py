@@ -11,10 +11,10 @@ from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
 from routes.settings import settings_page, settings_save
 from routes.list import list_page, add_shaketags, delete_user, list_send, change_note, override_send
 
-# class WebUI(threading.Thread):
-class WebUI():
+class WebUI(threading.Thread):
+# class WebUI():
 	def __init__(self):
-		# threading.Thread.__init__(self, daemon = True)
+		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
 		self.app.template_folder = '../templates'
 		self.app.static_folder = '../static'
@@ -31,9 +31,17 @@ class WebUI():
 
 	def _check_bot_state(self):
 		request = flask.request
-		
-		if (globals.bot_state) and (not request.endpoint == '_down_page'):
+
+		if (request.endpoint == 'static'): return
+
+		# if (globals.bot_state == 0) and (not request.endpoint == '_down_page'):
+		if (1) and (not request.endpoint == '_down_page'):
+			# show down page if bot is down
 			return flask.redirect(flask.url_for('_down_page'))
+		# elif (globals.bot_state == 1) and (request.endpoint == '_down_page'):
+		elif (0) and (request.endpoint == '_down_page'):
+			# redirect home if user goes to down page when bot is up
+			return flask.redirect(flask.url_for('home_page'))
 
 	def _down_page(self):
 		return (flask.render_template('down.html'), 503)
@@ -62,4 +70,4 @@ class WebUI():
 		self.app.add_url_rule('/list/send/<string:shaketag>', view_func = override_send, methods = ['POST'])
 		self.app.add_url_rule('/list/note/', view_func = change_note, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)

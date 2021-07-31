@@ -16,6 +16,10 @@
 	position: relative;
 }
 
+html, body {
+	height: 100%;
+}
+
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 16px;
@@ -496,9 +500,14 @@ button > .loading {
 }
 
 .down-wrapper {
-	align-items: center;
+	height: 100%;
+	justify-content: center;
 }
 
 .down-wrapper > *:first-child {
 	margin-bottom: 2rem;
+}
+
+.fa-dizzy {
+	font-size: 7rem;
 }
