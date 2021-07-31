@@ -38,5 +38,6 @@ This project contains code or assets that are not mine, but reproduced or copied
 * [css-spinner](https://github.com/loadingio/css-spinner/)
 * [Twemoji](https://github.com/twitter/twemoji)
 
-Thanks to [@domi167](https://github.com/dlabrie) for the API that this bot draws from for swapper information.  
+I would like to thank those in the community that extend their hand to help those that want to install this bot. Special thanks to [@domi167](https://github.com/dlabrie) for the API that this bot draws from for swapper reputation and the bot list.  
+
 Finally, thanks to [Shakepay](https://shakepay.com/) for their swapping event that inadvertently created a dedicated swapping community (oh and I guess they also created the API this bot relies on).
