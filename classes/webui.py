@@ -12,7 +12,6 @@ from routes.settings import settings_page, settings_save
 from routes.list import list_page, add_shaketags, delete_user, list_send, change_note, override_send
 
 class WebUI(threading.Thread):
-# class WebUI():
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
 		self.app = flask.Flask(__name__)
@@ -68,4 +67,4 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/list/send/<string:shaketag>', view_func = override_send, methods = ['POST'])
 		self.app.add_url_rule('/list/note/', view_func = change_note, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = False)
+		self.app.run(globals.webui_host, globals.webui_port, debug = True)

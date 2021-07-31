@@ -81,7 +81,7 @@ button.delete {
 	color: var(--red);
 }
 
-button:disabled {
+*:disabled {
 	cursor: not-allowed;
 }
 
@@ -91,6 +91,7 @@ a {
 
 p {
 	color: var(--less-white);
+	line-height: 1.2;
 }
 
 .fas, .fab, .far {
@@ -426,24 +427,16 @@ p#check-input-subtext {
 }
 
 .list-header {
-	width: 75%;
+	width: 90%;
 	margin-bottom: 3rem;
 }
 
 .list-users-wrapper {
-	width: calc(75% + 2rem);
+	width: 90%;
 }
 
 .list-users-wrapper > .rounded {
 	width: 29%;
-}
-
-.list-send-wrapper > * {
-	display: inline-block;
-}
-
-.list-send-wrapper > button#send {
-	float: right;
 }
 
 .list-user {
@@ -454,16 +447,17 @@ p#check-input-subtext {
 	display: inline-block;
 }
 
-.list-user-header > .list-user-buttons > button {
+.list-user-header > button.delete {
 	min-width: 0;
-}
-
-.list-user-buttons > button {
-	margin-left: 0.5rem;
 }
 
 .list-header-input > * {
 	width: 47%;
+}
+
+.list-user-buttons {
+	width: 100%;
+	margin-top: 1rem;
 }
 
 .list-header-input > div input,
@@ -510,4 +504,50 @@ button > .loading {
 
 .fa-dizzy {
 	font-size: 7rem;
+}
+
+.list-user-button-warning {
+	width: 100%;
+}
+
+.list-user-button-warning > button {
+	width: 47%;
+}
+
+.list-user-button-ignore {
+	margin-top: 1rem;
+	align-items: center;
+}
+
+@media only screen and (max-width: 1800px) {
+	.list-users-wrapper,
+	.list-header {
+		width: 100%;
+	}
+}
+
+.list-info {
+	align-self: stretch;
+	justify-content: space-between;
+}
+
+.list-info h2:first-child {
+	color: var(--less-white);
+}
+
+.list-info-buttons {
+	width: 100%;
+}
+
+.list-info-buttons > button {
+	width: 47%;
+}
+
+.list-info-content {
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+.list-header > div {
+	width: 47%;
 }

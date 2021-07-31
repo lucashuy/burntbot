@@ -61,7 +61,6 @@ class SwapBot(threading.Thread):
 		while (1):
 			try:
 				# init hash table of transactions
-				log('Initializing swap history today')
 				self.init_history()
 
 				# adjust swaps by our blacklist function

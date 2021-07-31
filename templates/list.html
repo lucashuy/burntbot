@@ -4,31 +4,42 @@
 
 {% block body %}
 	<div class = 'flex-col list-wrapper'>
-		<div class = 'rounded list-header'>
-			<h2>List</h2>
-			<p style = 'margin-bottom: 0.25rem;'>Add people to your daily send list!</p>
-			<p>Enter a single @shaketag, or a comma separated list and hit add. To delete existing shaketags, just press the <i class="far fa-trash-alt"></i> button!</p>
-			<p class = 'warn-text m-top-1'>Something not right here? Come back later! The bot has to fetch new transactions for this page to update.</p>
-			<div class = 'divider'></div>
-			<div class = 'list-header-input flex-row'>
-				<div>
-					<form id = 'submit' autocomplete = 'off' class = 'flex-col'>
-						<input id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
-						<button id = 'list-add-submit' type = 'submit' class = 'contained'>ADD</button>
-					</form>
+		<div class = 'list-header flex-row'>
+			<div class = rounded>
+				<h2>List</h2>
+				<div class = 'list-info-wrapper'>
+					<p style = 'margin-bottom: 0.25rem;'>Add people to your daily send list!</p>
+					<p>Enter a single @shaketag, or a comma separated list and hit add. To delete existing shaketags, just press the <i class="far fa-trash-alt"></i> button!</p>
+					<p class = 'warn-text m-top-1'>Something not right here? Come back later! The bot has to fetch new transactions for this page to update.</p>
+					<div class = 'divider'></div>
+					<div class = 'list-header-input flex-row'>
+						<div>
+							<form id = 'submit' autocomplete = 'off' class = 'flex-col'>
+								<input id = 'list-tag' placeholder = 'tag1,tag2,tag3, ...'>
+								<button id = 'list-add-submit' type = 'submit' class = 'contained'>ADD</button>
+							</form>
+						</div>
+						<div class = 'flex-col'>
+							<input autocomplete = 'off' id = 'list-note' placeholder = 'custom note (optional)' value = '{{ data["note"] }}'>
+							<button id = 'list-note-save' type = 'submit' class = 'contained' onclick = save_list_note(this)>SAVE</button>
+						</div>
+					</div>
 				</div>
-				<div class = 'flex-col'>
-					<input autocomplete = 'off' id = 'list-note' placeholder = 'custom note (optional)' value = '{{ data["note"] }}'>
-					<button id = 'list-note-save' type = 'submit' class = 'contained' onclick = save_list_note(this)>SAVE</button>
+			</div>
+			<div class = 'rounded list-info flex-col'>
+				<div class = 'list-info-content'>
+					<h2>time left until next auto swap:</h2>
+					<h2>12hr 30mins</h2>
+				</div>
+				<div class = 'list-info-buttons flex-row'>
+					<button id = 'a' type = 'submit' class = 'contained' onclick = save_list_note(this)>EDIT LIST</button>
+					<button id = 'send' type = 'submit' class = 'contained'>SEND ALL</button>
 				</div>
 			</div>
 		</div>
 		<div class = 'flex-row list-users-wrapper'>
-			<div class = 'rounded'>
-				<div class = 'list-send-wrapper'>
-					<h2><i class="fas fa-list-ul"></i> Not Sent</h2>
-					<button id = 'send' type = 'submit' class = 'contained'>SEND ALL</button>
-				</div>
+			<div id = 'not-sent' class = 'rounded'>
+				<h2><i class="fas fa-list-ul"></i> Not Sent</h2>
 				<p>You haven't sent to these people yet</p>
 				<div>
 					{% for shaketag, children in data['to_send'].items() %}

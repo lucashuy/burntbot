@@ -2,17 +2,27 @@
 	<div class = 'rounded list-user {% if "do_not_send" in data %}border-red{% endif %}' data-shaketag = {{ shaketag }}>
 		<div class = 'list-user-header flex-row'>
 			{{ shaketag }}
-			<div class = 'list-user-buttons'>
-				{% if 'do_not_send' in data and is_initiate %}
-					<button type = 'submit' value = '{{ shaketag }}' class = 'emphasis' onclick = list_override_send(this)>SEND ANYWAY</button>
-				{% endif %}
-				<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
-			</div>
+			<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
 		</div>
 		{% if 'do_not_send' in data %}
-			<div class = 'list-user-status'>
-				{{ shaketag }} has been flagged! ({{ data['do_not_send'] }})
+			<div class = 'list-user-status'>{{ data['do_not_send'] }}</div>
+			<div class = 'list-user-buttons'>
+				{% if is_initiate %}
+					<div class = 'list-user-button-warning flex-row'>
+						<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>SEND ANYWAY</button>
+						<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>IGNORE WARNING</button>
+					</div>
+				{% endif %}
 			</div>
 		{% endif %}
+		<div class = 'divider'></div>
+		<div class = 'list-user-button-ignore flex-row'>
+			<p>Don't send for:</p>
+			<div>
+				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>1hr</button>
+				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>8hr</button>
+				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>until reset</button>
+			</div>
+		</div>
 	</div>
 {% endmacro %}
