@@ -32,7 +32,8 @@
 					<h2>12hr 30mins</h2>
 				</div>
 				<div class = 'list-info-buttons flex-row'>
-					<button id = 'a' type = 'submit' class = 'contained' onclick = save_list_note(this)>EDIT LIST</button>
+					<button id = 'clear-modal' type = 'submit' class = 'emphasis border-red' onclick = trigger_delete_modal()>CLEAR LIST</button>
+					<button id = 'edit-list' type = 'submit' class = 'contained' onclick = save_list_note(this)>EDIT LIST</button>
 					<button id = 'send' type = 'submit' class = 'contained'>SEND ALL</button>
 				</div>
 			</div>
@@ -115,7 +116,7 @@
 				} else {
 					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
 
-					// remove the override button in case the user gets any funny ideas
+					// remove buttons incase the user gets any funny ideas
 					let buttons = list_user.querySelectorAll('button');
 					if (buttons.length > 1) {
 						buttons[0].remove();
@@ -145,6 +146,29 @@
 				if (data.ok) {
 					button.disabled = false;
 					set_checkmark(button);
+				}
+			});
+		}
+
+		function trigger_delete_modal() {
+			if (window.confirm('Are you sure you want to clear your list?')) {
+				delete_list()
+			}
+		}
+
+		function delete_list() {
+			let button = document.getElementById('clear-modal')
+			set_loading(button);
+			button.disabled = true;
+
+			fetch('/list/clear/', {
+				method: 'DELETE'
+			})
+			.then(async (data) => {
+				if (await data.ok) {
+					window.location.reload();
+				} else {
+					console.log('list', 'not cleared');
 				}
 			});
 		}

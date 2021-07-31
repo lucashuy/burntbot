@@ -59,9 +59,12 @@ def list_send():
 	def _generate():
 		try:
 			to_send = _classify_list()['to_send']
-			balance = _get_wallet_balance()
+			# balance = _get_wallet_balance()
+			balance = 100.
 
 			for shaketag, data in to_send.items():
+				if (globals.bot_state == 0): break
+
 				# only send if they are not marked in the database
 				if (not 'do_not_send' in data):
 					# if we ran out of money, check again to see if bot got any swaps back
@@ -71,9 +74,9 @@ def list_send():
 						# if we still dont have enough money, stop
 						if (balance < 5.): break
 
-					if (not globals.bot_state): break
-
-					swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
+					print(f'simulate {shaketag}')
+					time.sleep(1)
+					#swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
 
 					balance = balance - 5.
 
@@ -101,6 +104,13 @@ def override_send(shaketag: str):
 		return flask.Response(status = 201)
 	else:
 		return flask.Response(status = 400)
+
+def clear_list():
+	globals.bot_send_list = {}
+
+	upsert_persistence({'bot_send_list': {}})
+
+	return flask.Response(status = 201)
 
 # gets the amount of money we have minus swaps
 def _get_wallet_balance() -> float:
@@ -162,7 +172,6 @@ def _classify_list() -> dict:
 			is_waiting = user_history.get_swap() < 0
 		except KeyError: pass
 
-		
 		insert_obj = {}
 
 		# check if we need to add ban message

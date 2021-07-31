@@ -508,6 +508,7 @@ button > .loading {
 
 .list-user-button-warning {
 	width: 100%;
+	direction: rtl;
 }
 
 .list-user-button-warning > button {
@@ -540,7 +541,7 @@ button > .loading {
 }
 
 .list-info-buttons > button {
-	width: 47%;
+	width: 30%;
 }
 
 .list-info-content {
@@ -550,4 +551,8 @@ button > .loading {
 
 .list-header > div {
 	width: 47%;
+}
+
+#clear-modal {
+	color: var(--red);
 }
