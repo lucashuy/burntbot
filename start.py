@@ -131,7 +131,7 @@ def _print_startup():
 	log('\tburntbot, created by @burnttoaster')
 	log(f'\tv{globals.version}')
 	log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-
+	
 if (__name__ == '__main__'):
 	# read version in
 	try:
@@ -163,6 +163,11 @@ if (__name__ == '__main__'):
 	while (1):
 		time.sleep(10)
 
+		if (not swap_bot.is_alive()):
+			log('Bot died, stopping program')
+
+			raise SystemExit(0)
+
 		if (globals.bot_state):
 			if (not ui.is_alive()):
 				log('Started web UI thread')
@@ -191,8 +196,3 @@ if (__name__ == '__main__'):
 				log('Stopping heart beat thread')
 
 				api_heart_beat.stop.set()
-
-		if (not swap_bot.is_alive()):
-			log('Bot died, stopping program')
-
-			raise SystemExit(0)

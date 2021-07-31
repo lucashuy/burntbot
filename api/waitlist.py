@@ -9,7 +9,7 @@ def get_waitlist():
 	local_headers = globals.headers.copy()
 	if (globals.waitlist_etag): local_headers['If-None-Match'] = globals.waitlist_etag
 
-	response = requests.get(globals.endpoint_waitlist, headers = local_headers)
+	response = requests.get('https://api.shakepay.com/card/waitlist', headers = local_headers)
 
 	# make sure we have 2xx status
 	if (not response.ok):

@@ -6,7 +6,7 @@ from api.exception import raise_exception
 from utilities.log import log
 
 def get_wallet():
-	response = requests.get(globals.endpoint_wallet, headers = globals.headers)
+	response = requests.get('https://api.shakepay.com/wallets', headers = globals.headers)
 
 	# make sure we have 2xx status
 	if (not response.ok):

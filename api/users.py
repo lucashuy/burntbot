@@ -6,9 +6,7 @@ from api.exception import raise_exception
 from utilities.log import log
 
 def users(user_id: str) -> dict:
-	log(f'str build: {globals.endpoint_users}/{user_id}', True)
-
-	response = requests.get(f'{globals.endpoint_users}/{user_id}', headers = globals.headers)
+	response = requests.get(f'https://api.shakepay.com/users/{user_id}', headers = globals.headers)
 
 	# make sure we have 2xx status
 	if (not response.ok):
@@ -25,7 +23,7 @@ def search(shaketag: str) -> list:
 	if (local_shaketag[0] == '@'): local_shaketag = shaketag[1:]
 
 	if (shaketag != ''):
-		response = requests.get(f'{globals.endpoint_users}?username={local_shaketag}', headers = globals.headers)
+		response = requests.get(f'https://api.shakepay.com/users?username={local_shaketag}', headers = globals.headers)
 
 		if (not response.ok):
 			log('Something went wrong when fetching users: {}'.format(response.text))

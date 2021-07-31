@@ -27,7 +27,7 @@ def shaking_sats():
 	local_headers['X-Notification-Token'] = ''
 	local_headers['Content-Type'] = 'application/json'
 
-	response = requests.post(globals.endpoint_shaking_sats, headers = local_headers, data = json.dumps({}))
+	response = requests.post('https://api.shakepay.com/shaking-sats', headers = local_headers, data = json.dumps({}))
 
 	log(f'shaking-sats code: {response.status_code}', True)
 	log(f'shaking-sats data: {response.json()}', True)

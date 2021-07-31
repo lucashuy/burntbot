@@ -3,16 +3,6 @@ from classes.version import Version
 bot_note = ''
 bot_poll_rate = 10
 
-# create constants for API endpoints
-_host = 'https://api.shakepay.com/'
-endpoint_wallet = _host + 'wallets'
-endpoint_history = _host + 'transactions/history'
-endpoint_swap = _host + 'transactions'
-endpoint_authenticate = _host + 'authentication'
-endpoint_users = _host + 'users'
-endpoint_waitlist = _host + 'card/waitlist'
-endpoint_shaking_sats = _host + 'shaking-sats'
-
 # headers required for requests (populated in start.py)
 headers = {}
 

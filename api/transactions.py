@@ -19,7 +19,7 @@ def send_transaction(amount: float, shaketag: str, note: str) -> dict:
 		'toType': 'user'
 	}
 
-	response = requests.post(globals.endpoint_swap, headers = local_headers, data = json.dumps(body))
+	response = requests.post('https://api.shakepay.com/transactions', headers = local_headers, data = json.dumps(body))
 	
 	# make sure we have 2xx status
 	if (not response.ok):
@@ -33,7 +33,7 @@ def get_transactions(params: dict) -> tuple:
 	# copy headers to append content type
 	local_headers = globals.headers.copy()
 	
-	response = requests.get(globals.endpoint_history, headers = local_headers, params = params)
+	response = requests.get('https://api.shakepay.com/transactions/history', headers = local_headers, params = params)
 	headers = response.headers
 
 	# make sure we have 2xx status

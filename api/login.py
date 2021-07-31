@@ -17,7 +17,7 @@ def pre_login(email: str, password: str):
 	local_headers['X-Device-System-Version'] = '8.0.0'
 
 	# pre 2FA POST
-	response = requests.post(globals.endpoint_authenticate, headers = local_headers, data = json.dumps({
+	response = requests.post('https://api.shakepay.com/authentication', headers = local_headers, data = json.dumps({
 		'password': password,
 		'strategy': 'local',
 		'totpType': 'sms',
@@ -44,7 +44,7 @@ def mfa_login(code: str, pre_token: str) -> str:
 	local_headers['X-Device-System-Version'] = '8.0.0'
 
 	# 2FA POST
-	response = requests.post(globals.endpoint_authenticate, headers = local_headers, data = json.dumps({
+	response = requests.post('https://api.shakepay.com/authentication', headers = local_headers, data = json.dumps({
 		'mfaToken': code,
 		'strategy': 'mfa'
 	}))
