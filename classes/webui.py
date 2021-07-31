@@ -34,12 +34,10 @@ class WebUI(threading.Thread):
 
 		if (request.endpoint == 'static'): return
 
-		# if (globals.bot_state == 0) and (not request.endpoint == '_down_page'):
-		if (1) and (not request.endpoint == '_down_page'):
+		if (globals.bot_state == 0) and (not request.endpoint == '_down_page'):
 			# show down page if bot is down
 			return flask.redirect(flask.url_for('_down_page'))
-		# elif (globals.bot_state == 1) and (request.endpoint == '_down_page'):
-		elif (0) and (request.endpoint == '_down_page'):
+		elif (globals.bot_state == 1) and (request.endpoint == '_down_page'):
 			# redirect home if user goes to down page when bot is up
 			return flask.redirect(flask.url_for('home_page'))
 

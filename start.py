@@ -11,6 +11,7 @@ from classes.shaker import ShakingSats
 from classes.heartbeat import HeartBeat
 from classes.version import Version
 
+from api.exception import ClientException
 from api.users import users
 from api.wallet import get_wallet
 from api.login import pre_login, mfa_login
@@ -38,6 +39,27 @@ def _read_flags():
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
 
+def _login():
+	email = input('> Email: ')
+	password = getpass.getpass('> Password: ')
+
+	try:
+		pre_auth_token = pre_login(email, password)
+
+		while (pre_auth_token == False):
+			log('Please check your email for an email from Shakepay to authenticate the IP address!')
+			input('> Press ENTER when you confirmed the IP address...')
+			
+			pre_auth_token = pre_login(email, password)
+			log('Checking...')
+
+		code = input('> 2FA code: ')
+
+		return mfa_login(code, pre_auth_token)
+	except Exception as e:
+		log(f'Failed to login, stopping: {e}')
+		raise SystemExit(0)
+
 def _load_persistence_data():
 	persistence = {}
 
@@ -62,26 +84,7 @@ def _load_persistence_data():
 	# check if we have an existing session
 	if (not 'token' in persistence) or (persistence['token'] == ''):
 		log('Existing session not found, logging in to Shakepay...')
-
-		password = getpass.getpass('> Password: ')
-		email = input('> Email: ')
-
-		try:
-			pre_auth_token = pre_login(email, password)
-
-			while (pre_auth_token == False):
-				log('Please check your email for an email from Shakepay to authenticate the IP address!')
-				input('> Press ENTER when you confirmed the IP address...')
-				
-				pre_auth_token = pre_login(email, password)
-				log('Checking...')
-
-			code = input('> 2FA code: ')
-
-			persistence['token'] = mfa_login(code, pre_auth_token)
-		except Exception as e:
-			log(f'Failed to login, stopping: {e}')
-			raise SystemExit(0)
+		persistence['token'] = _login()
 	
 	# set token header
 	globals.headers['Authorization'] = persistence['token']
@@ -91,7 +94,18 @@ def _load_persistence_data():
 
 	log(f'userid is {globals.user_id}', True)
 
-	user_data = users(globals.user_id)
+	user_data = None
+
+	while (user_data == None):
+		try:
+			log('Getting user data...')
+			user_data = users(globals.user_id)
+		except ClientException:
+			log('Invalid session, logging into Shakepay again...')
+			persistence['token'] = _login()
+		except Exception as e:
+			log(f'Failed to get user data, stopping: {e}')
+			raise SystemExit(0)
 
 	log(user_data, True)
 	
