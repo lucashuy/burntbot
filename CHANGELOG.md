@@ -1,5 +1,15 @@
 # burntbot - Changelog
 
+## 0.9.0 (TBA)
+Additions:
+* Added favicon
+
+Changes:
+* Changed email confirmation to repeatedly ask user if they hit enter too early
+* Added checks to kill extra threads if the bot is dead
+* Reduced shaking intervals to eight hours (from 12)
+* Made web UI display a down page if the bot is down and restarting
+
 ## 0.8.4 (July 19th 2021)
 Changes:
 * Fixed instances of double sending by re-adding transaction cache
