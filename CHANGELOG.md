@@ -3,12 +3,15 @@
 ## 0.9.0 (TBA)
 Additions:
 * Added favicon
+* Added button to delete entire list
+* Added buttons to ignore warnings and delay sends in list page
 
 Changes:
 * Changed email confirmation to repeatedly ask user if they hit enter too early
 * Added checks to kill extra threads if the bot is dead
 * Reduced shaking intervals to eight hours (from 12)
-* Made web UI display a down page if the bot is down and restarting
+* Made web UI display a "down" page if the bot is down and restarting
+* Changed startup to detect if the user has been logged out/the token is invalid
 
 ## 0.8.4 (July 19th 2021)
 Changes:
