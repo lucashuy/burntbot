@@ -81,8 +81,12 @@ button.delete {
 	color: var(--red);
 }
 
-*:disabled {
+button:disabled {
 	cursor: not-allowed;
+}
+
+div.disabled {
+	pointer-events: none;
 }
 
 a {
@@ -393,6 +397,10 @@ p#check-input-subtext {
 	border-color: rgba(0, 255, 0, 0.7) !important;
 }
 
+.border-yellow {
+	border-color: var(--yellow) !important;
+}
+
 .loading {
 	display: inline-block;
 	position: relative;
@@ -447,17 +455,8 @@ p#check-input-subtext {
 	display: inline-block;
 }
 
-.list-user-header > button.delete {
-	min-width: 0;
-}
-
 .list-header-input > * {
 	width: 47%;
-}
-
-.list-user-buttons {
-	width: 100%;
-	margin-top: 1rem;
 }
 
 .list-header-input > div input,
@@ -476,6 +475,16 @@ button > .loading {
 
 .list-user-header {
 	align-items: center;
+}
+
+.list-user-control {
+	direction: rtl;
+	flex-grow: 1;
+}
+
+.list-user-control > button {
+	min-width: 0;
+	margin-left: 0.5rem;
 }
 
 #list-note-save > * {
@@ -511,11 +520,11 @@ button > .loading {
 	direction: rtl;
 }
 
-.list-user-button-warning > button {
+.list-ignore {
 	width: 47%;
 }
 
-.list-user-button-ignore {
+.list-user-buttons {
 	margin-top: 1rem;
 	align-items: center;
 }

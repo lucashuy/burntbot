@@ -1,5 +1,7 @@
 import flask
 import time
+import hashlib
+import datetime
 
 import globals
 
@@ -8,7 +10,7 @@ from utilities.datetime import get_reset_datetime, string_to_datetime
 from utilities.swap import swap
 
 from api.users import search
-from api.labrie_check import labrie_check_multi
+from api.labrie_check import labrie_check_multi, labrie_check
 from api.wallet import get_wallet
 
 def list_page():
@@ -59,28 +61,29 @@ def list_send():
 	def _generate():
 		try:
 			to_send = _classify_list()['to_send']
-			# balance = _get_wallet_balance()
-			balance = 100.
+			balance = _get_wallet_balance()
 
 			for shaketag, data in to_send.items():
 				if (globals.bot_state == 0): break
 
+				# ignore send if we ignored them in UI
+				if ('delay_state' in data) and (data['delay_time'] > int(time.time())): continue
+
 				# only send if they are not marked in the database
-				if (not 'do_not_send' in data):
-					# if we ran out of money, check again to see if bot got any swaps back
-					if (balance < 5.):
-						balance = _get_wallet_balance()
-						
-						# if we still dont have enough money, stop
-						if (balance < 5.): break
+				if ('do_not_send' in data) and (not 'warning_hash' in data): continue
 
-					print(f'simulate {shaketag}')
-					time.sleep(1)
-					#swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
+				# if we ran out of money, check again to see if bot got any swaps back
+				if (balance < 5.):
+					balance = _get_wallet_balance()
+					
+					# if we still dont have enough money, stop
+					if (balance < 5.): break
 
-					balance = balance - 5.
+				swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
 
-					yield f'data: {shaketag}\n\n'
+				balance = balance - 5.
+
+				yield f'data: {shaketag}\n\n'
 		except: pass
 
 		yield 'data: done\n\n'
@@ -112,6 +115,40 @@ def clear_list():
 
 	return flask.Response(status = 201)
 
+def toggle_warning(shaketag: str):
+	if ('warning_hash' in globals.bot_send_list[shaketag]):
+		del globals.bot_send_list[shaketag]['warning_hash']
+	else:
+		response = labrie_check(shaketag, 'initiate')['data']
+		globals.bot_send_list[shaketag]['warning_hash'] = _make_hash(response['added_time'], response['reason'])
+		
+	upsert_persistence({'bot_send_list': globals.bot_send_list})
+
+	return flask.Response(status = 201)
+
+def ignore(shaketag: str, hours: int):
+	data = globals.bot_send_list[shaketag]
+
+	if ('delay_state' in data) and (data['delay_state'] == hours):
+		del data['delay_state']
+		del data['delay_time']
+	else:
+		delay_time = None
+		if (hours == 0):
+			delay_time = (get_reset_datetime() + datetime.timedelta(days = 1)).timestamp()
+		else:
+			delay_time = int(time.time()) + (60 * 60 * hours)
+
+		data['delay_state'] = hours
+		data['delay_time'] = delay_time
+
+	upsert_persistence({'bot_send_list': globals.bot_send_list})
+
+	return flask.Response(status = 201)
+
+def _make_hash(time: str, reason: str) -> str:
+	return hashlib.md5(f'{time}{reason}'.encode('utf-8')).hexdigest()
+
 # gets the amount of money we have minus swaps
 def _get_wallet_balance() -> float:
 	wallet = float(get_wallet()['balance'])
@@ -135,7 +172,11 @@ def _generate_scammers_from_list() -> dict:
 	if (response['success']):
 		for data in response['data']:
 			if (not data['allow_initiate']):
-				do_not_send[f'@{data["shaketag"]}'] = data['reason']
+				# save reason data and hash of this entry
+				do_not_send[f'@{data["shaketag"]}'] = {
+					'reason': data['reason'],
+					'hash': _make_hash(data['added_time'], data['reason'])
+				}
 
 	return do_not_send
 
@@ -157,7 +198,10 @@ def _classify_list() -> dict:
 
 	reset = get_reset_datetime()
 
-	for shaketag in globals.bot_send_list:
+	# used to determine if we need to save to disk
+	write = False
+	
+	for shaketag, data in globals.bot_send_list.items():
 		user_id = None
 		user_history = None
 
@@ -172,11 +216,31 @@ def _classify_list() -> dict:
 			is_waiting = user_history.get_swap() < 0
 		except KeyError: pass
 
-		insert_obj = {}
+		insert_obj = data.copy()
 
-		# check if we need to add ban message
+		# check if we need to add ban message and if we should ignore this tag
 		if (shaketag in do_not_send):
-			insert_obj['do_not_send'] = do_not_send[shaketag]
+			scam_data = do_not_send[shaketag]
+
+			insert_obj['do_not_send'] = scam_data['reason']
+
+			# check if we need to ignore this warning
+			if ('warning_hash' in insert_obj) and (not insert_obj['warning_hash'] == scam_data['hash']):
+				# the hashes are different, something has changed
+				# reset ignored warning
+				del insert_obj['warning_hash']
+				del globals.bot_send_list[shaketag]['warning_hash']
+
+				write = True
+		
+		# check if the delay has passed
+		if ('delay_state' in insert_obj) and (insert_obj['delay_time'] < int(time.time())):
+			# remove from scoped list and global
+			del insert_obj['delay_state']
+			del globals.bot_send_list[shaketag]['delay_state']
+			del globals.bot_send_list[shaketag]['delay_time']
+
+			write = True
 
 		if (user_history == None) or (not is_swap_today and not is_waiting):
 			to_send[shaketag] = insert_obj
@@ -185,6 +249,8 @@ def _classify_list() -> dict:
 			waiting[shaketag] = insert_obj
 		elif (is_swap_today and not is_waiting):
 			done[shaketag] = insert_obj
+
+	if (write):	upsert_persistence({'bot_send_list': globals.bot_send_list})
 
 	return {
 		'to_send': to_send,

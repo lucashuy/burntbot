@@ -155,3 +155,31 @@ function list_override_send(event) {
 		}
 	})
 }
+
+function list_ignore_warning(button) {
+	let shaketag = button.value;
+	let parent = button.parentNode.parentNode.parentNode;
+
+	fetch('/list/warning/' + shaketag, {method: 'PATCH'})
+	.then(async (data) => {
+		if (await data.ok) {
+			parent.classList.toggle('border-red');
+			parent.classList.toggle('border-yellow');
+
+			button.classList.toggle('emphasis');
+			button.classList.toggle('contained');
+		}
+	});
+}
+
+function list_ignore_time(button) {
+	let info = button.value.split('-')
+
+	fetch(`/list/ignore/${info[0]}/${info[1]}`, {method: 'PATCH'})
+	.then(async (data) => {
+		if (await data.ok) {
+			// reload the page to get time info
+			window.location.reload();
+		}
+	});
+}

@@ -98,14 +98,21 @@
 		}
 
 		function send_list(click_event) {
+			// disabled the send list button to prevent double sends
 			let button = click_event.target;
-			
 			set_loading(button);
 			button.disabled = true;
 
+			// disable the entire not send column to prevent any messing about
+			let col = document.getElementById('not-sent');
+			col.classList.toggle('disabled');
+
+			// open stream to backend
 			let stream = new EventSource('/list/send/');
 
+			// helper to move users
 			let waiting = document.getElementById('list-waiting');
+
 			stream.onmessage = (event) => {
 				if (event.data === 'done') {
 					console.log('done');
@@ -113,13 +120,15 @@
 
 					set_checkmark(button);
 					button.classList.add('button-icon-override');
+
+					col.classList.toggle('disabled');
 				} else {
 					let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${event.data}"]`);
 
 					// remove buttons incase the user gets any funny ideas
-					let buttons = list_user.querySelectorAll('button');
-					if (buttons.length > 1) {
-						buttons[0].remove();
+					let elements = list_user.querySelectorAll('.divider, .list-user-buttons');
+					for (let el of elements) {
+						el.remove();
 					}
 
 					waiting.append(list_user);
@@ -152,12 +161,12 @@
 
 		function trigger_delete_modal() {
 			if (window.confirm('Are you sure you want to clear your list?')) {
-				delete_list()
+				delete_list();
 			}
 		}
 
 		function delete_list() {
-			let button = document.getElementById('clear-modal')
+			let button = document.getElementById('clear-modal');
 			set_loading(button);
 			button.disabled = true;
 

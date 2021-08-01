@@ -1,27 +1,28 @@
 {% macro user(shaketag, data, is_initiate) %}
-	<div class = 'rounded list-user {% if "do_not_send" in data %}border-red{% endif %}' data-shaketag = {{ shaketag }}>
+	{% if 'do_not_send' in data %}
+		<div class = 'rounded list-user {{ "border-yellow" if "warning_hash" in data else "border-red" }}' data-shaketag = {{ shaketag }}>
+	{% else %}
+		<div class = 'rounded list-user' data-shaketag = {{ shaketag }}>
+	{% endif %}
 		<div class = 'list-user-header flex-row'>
-			{{ shaketag }}
-			<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
+			<div>{{ shaketag }}</div>
+			<div class = 'list-user-control'>
+				<button type = 'submit' class = 'delete' value = '{{ shaketag }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
+				{% if 'do_not_send' in data and is_initiate %}
+					<button type = 'submit' value = '{{ shaketag }}' class = 'list-ignore list-warning {{ "contained" if "warning_hash" in data else "emphasis" }}' onclick = list_ignore_warning(this)>IGNORE WARNING</button>
+				{% endif %}
+			</div>
 		</div>
 		{% if 'do_not_send' in data %}
 			<div class = 'list-user-status'>{{ data['do_not_send'] }}</div>
-			<div class = 'list-user-buttons'>
-				{% if is_initiate %}
-					<div class = 'list-user-button-warning flex-row'>
-						<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>IGNORE WARNING</button>
-						<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>SEND ANYWAY</button>
-					</div>
-				{% endif %}
-			</div>
 		{% endif %}
 		<div class = 'divider'></div>
-		<div class = 'list-user-button-ignore flex-row'>
+		<div class = 'list-user-buttons flex-row'>
 			<p>Don't send for:</p>
 			<div>
-				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>1hr</button>
-				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>8hr</button>
-				<button type = 'submit' value = '{{ shaketag }}' class = 'list-warning emphasis' onclick = list_override_send(this)>until reset</button>
+				<button type = 'submit' value = '{{ shaketag }}-1' class = 'list-warning {{ "contained" if "delay_state" in data and data["delay_state"] == 1 else "emphasis" }}' onclick = list_ignore_time(this)>1hr</button>
+				<button type = 'submit' value = '{{ shaketag }}-8' class = 'list-warning {{ "contained" if "delay_state" in data and data["delay_state"] == 8 else "emphasis" }}' onclick = list_ignore_time(this)>8hr</button>
+				<button type = 'submit' value = '{{ shaketag }}-0' class = 'list-warning {{ "contained" if "delay_state" in data and data["delay_state"] == 0 else "emphasis" }}' onclick = list_ignore_time(this)>until reset</button>
 			</div>
 		</div>
 	</div>
