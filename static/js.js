@@ -183,3 +183,13 @@ function list_ignore_time(button) {
 		}
 	});
 }
+
+window.addEventListener('load', () => {
+	let modal = document.getElementById('modal-wrapper');
+
+	if (modal) {
+		modal.addEventListener('click', (e) => {
+			modal.classList.toggle('hidden');
+		})
+	}
+});

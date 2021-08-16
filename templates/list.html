@@ -1,4 +1,5 @@
 {% from 'components/list_user.html' import user %}
+{% from 'components/reorder-modal.html' import reorder %}
 
 {% extends 'layout.html' %}
 
@@ -32,8 +33,8 @@
 					<h2>12hr 30mins</h2>
 				</div>
 				<div class = 'list-info-buttons flex-row'>
-					<button id = 'clear-modal' type = 'submit' class = 'emphasis border-red' onclick = trigger_delete_modal()>CLEAR LIST</button>
-					<button id = 'edit-list' type = 'submit' class = 'contained' onclick = save_list_note(this)>EDIT LIST</button>
+					<button id = 'clear-list' type = 'submit' class = 'emphasis border-red' onclick = trigger_delete_modal()>CLEAR LIST</button>
+					<button id = 'edit-list' type = 'submit' class = 'contained' onclick = edit_list(this)>EDIT LIST</button>
 					<button id = 'send' type = 'submit' class = 'contained'>SEND ALL</button>
 				</div>
 			</div>
@@ -68,6 +69,8 @@
 			</div>
 		</div>
 	</div>
+
+	{{ reorder() }}
 
 	<script>
 		function add_shaketags(event) {
@@ -166,7 +169,7 @@
 		}
 
 		function delete_list() {
-			let button = document.getElementById('clear-modal');
+			let button = document.getElementById('clear-list');
 			set_loading(button);
 			button.disabled = true;
 
@@ -180,6 +183,10 @@
 					console.log('list', 'not cleared');
 				}
 			});
+		}
+
+		function edit_list() {
+			document.getElementById('modal-wrapper').classList.toggle('hidden');
 		}
 
 		document.getElementById('submit').addEventListener('submit', add_shaketags);
