@@ -12,14 +12,21 @@ from utilities.datetime import get_swap_datetime, string_to_datetime
 from utilities.persistence import upsert_persistence
 from utilities.log import log
 from utilities.swap import swap
+from utilities.transaction_helper import determine_userid, determine_shaketag
+from classes.sqlite import SQLite
 
 class SwapBot(threading.Thread):
+	bot_state = 0
+
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
 
 		self.restarts = 0
 		self.last_restart = time.time()
 		self.recent_transaction_datetime = None
+		
+		self.db = SQLite()
+		self.init_history()
 
 	def _offset_timestamp(self, timestamp: str, offset: int) -> datetime.datetime:
 		return string_to_datetime(timestamp) + datetime.timedelta(milliseconds = offset)
@@ -33,17 +40,31 @@ class SwapBot(threading.Thread):
 
 		swapping_begin_datetime = get_swap_datetime()
 		
-		log(f'Fetching your transactions...')
-
 		while (1):
 			(response, headers) = get_transactions(params)
 
 			# stop if we have an empty list
 			if (len(response) == 0): break
 
-			populate_history(response)
+			for transaction in response:
+				# skip if the transaction is not peer (eg etransfer) and not of CAD (eg BTC)
+				if (not transaction['type'] == 'peer') or (not transaction['currency'] == 'CAD'): continue
+				
+				transaction_datetime = string_to_datetime(transaction['timestamp'])
 
-			# save the most recent transaction's timestamp for use in polling later
+				# stop if the transaction is before swapping started
+				if (transaction_datetime < swapping_begin_datetime): break
+
+				user_id = determine_userid(transaction)
+				shaketag = determine_shaketag(transaction)
+
+				# add/update shaketag in database and add transaction
+				self.db.upsert_shaketag(user_id, shaketag, transaction_datetime.timestamp())
+				self.db.add_transcation(transaction)
+
+			self.db.commit()
+
+			# save the most recent transaction's timestamp for use in post init polling
 			if (self.recent_transaction_datetime == None):
 				self.recent_transaction_datetime = self._offset_timestamp(response[0]['timestamp'], 1)
 
@@ -51,14 +72,16 @@ class SwapBot(threading.Thread):
 			last_transaction_timestamp = response[-1]['timestamp']
 			last_transaction_datetime = string_to_datetime(last_transaction_timestamp)
 
+			# stop if we have transactions from before swapping
 			log(f'{last_transaction_datetime} vs {swapping_begin_datetime}', True)
 			if (last_transaction_datetime < swapping_begin_datetime):
 				break
 
+			# update time to fetch next page of transactions
 			params['before'] = self._offset_timestamp(last_transaction_timestamp, -1)
 
 	def run(self):
-		while (1):
+		while (0):
 			try:
 				# init hash table of transactions
 				self.init_history()
@@ -85,7 +108,7 @@ class SwapBot(threading.Thread):
 
 				log('Bot ready')
 
-				globals.bot_state = 1
+				SwapBot.bot_state = 1
 
 				# start polling
 				while (1):
@@ -117,7 +140,7 @@ class SwapBot(threading.Thread):
 
 				raise SystemExit(0)
 			except Exception as e:
-				globals.bot_state = 0
+				SwapBot.bot_state = 0
 
 				log(f'Crashed due to: {e}')
 				log(traceback.format_exc())
