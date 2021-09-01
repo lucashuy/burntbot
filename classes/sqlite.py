@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
 
-from utilities.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
+from utilities.transaction_parser import determine_shaketag, determine_swap_amnt, determine_userid
 from utilities.datetime import epoch_to_datetime, get_paddle_datetime, string_to_datetime
 
 class SQLite:

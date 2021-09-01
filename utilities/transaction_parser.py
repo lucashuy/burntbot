@@ -1,94 +1,11 @@
-import globals
+def determine_shaketag(transaction: dict) -> str:
+	return (transaction.get('to') or transaction['from'])['label']
 
-from classes.user_history import UserHistory
-from utilities.datetime import string_to_datetime, get_swap_datetime
-from utilities.transaction_helper import determine_shaketag, determine_swap_amnt, determine_userid
-from utilities.log import log
+def determine_swap_amnt(transaction: dict) -> float:
+	swap = 1. if (transaction['direction'] == 'credit') else -1.
+	swap = swap * float(f'{transaction["amount"]:.2f}')
 
-def _create_history(userid: str, shaketag: str, timestamp: str, swap: float):
-	globals.bot_history[userid] = UserHistory(shaketag, timestamp, swap)
+	return swap
 
-def _check_no_return(transaction: dict, userid: str, swap: float):
-	# check if the note is "no return"
-	if ('no return' == transaction['note']):
-		globals.bot_history[userid].adjust_swap(-swap)
-
-def populate_history(data: list):
-	for transaction in data:
-		# skip transaction if its not a swap in CDN
-		if (not transaction['type'] == 'peer') or (not transaction['currency'] == 'CAD'): continue
-
-		# stop if the transaction is before swapping started
-		if (string_to_datetime(transaction['timestamp']) < get_swap_datetime()): break
-
-		userid = determine_userid(transaction)
-		shaketag = determine_shaketag(transaction)
-		swap = determine_swap_amnt(transaction)
-
-		if (not userid in globals.bot_history):
-			# safe to assume that if the shaketag is NOT in history, this will be the most recent transaction from this person
-			# create history entry for them
-			_create_history(userid, shaketag, transaction['timestamp'], swap)
-		else:
-			history = globals.bot_history[userid]
-			history.adjust_swap(swap)
-
-		# cache transaction id
-		globals.bot_history[userid].add_transaction_cache(transaction['transactionId'])
-
-		_check_no_return(transaction, userid, swap)
-
-# this function is a bit of a mess since it also modifies the history (swap key)
-def get_swaps(data: dict) -> dict:
-	swap_list = {}
-	history_updated = {}
-
-	for transaction in data:
-		# skip transaction if its not a swap in CDN
-		if (not transaction['type'] == 'peer') or (not transaction['currency'] == 'CAD'): continue
-
-		userid = determine_userid(transaction)
-		shaketag = determine_shaketag(transaction)
-		swap = determine_swap_amnt(transaction)
-
-		if (not userid in globals.bot_history):
-			# create new history entry for this swapper
-			_create_history(userid, shaketag, transaction['timestamp'], swap)
-
-			log(f'Create new entry for {shaketag} ({userid})', True)
-		else:
-			history = globals.bot_history[userid]
-
-			# stop if the transaction already exists in cache
-			if (history.is_transaction_cached(transaction['transactionId'])): break
-
-			log(f'Adjust {shaketag} {globals.bot_history[userid].get_swap()} by {swap}', True)
-
-			# entry exists, update their swap
-			history.adjust_swap(swap)
-
-		# cache transaction id
-		globals.bot_history[userid].add_transaction_cache(transaction['transactionId'])
-
-		# update the transaction history if we havent already
-		if (not userid in history_updated):
-			history_updated[userid] = (shaketag, transaction['timestamp'])
-
-		# check if we need to add to the swap list
-		if (transaction['direction'] == 'credit'):
-			swap_list[userid] = True
-
-		_check_no_return(transaction, userid, swap)
-
-	# update swap list incase we also got returns from after we added the swap
-	for userid in swap_list.copy():
-		# remove name from list if we dont owe them
-		if (globals.bot_history[userid].get_swap() <= 0.):
-			del swap_list[userid]
-
-	# commit changes to user details
-	for userid, data_tuple in history_updated.items():
-		globals.bot_history[userid].update_shaketag(data_tuple[0])
-		globals.bot_history[userid].update_timestamp(data_tuple[1])
-
-	return swap_list
+def determine_userid(transaction: dict) -> str:
+	return (transaction.get('to') or transaction['from'])['id']

@@ -8,7 +8,7 @@ from api.exception import ClientException
 from utilities.datetime import get_swap_datetime, string_to_datetime
 from utilities.log import log
 from utilities.swap import swap
-from utilities.transaction_helper import determine_userid, determine_shaketag
+from utilities.transaction_parser import determine_userid, determine_shaketag
 from classes.sqlite import SQLite
 
 class SwapBot(threading.Thread):
@@ -192,5 +192,5 @@ class SwapBot(threading.Thread):
 					self.last_restart = time_now
 
 					time.sleep(60)
-					
+
 					SwapBot.bot_state = 1
