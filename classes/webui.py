@@ -70,4 +70,4 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/list/warning/<string:shaketag>', view_func = toggle_warning, methods = ['PATCH'])
 		self.app.add_url_rule('/list/ignore/<string:shaketag>/<int:hours>', view_func = ignore, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)

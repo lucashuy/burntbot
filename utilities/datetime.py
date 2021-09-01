@@ -17,3 +17,6 @@ def string_to_datetime(string: str) -> datetime.datetime:
 	datetime_obj = datetime_obj.replace(tzinfo = datetime.timezone.utc)
 
 	return datetime_obj
+
+def epoch_to_datetime(epoch: float) -> datetime.datetime:
+	return datetime.datetime.utcfromtimestamp(epoch)

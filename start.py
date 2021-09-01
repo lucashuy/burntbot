@@ -72,7 +72,6 @@ def _login():
 
 	# get existing device headers if they exist, otherwise create them
 	globals.headers['X-Device-Unique-Id'] = db.get_key_value('unique_id') or secrets.token_hex(8)
-	globals.headers['X-Device-Serial-Number'] = db.get_key_value('serial_number') or secrets.token_hex(9)
 	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
 
 	# get token if exists
@@ -90,7 +89,6 @@ def _login():
 		except (ClientException, AttributeError):
 			# 4xx HTTP error, get a new token and device ids
 			globals.headers['X-Device-Unique-Id'] = secrets.token_hex(8)
-			globals.headers['X-Device-Serial-Number'] = secrets.token_hex(9)
 			globals.headers['Authorization'] = _login_helper()
 		except Exception as e:
 			log(f'Failed to get user data, stopping: {e}')
@@ -103,7 +101,6 @@ def _login():
 	# write auth data into db
 	db.upsert_key_value('token', globals.headers['Authorization'])
 	db.upsert_key_value('unique_id', globals.headers['X-Device-Unique-Id'])
-	db.upsert_key_value('serial_number', globals.headers['X-Device-Serial-Number'])
 
 	db.commit()
 	db.close()
