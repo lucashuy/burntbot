@@ -1,5 +1,3 @@
-from classes.version import Version
-
 # headers required for requests (populated in start.py)
 headers = {}
 
