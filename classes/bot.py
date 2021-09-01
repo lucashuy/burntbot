@@ -162,11 +162,16 @@ class SwapBot(threading.Thread):
 				elif (len(response) == 0):
 					# stop the bot, something weird happened
 					log('Unexpected data, stopping bot')
+
+					db.close()
+
 					raise SystemExit(0)
 
 				time.sleep(db.get_key_value('poll_rate'))
 			except ClientException:
 				log('Bot stopped because of a token issue (did you logout of all devices?)')
+
+				db.close()
 
 				raise SystemExit(0)
 			except Exception as e:
@@ -183,6 +188,8 @@ class SwapBot(threading.Thread):
 
 				if (self.restarts > 5):
 					log('Bot stopped five times in 10 minutes, stopping program')
+					
+					db.close()
 					
 					raise SystemExit(0)
 				else:
