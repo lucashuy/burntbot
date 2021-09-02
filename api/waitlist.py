@@ -51,10 +51,10 @@ def update_waitlist():
 		for transaction in data['history']:
 			transaction_datetime = string_to_datetime(transaction['createdAt'])
 
-			if (transaction_datetime >= today_start_datetime):
+			if (transaction_datetime >= today_start_datetime) and (transaction['name'] == 'sentP2P'):
 				# add swap if it was completed today
 				today_swaps = today_swaps + 1
-			else:
+			elif (transaction_datetime < today_start_datetime):
 				# swap is older, any data past this point is not needed
 				break
 
