@@ -72,7 +72,6 @@ def _login():
 
 	# get existing device headers if they exist, otherwise create them
 	globals.headers['X-Device-Unique-Id'] = db.get_key_value('unique_id') or secrets.token_hex(8)
-	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
 
 	# get token if exists
 	globals.headers['Authorization'] = db.get_key_value('token')
@@ -113,6 +112,7 @@ def _print_startup():
 	
 if (__name__ == '__main__'):
 	globals.version = read_version()
+	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
 
 	migrate()
 	_print_startup()
