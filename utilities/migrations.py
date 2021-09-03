@@ -27,6 +27,9 @@ def migrate():
 			# =====================
 			# migrate kv pairs
 			#
+			db.upsert_key_value('token', old_persistence['token'])
+			db.upsert_key_value('unique_id', old_persistence['unique_id'])
+			db.upsert_key_value('serial_number', old_persistence['serial_number'])
 			db.upsert_key_value('poll_rate', old_persistence['poll_rate'])
 			db.upsert_key_value('return_note', old_persistence['note'])
 			db.upsert_key_value('bot_return_check', old_persistence['bot_return_check'])
@@ -44,14 +47,6 @@ def migrate():
 			#
 			for shaketag in old_persistence['bot_send_list']:
 				db.add_list(shaketag)
-
-			# log user out since going forward we no longer use serial number
-			local_headers = globals.headers.copy()
-			local_headers['Authorization'] = old_persistence['token']
-			local_headers['X-Device-Unique-Id'] = old_persistence['unique_id']
-			local_headers['X-Device-Serial-Number'] = old_persistence['serial_number']
-
-			requests.delete('https://api.shakepay.com/authentication?allSessions=false', headers = local_headers)
 		except: pass
 
 		db.commit()

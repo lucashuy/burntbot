@@ -72,6 +72,7 @@ def _login():
 
 	# get existing device headers if they exist, otherwise create them
 	globals.headers['X-Device-Unique-Id'] = db.get_key_value('unique_id') or secrets.token_hex(8)
+	globals.headers['X-Device-Serial-Number'] = db.get_key_value('serial_number') or secrets.token_hex(9)
 
 	# get token if exists
 	globals.headers['Authorization'] = db.get_key_value('token')
@@ -88,6 +89,7 @@ def _login():
 		except (ClientException, AttributeError):
 			# 4xx HTTP error, get a new token and device ids
 			globals.headers['X-Device-Unique-Id'] = secrets.token_hex(8)
+			globals.headers['X-Device-Serial-Number'] = secrets.token_hex(9)
 			globals.headers['Authorization'] = _login_helper()
 		except Exception as e:
 			log(f'Failed to get user data, stopping: {e}')
@@ -100,6 +102,7 @@ def _login():
 	# write auth data into db
 	db.upsert_key_value('token', globals.headers['Authorization'])
 	db.upsert_key_value('unique_id', globals.headers['X-Device-Unique-Id'])
+	db.upsert_key_value('serial_number', globals.headers['X-Device-Serial-Number'])
 
 	db.commit()
 	db.close()
@@ -180,6 +183,9 @@ if (__name__ == '__main__'):
 		if (swap_bot.is_alive()): swap_bot.stop.set()
 		if (shaking_sats.is_alive()): shaking_sats.stop.set()
 		if (api_heart_beat.is_alive()): api_heart_beat.stop.set()
+
+		# wait for processes to finish up
+		time.sleep(1)
 
 		db.commit()
 		db.close()
