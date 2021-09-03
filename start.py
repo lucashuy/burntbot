@@ -135,39 +135,46 @@ if (__name__ == '__main__'):
 	db = SQLite()
 
 	# main thread busy
-	while (1):
-		time.sleep(10)
+	try:
+		while (1):
+			time.sleep(10)
 
-		if (not swap_bot.is_alive()):
-			log('Bot died, stopping program')
+			if (not swap_bot.is_alive()):
+				log('Bot died, stopping program')
 
-			raise SystemExit(0)
+				raise SystemExit(0)
 
-		if (SwapBot.bot_state):
-			if (not ui.is_alive()):
-				log('Started web UI thread')
+			if (SwapBot.bot_state):
+				if (not ui.is_alive()):
+					log('Started web UI thread')
 
-				ui = WebUI()
-				ui.start()
+					ui = WebUI()
+					ui.start()
 
-			if (not shaking_sats.is_alive()) and (db.get_key_value('shaking_sats')):
-				log('Started shaking sats thread')
+				if (not shaking_sats.is_alive()) and (db.get_key_value('shaking_sats')):
+					log('Started shaking sats thread')
 
-				shaking_sats = ShakingSats()
-				shaking_sats.start()
+					shaking_sats = ShakingSats()
+					shaking_sats.start()
 
-			if (not api_heart_beat.is_alive()) and (db.get_key_value('heart_beat')) and (not globals.bot_flags['listen']):
-				log('Started heart beat thread')
+				if (not api_heart_beat.is_alive()) and (db.get_key_value('heart_beat')) and (not globals.bot_flags['listen']):
+					log('Started heart beat thread')
 
-				api_heart_beat = HeartBeat()
-				api_heart_beat.start()
-		else:
-			if (shaking_sats.is_alive()):
-				log('Stopping shaking sats thread')
+					api_heart_beat = HeartBeat()
+					api_heart_beat.start()
+			else:
+				if (shaking_sats.is_alive()):
+					log('Stopping shaking sats thread')
 
-				shaking_sats.stop.set()
+					shaking_sats.stop.set()
 
-			if (api_heart_beat.is_alive()):
-				log('Stopping heart beat thread')
+				if (api_heart_beat.is_alive()):
+					log('Stopping heart beat thread')
 
-				api_heart_beat.stop.set()
+					api_heart_beat.stop.set()
+	except KeyboardInterrupt:
+		print()
+		log('Stopping gracefully')
+		db.commit()
+		db.close()
+		log('Saved data')
