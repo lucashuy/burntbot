@@ -55,3 +55,5 @@ def migrate():
 		except: pass
 
 		db.commit()
+
+	db.close()

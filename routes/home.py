@@ -27,6 +27,8 @@ def home_page():
 		'we_owe': db.get_credits(),
 	}
 
+	db.close()
+
 	return flask.render_template('home.html', data = data)
 
 def _add_commas(amount: float) -> str:

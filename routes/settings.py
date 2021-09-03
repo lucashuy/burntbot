@@ -2,68 +2,54 @@ import flask
 
 import globals
 
-from utilities.persistence import upsert_persistence
+from classes.sqlite import SQLite
 
 def settings_page():
+	'''
+	Route function
+	'''
+
+	db = SQLite()
+
 	data = {
 		'version': globals.version,
-		'poll_rate': globals.bot_poll_rate,
-		'note': globals.bot_note,
-		'return_check': globals.bot_return_check,
-		'shaking_sats_enabled': globals.shaking_sats_enabled,
-		'heart_beat': globals.heart_beat_enabled,
-		'heart_beat_points': globals.heart_beat_points,
-		'heart_beat_swaps': globals.heart_beat_swaps,
-		'heart_beat_position': globals.heart_beat_position,
+		'poll_rate': db.get_key_value('poll_rate', 10),
+		'note': db.get_key_value('return_note', ''),
+		'return_check': db.get_key_value('bot_return_check', False),
+		'shaking_sats_enabled': db.get_key_value('shaking_sats', False),
+		'heart_beat': db.get_key_value('heart_beat', False)
 	}
+
+	db.close()
 
 	return flask.render_template('settings.html', data = data)
 
 def settings_save():
-	save_data = {}
+	'''
+	Route to save settings
+	'''
+
+	db = SQLite()
+
 	data = flask.request.get_json()
+	status_code = 201
 
-	# dont know if this is the right choice for validation:
-	# i am only checking for certain keys and saving those while ignoring the rest
+	if ('note' in data): db.upsert_key_value('return_note', data['note'])
+	if ('return_check' in data): db.upsert_key_value('bot_return_check', data['return_check'])
+	if ('shaking_sats_enabled' in data): db.upsert_key_value('shaking_sats', data['shaking_sats_enabled'])
+	if ('heart_beat' in data): db.upsert_key_value('heart_beat', data['heart_beat'])
 
-	if ('note' in data):
-		save_data['note'] = data['note']
-		globals.bot_note = data['note']
-
-	# also make sure poll rate doesnt break API rate limit
+	# make sure poll rate does not spam API
 	if ('poll_rate' in data):
-		cast_poll_rate = float(data['poll_rate'])
+		poll_rate = float(data['poll_rate'])
 
-		if (cast_poll_rate < 1):
-			flask.Response(status = 400)
+		if (poll_rate < 1):
+			status_code = 400
 		else:
-			save_data['poll_rate'] = cast_poll_rate
-			globals.bot_poll_rate = cast_poll_rate
+			# save poll rate
+			db.upsert_key_value('poll_rate', poll_rate)
 
-	if ('return_check' in data):
-		save_data['bot_return_check'] = data['return_check']
-		globals.bot_return_check = data['return_check']
+	db.commit()
+	db.close()
 
-	if ('shaking_sats_enabled' in data):
-		save_data['shaking_sats_enabled'] = data['shaking_sats_enabled']
-		globals.shaking_sats_enabled = data['shaking_sats_enabled']
-
-	if ('heart_beat' in data):
-		save_data['heart_beat'] = data['heart_beat']
-		globals.heart_beat_enabled = data['heart_beat']
-
-	if ('heart_beat_points' in data):
-		save_data['heart_beat_points'] = data['heart_beat_points']
-		globals.heart_beat_points = data['heart_beat_points']
-
-	if ('heart_beat_swaps' in data):
-		save_data['heart_beat_swaps'] = data['heart_beat_swaps']
-		globals.heart_beat_swaps = data['heart_beat_swaps']
-
-	if ('heart_beat_position' in data):
-		save_data['heart_beat_position'] = data['heart_beat_position']
-		globals.heart_beat_position = data['heart_beat_position']
-
-	upsert_persistence(save_data)
-	
-	return flask.Response(status = 201)
+	return flask.Response(status = status_code)

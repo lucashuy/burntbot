@@ -40,22 +40,8 @@
 			<div class = 'setting'>
 				<div class = 'setting-header'><a href = 'https://swap.labrie.ca' target = '_blank'>Bot Heart Beat</a></div>
 				<div class = 'flex-row'>
-					<p>Enable the bot to report to @domi167's bot registry, leaving the below section blank will hide waitlist position, points and swaps</p>
+					<p>Enable the bot to report to @domi167's bot registry, this will send your position, total points and completed swaps to the registry</p>
 					<input id = 'setting-heart-beat' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat'] else '' }}>
-				</div>
-				<div class = 'rounded setting-extra'>
-					<div class = 'flex-row'>
-						<p>Report waitlist position</p>
-						<input id = 'setting-heart-beat-position' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_position'] else '' }}>
-					</div>
-					<div class = 'flex-row'>
-						<p>Report waitlist points</p>
-						<input id = 'setting-heart-beat-points' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_points'] else '' }}>
-					</div>
-					<div class = 'flex-row'>
-						<p>Report total swaps completed today</p>
-						<input id = 'setting-heart-beat-swaps' type = 'checkbox' autocomplete = 'off' {{ 'checked' if data['heart_beat_swaps'] else '' }}>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -95,10 +81,7 @@
 						poll_rate: poll_rate.value,
 						return_check: document.getElementById('setting-auto-check').checked,
 						shaking_sats_enabled: document.getElementById('setting-auto-shake').checked,
-						heart_beat: document.getElementById('setting-heart-beat').checked,
-						heart_beat_points: document.getElementById('setting-heart-beat-points').checked,
-						heart_beat_swaps: document.getElementById('setting-heart-beat-swaps').checked,
-						heart_beat_position: document.getElementById('setting-heart-beat-position').checked
+						heart_beat: document.getElementById('setting-heart-beat').checked
 					})
 				})
 				.then(async (data) => {
