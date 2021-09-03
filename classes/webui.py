@@ -5,6 +5,8 @@ import click
 
 import globals
 
+from classes.bot import SwapBot
+
 from routes.home import home_page
 from routes.swap import swap, check_spelling, check_swapped
 from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
@@ -33,10 +35,10 @@ class WebUI(threading.Thread):
 
 		if (request.endpoint == 'static'): return
 
-		if (globals.bot_state == 0) and (not request.endpoint == '_down_page'):
+		if (SwapBot.bot_state == 0) and (not request.endpoint == '_down_page'):
 			# show down page if bot is down
 			return flask.redirect(flask.url_for('_down_page'))
-		elif (globals.bot_state == 1) and (request.endpoint == '_down_page'):
+		elif (SwapBot.bot_state == 1) and (request.endpoint == '_down_page'):
 			# redirect home if user goes to down page when bot is up
 			return flask.redirect(flask.url_for('home_page'))
 

@@ -1,47 +1,62 @@
 import flask
 import json
 
-import globals
-
 from api.labrie_check import labrie_check
 from api.wallet import get_wallet
 from api.users import search
 from utilities.swap import swap as sswap
-from utilities.datetime import string_to_datetime, get_reset_datetime
+from utilities.datetime import get_reset_datetime
+from classes.sqlite import SQLite
 
 def check_swapped(shaketag):
-	result = {
-		'swapped': False,
-		'do_swap': True
-	}
-
-	lower_shaketag = shaketag.lower()
-
-	# oh no, an O(n) search
-	for userid, history in globals.bot_history.items():
-		if (history.get_shaketag() == lower_shaketag):
-			reset_date = get_reset_datetime()
-			last_swap_date = string_to_datetime(globals.bot_history[userid].get_timestamp())
-
-			if (last_swap_date > reset_date):
-				result['swapped'] = True
-
-			result['last_date'] = last_swap_date.timestamp()
-
-			break
-
-	response = labrie_check(lower_shaketag, 'initiate')
+	'''
+	Checks if we have swapped with the user today
+	'''
 	
-	if (response['success']) and (not response['data']['allow_initiate']):
-		result['do_swap'] = False
-		result['reason'] = response['data']['reason'] or ''
+	db = SQLite()
 
-	return json.dumps(result)
+	lowercase_shaketag = shaketag.lower()
+	today_start_timestamp = get_reset_datetime().timestamp()
+	
+	user_info = db.get_shaketag_info(lowercase_shaketag)
+
+	return_data = {'state': 'NOT_SWAPPED'}
+	if (user_info == None):
+		# potential new swap
+		return_data = {'state': 'NEW_USER'}
+	else:
+		timestamp = user_info[2]
+
+		if (timestamp >= today_start_timestamp):
+			# check if we have actually swapped today, or if it was just a return
+			transactions = db.get_transactions(lowercase_shaketag, timestamp)
+
+			# see if any of the transactions was a return of at least $5
+			returned = False
+			for transaction in transactions:
+				if (transaction[5] <= 5):
+					returned = True
+					break
+
+			if (returned):
+				# we returned today
+				return_data = {'state': 'SWAPPED'}
+	
+	# check scammer db
+	response = labrie_check(lowercase_shaketag, 'initiate')
+	
+	# set state to reason from database if they are marked
+	if (response['success']) and (not response['data']['allow_initiate']):
+		return_data['state'] = response['data']['reason'] or ''
+
+	db.close()
+
+	return json.dumps(return_data)
 
 def swap(shaketag):
 	data = flask.request.get_json()
 	
-	# check if amount field
+	# check if amount field is valid
 	if (data['amount'] == None) or (data['amount'] == ''): return flask.Response(status = 400)
 
 	# add @ to start and make it lowercase
@@ -58,7 +73,8 @@ def swap(shaketag):
 
 	note = data['note'] or ''
 
-	sswap(shaketag, amount, override = True, is_return = False, custom_note = note)
+	sswap(shaketag, amount, note, False, True, False)
+	# sswap(shaketag, amount, override = True, is_return = False, custom_note = note)
 	
 	return flask.Response(status = 201)
 

@@ -126,22 +126,25 @@
 				let json = await data.json();
 				let status = document.getElementById('swap-status')
 
-				if (json['do_swap']) {
-					status.classList.remove('border-red');
-
-					if (json['swapped']) {
-						status.textContent = 'Already swapped today!';
-					} else {
-						if (json.hasOwnProperty('last_date')) {
-							status.textContent = 'Have not swapped today!';
-						} else {
-							status.textContent = 'Fresh meat, never swapped!';
-						}
-					}
-				} else {
-					status.classList.add('border-red');
-					status.textContent = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['reason']})`;
+				status.classList.remove('border-red');
+				status_text = '';
+				switch (json['state']) {
+					case 'NOT_SWAPPED':
+						status_text = 'Have not swapped today!';
+						break;
+					case 'NEW_USER':
+						status_text = 'Fresh meat, never swapped!';
+						break;
+					case 'SWAPPED':
+						status_text = 'Already swapped today!';
+						break;
+					default:
+						status.classList.add('border-red');
+						status_text = `WARNING, ${shaketag} is flagged in the database! Send at your own risk! (${json['state']})`;
+						break;
 				}
+
+				status.textContent = status_text;
 
 				unset_loading(document.getElementById('check-indicator'));
 				status.classList.remove('hidden');

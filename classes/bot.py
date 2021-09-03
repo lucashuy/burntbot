@@ -36,6 +36,7 @@ class SwapBot(threading.Thread):
 			db.add_transcation(transaction)
 	
 	def _init_history(self) -> float:
+		log('This might take a little')
 		db = SQLite()
 
 		# parameters for query
@@ -49,10 +50,11 @@ class SwapBot(threading.Thread):
 		swapping_begin_datetime = get_swap_datetime()
 		
 		while (1):
+			log(f'{params["before"]}', True)
 			(response, headers) = get_transactions(params)
 
-			# stop if we have an empty list
-			if (len(response) == 0): break
+			# stop if we have all the results
+			if (len(response) == 1): break
 
 			# iterate results
 			for transaction in response:
@@ -98,9 +100,7 @@ class SwapBot(threading.Thread):
 		db = SQLite()
 
 		# initialize database with swaps if it is empty
-		if (db.get_paddle_swappers() == 0):
-			log('Init empty history', True)
-			self._init_history()
+		if (db.get_paddle_swappers() == 0): self._init_history()
 
 		# get the last transaction timestamp
 		self.recent_transaction_datetime = db.get_last_transaction_epoch()
@@ -113,8 +113,6 @@ class SwapBot(threading.Thread):
 
 		# get any transactions we might have missed between last bot usage and now
 		while (1):
-			log(f'Fetching old data ({params["since"]})', True)
-
 			(response, headers) = get_transactions(params)
 
 			# update database with transactions
@@ -126,6 +124,8 @@ class SwapBot(threading.Thread):
 			# save the most recent transaction timestamp for next fetch
 			if (len(response) > 0): params['since'] = string_to_datetime(response[0]['timestamp']).isoformat()
 
+			log(f'Fetching old data ({params["since"]}) ({len(response)})', True)
+
 			# stop if we get a result with less than 2000 results, indicating all caught up
 			if (len(response) < 2000):
 				log(f'Done fetching', True)
@@ -134,9 +134,6 @@ class SwapBot(threading.Thread):
 		# do any late returns
 		log('Checking for late returns')
 		self._do_returns(db)
-
-		# slow down to avoid spamming API
-		time.sleep(1)
 
 		# bot ready
 		log('Bot ready')

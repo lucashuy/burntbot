@@ -2,7 +2,7 @@ import requests
 
 import globals
 
-from api.waitlist import get_waitlist
+from api.waitlist import update_waitlist
 from utilities.datetime import get_reset_datetime, string_to_datetime
 
 def heart_beat():
@@ -17,7 +17,7 @@ def heart_beat():
 	if (globals.heart_beat_points):
 		# fetch any new data
 		if (not fetched_waitlist):
-			get_waitlist()
+			update_waitlist()
 			fetched_waitlist = True
 
 		metadata["points"] = globals.waitlist_points
@@ -25,7 +25,7 @@ def heart_beat():
 	if (globals.heart_beat_swaps):
 		# fetch any new data
 		if (not fetched_waitlist):
-			get_waitlist()
+			update_waitlist()
 			fetched_waitlist = True
 
 		metadata["swapsToday"] = _count_swaps_today()
@@ -33,7 +33,7 @@ def heart_beat():
 	if (globals.heart_beat_position):
 		# fetch any new data
 		if (not fetched_waitlist):
-			get_waitlist()
+			update_waitlist()
 			fetched_waitlist = True
 
 		metadata["position"] = globals.waitlist_position

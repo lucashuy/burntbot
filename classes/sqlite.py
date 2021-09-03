@@ -35,7 +35,7 @@ class SQLite:
 				user_id TEXT NOT NULL,
 				shaketag TEXT NOT NULL,
 				transaction_id TEXT NOT NULL PRIMARY KEY,
-				swap_epoch INTEGER NOT NULL,
+				created_at INTEGER NOT NULL,
 				note TEXT,
 				amount REAL NOT NULL,
 				FOREIGN KEY (user_id, shaketag) REFERENCES shaketags(user_id, shaketag) ON DELETE CASCADE
@@ -92,7 +92,7 @@ class SQLite:
 		note = transaction['note']
 		amount = determine_swap_amnt(transaction)
 
-		self._db.execute('INSERT INTO transactions (user_id, shaketag, transaction_id, swap_epoch, note, amount) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (transaction_id) DO NOTHING', (user_id, shaketag, transaction_id, epoch, note, amount))
+		self._db.execute('INSERT INTO transactions (user_id, shaketag, transaction_id, created_at, note, amount) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (transaction_id) DO NOTHING', (user_id, shaketag, transaction_id, epoch, note, amount))
 
 	def add_list(self, shaketag: str):
 		'''
@@ -191,12 +191,22 @@ class SQLite:
 
 	def get_credits(self) -> list:
 		'''
-		Gets a list of people that have positive balances
+		Gets a list of people that have positive balances (waiting to send back)
 
-		@returns A list of tuples in the format `[(shaketag: str, amount: float), ...]`
+		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
 		'''
 
-		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance > 0')
+		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance > 0')
+		return self._db.fetchall()
+
+	def get_debits(self) -> list:
+		'''
+		Gets a list of people that have negative balances (waiting for swap back)
+
+		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
+		'''
+
+		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance < 0')
 		return self._db.fetchall()
 
 	def get_last_transaction_epoch(self) -> datetime.datetime:
@@ -211,6 +221,34 @@ class SQLite:
 		result = self._db.fetchone()[0]
 		if (not result == None): result = epoch_to_datetime(result)
 
+		return result
+
+	def get_transactions(self, shaketag: str, since_epoch: float) -> list:
+		'''
+		Gets all transactions of the user since a timestamp
+
+		@param `shaketag` The shaketag of the user with the leading `@`
+		@param `since_epoch` The timestamp to search until, inclusive
+
+		@returns A list of transactions
+		'''
+
+		self._db.execute('SELECT * FROM transactions WHERE shaketag = ? AND created_at >= ?', (shaketag, since_epoch))
+		return self._db.fetchall()
+
+	def get_shaketag_info(self, shaketag: str):
+		'''
+		Gets the user's info from the `shaketags` table
+
+		@param `shaketag` The shaketag of the user with leading `@`
+
+		@returns `None` if there is no such shaketag, otherwise returns `tuple`
+		'''
+
+		self._db.execute('SELECT * FROM shaketags WHERE shaketag = ? LIMIT 1', (shaketag,))
+
+		# return tuple if exists
+		result = self._db.fetchone()
 		return result
 
 	def commit(self):
