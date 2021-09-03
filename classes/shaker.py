@@ -1,8 +1,8 @@
 import threading
 
-import globals
-
 from api.shakingsats import shaking_sats
+from classes.sqlite import SQLite
+from classes.bot import SwapBot
 
 class ShakingSats(threading.Thread):
 	def __init__(self):
@@ -10,8 +10,12 @@ class ShakingSats(threading.Thread):
 		self.stop = threading.Event()
 
 	def run(self):
-		while (not self.stop.is_set()) and (globals.shaking_sats_enabled and globals.bot_state):
+		db = SQLite()
+
+		while (not self.stop.is_set()) and (db.get_key_value('shaking-sats'), False) and (SwapBot.bot_state):
 			shaking_sats()
 
 			# 8 hour cooldown between shakes
 			self.stop.wait(60 * 60 * 8)
+
+		db.close()
