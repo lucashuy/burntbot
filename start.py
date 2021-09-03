@@ -174,7 +174,13 @@ if (__name__ == '__main__'):
 					api_heart_beat.stop.set()
 	except KeyboardInterrupt:
 		print()
+	finally:
 		log('Stopping gracefully')
+
+		if (swap_bot.is_alive()): swap_bot.stop.set()
+		if (shaking_sats.is_alive()): shaking_sats.stop.set()
+		if (api_heart_beat.is_alive()): api_heart_beat.stop.set()
+
 		db.commit()
 		db.close()
 		log('Saved data')

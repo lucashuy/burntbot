@@ -16,6 +16,7 @@ class SwapBot(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self, daemon = True)
+		self.stop = threading.Event()
 
 		self.restarts = 0
 		self.last_restart = time.time()
@@ -139,7 +140,7 @@ class SwapBot(threading.Thread):
 		log('Bot ready')
 		SwapBot.bot_state = 1
 
-		while (1):
+		while (not self.stop.is_set()):
 			try:
 				# start polling
 				(response, headers) = get_transactions(params)
@@ -168,6 +169,7 @@ class SwapBot(threading.Thread):
 			except ClientException:
 				log('Bot stopped because of a token issue (did you logout of all devices?)')
 
+				db.commit()
 				db.close()
 
 				raise SystemExit(0)
@@ -198,3 +200,6 @@ class SwapBot(threading.Thread):
 					time.sleep(60)
 
 					SwapBot.bot_state = 1
+		
+		db.commit()
+		db.close()
