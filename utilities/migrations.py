@@ -1,7 +1,3 @@
-import requests
-
-import globals
-
 from utilities.log import log
 from classes.sqlite import SQLite
 from utilities.persistence import read_persistence
