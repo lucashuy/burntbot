@@ -1,17 +1,26 @@
+from sqlite3.dbapi2 import SQLITE_ALTER_TABLE
 import flask
 
 import globals
 
 from utilities.persistence import upsert_persistence
+from classes.sqlite import SQLite
 
 def blacklist_page():
+	'''
+	Route for blacklist web UI page
+	'''
+
+	db = SQLite()
+
 	they_sent = []
 	we_sent = []
 
-	for user, amount in globals.bot_blacklist.items():
-		insert = {'shaketag': user, 'amount': f'${abs(amount):.2f}'}
+	# separate the ones that sent and the ones we sent
+	for blacklist in db.get_blacklist():
+		insert = {'shaketag': blacklist[0], 'amount': blacklist[1]}
 
-		if (amount > 0):
+		if (blacklist[1] > 0):
 			they_sent.append(insert)
 		else:
 			we_sent.append(insert)
@@ -22,31 +31,44 @@ def blacklist_page():
 		'we_sent': we_sent
 	}
 
-	print(data)
-
 	return flask.render_template('blacklist.html', data = data)
 
 def blacklist_add(shaketag):
+	'''
+	Route to add a shaketag to blacklist with amount
+	'''
+
 	data = flask.request.get_json()
 	
+	# determine which way to blacklist
+	# if they sent to us, make it negative
+	# this way when the bot tallies up balances, they will have a balance of +x (meaning we need to return)
+	# so the blacklist is then negated and added onto the balance, making it 0.00
 	amount = float(data['amount'])
 	amount = amount * (1 if data['direction'] == 'debit' else -1)
 
+	status_code = 400
+
+	db = SQLite()
+
 	if (data):
-		globals.bot_blacklist[shaketag.lower()] = amount
+		db.upsert_blacklist(shaketag.lower(), amount)
+		db.commit()
 
-		upsert_persistence({'blacklist': globals.bot_blacklist})
+		status_code = 201
 
-		return flask.Response(status = 201)
-		
-	return flask.Response(status = 400)
+	db.close()
+
+	return flask.Response(status = status_code)
 
 def blacklist_delete(shaketag):
-	if (shaketag in globals.bot_blacklist):
-		del globals.bot_blacklist[shaketag]
-
-		upsert_persistence({'blacklist': globals.bot_blacklist})
-
-		return flask.Response(status = 201)
+	'''
+	Route to remove shaketag from blacklist, will not error out if shaketag does not exist
+	'''
+	
+	db = SQLite()
+	db.delete_blacklist(shaketag.lower())
+	db.commit()
+	db.close()
 		
-	return flask.Response(status = 400)
+	return flask.Response(status = 201)

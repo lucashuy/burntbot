@@ -151,7 +151,7 @@ class SQLite:
 		Deletes a blacklist amount
 		'''
 
-		self._db.execute('DELETE FROM list WHERE shaketag = ?', (shaketag,))
+		self._db.execute('DELETE FROM blacklist WHERE shaketag = ?', (shaketag,))
 
 	def get_key_value(self, key: str, default_value = None):
 		'''
@@ -250,6 +250,16 @@ class SQLite:
 		# return tuple if exists
 		result = self._db.fetchone()
 		return result
+
+	def get_blacklist(self) -> list:
+		'''
+		Gets all blacklisted users
+
+		@returns A `list` of blacklisted users and their amounts
+		'''
+
+		self._db.execute('SELECT * FROM blacklist')
+		return self._db.fetchall()
 
 	def commit(self):
 		self._conn.commit()
