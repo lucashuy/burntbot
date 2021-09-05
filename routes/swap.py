@@ -29,16 +29,9 @@ def check_swapped(shaketag):
 
 		if (timestamp >= today_start_timestamp):
 			# check if we have actually swapped today, or if it was just a return
-			transactions = db.get_transactions(lowercase_shaketag, timestamp)
+			did_swap = db.have_swapped(lowercase_shaketag)
 
-			# see if any of the transactions was a return of at least $5
-			returned = False
-			for transaction in transactions:
-				if (transaction[5] <= 5):
-					returned = True
-					break
-
-			if (returned):
+			if (did_swap):
 				# we returned today
 				return_data = {'state': 'SWAPPED'}
 	

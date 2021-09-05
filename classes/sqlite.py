@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 
 from utilities.transaction_parser import determine_shaketag, determine_swap_amnt, determine_userid
-from utilities.datetime import epoch_to_datetime, get_paddle_datetime, string_to_datetime
+from utilities.datetime import epoch_to_datetime, get_paddle_datetime, string_to_datetime, get_reset_datetime
 
 class SQLite:
 	def __init__(self):
@@ -16,6 +16,16 @@ class SQLite:
 
 		if (self.get_key_value('poll_rate') == None): self.upsert_key_value('poll_rate', 10)
 		self._conn.commit()
+
+	########################################3
+	#	sql management
+	#
+	def commit(self):
+		self._conn.commit()
+
+	def close(self):
+		self._db.close()
+		self._conn.close()
 
 	def _init_tables(self):
 		self._db.execute(
@@ -72,13 +82,58 @@ class SQLite:
 			'''
 		)
 
+	########################################3
+	#	table: shaketags
+	#
 	def upsert_shaketag(self, user_id: str, shaketag: str, epoch: int):
 		'''
 		Adds a shaketag to the database if it does not exist, otherwise update the last swap epoch timestamp
 		'''
 
 		self._db.execute('INSERT INTO shaketags (user_id, shaketag, last_swap_epoch) VALUES (?, ?, ?) ON CONFLICT (user_id, shaketag) DO UPDATE SET last_swap_epoch = ? WHERE (user_id = ? AND shaketag = ?) AND last_swap_epoch < ?', (user_id, shaketag, epoch, epoch, user_id, shaketag, epoch));
+	
+	def get_paddle_swappers(self) -> int:
+		'''
+		Gets the amount of swappers since paddle introduction
 
+		@returns A positive integer in the range `[0, +inf)`
+		'''
+
+		self._db.execute('SELECT COUNT(*) FROM (SELECT MAX(last_swap_epoch) FROM shaketags WHERE last_swap_epoch >= ? GROUP BY user_id)', (get_paddle_datetime().timestamp(),))
+		return self._db.fetchone()[0]
+	
+	def get_last_transaction_epoch(self) -> datetime.datetime:
+		'''
+		Gets a `datetime` object of the last (most recent) transaction saved
+
+		@returns A `datetime` object or `None` if none exists
+		'''
+
+		self._db.execute('SELECT MAX(last_swap_epoch) FROM shaketags')
+		
+		result = self._db.fetchone()[0]
+		if (not result == None): result = epoch_to_datetime(result)
+
+		return result
+
+	def get_shaketag_info(self, shaketag: str):
+		'''
+		Gets the user's info from the `shaketags` table
+
+		@param `shaketag` The shaketag of the user with leading `@`
+
+		@returns `None` if there is no such shaketag, otherwise returns `tuple`
+		'''
+
+		self._db.execute('SELECT * FROM shaketags WHERE shaketag = ? LIMIT 1', (shaketag,))
+
+		# return tuple if exists
+		result = self._db.fetchone()
+		return result
+
+	########################################3
+	#	table: transactions
+	#
 	def add_transcation(self, transaction: dict):
 		'''
 		Adds a transaction to the database, does nothing if it already exists
@@ -94,6 +149,41 @@ class SQLite:
 
 		self._db.execute('INSERT INTO transactions (user_id, shaketag, transaction_id, created_at, note, amount) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (transaction_id) DO NOTHING', (user_id, shaketag, transaction_id, epoch, note, amount))
 
+	def get_credits(self) -> list:
+		'''
+		Gets a list of people that have positive balances (waiting to send back)
+
+		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
+		'''
+
+		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance > 0')
+		return self._db.fetchall()
+
+	def get_debits(self) -> list:
+		'''
+		Gets a list of people that have negative balances (waiting for swap back)
+
+		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
+		'''
+
+		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance < 0')
+		return self._db.fetchall()
+
+	def have_swapped(self, shaketag: str) -> bool:
+		'''
+		Checks if we have swapped with this user today
+
+		@param `shaketag` The shaketag of the user with the leading `@`
+
+		@returns `True` if swapped
+		'''
+
+		self._db.execute('SELECT EXISTS(SELECT 1 FROM transactions WHERE shaketag = ? AND created_at >= ? AND amount <= -5.0 LIMIT 1)', (shaketag, get_reset_datetime().timestamp()))
+		return self._db.fetchone()
+		
+	########################################3
+	#	table: list
+	#
 	def add_list(self, shaketag: str):
 		'''
 		Adds a shaketag to the list, does nothing if it already exists
@@ -139,6 +229,17 @@ class SQLite:
 
 		self._db.execute('DELETE FROM list WHERE shaketag = ?', (shaketag,))
 
+	def get_list(self):
+		'''
+		Gets the entire list and the last time 
+		'''
+
+		self._db.execute('SELECT * FROM list')
+		return self._db.fetchall()
+
+	########################################3
+	#	table: blacklist
+	#
 	def upsert_blacklist(self, shaketag: str, amount: float):
 		'''
 		Insert a blacklist amount if it does not exist, otherwise update the amount
@@ -153,6 +254,19 @@ class SQLite:
 
 		self._db.execute('DELETE FROM blacklist WHERE shaketag = ?', (shaketag,))
 
+	def get_blacklist(self) -> list:
+		'''
+		Gets all blacklisted users
+
+		@returns A `list` of blacklisted users and their amounts
+		'''
+
+		self._db.execute('SELECT * FROM blacklist')
+		return self._db.fetchall()
+
+	########################################3
+	#	table: kv
+	#
 	def get_key_value(self, key: str, default_value = None):
 		'''
 		Get a key/value pair
@@ -178,92 +292,3 @@ class SQLite:
 		'''
 
 		self._db.execute('INSERT INTO kv VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = ? WHERE key = ?', (key, value, value, key))
-
-	def get_paddle_swappers(self) -> int:
-		'''
-		Gets the amount of swappers since paddle introduction
-
-		@returns A positive integer in the range `[0, +inf)`
-		'''
-
-		self._db.execute('SELECT COUNT(*) FROM (SELECT MAX(last_swap_epoch) FROM shaketags WHERE last_swap_epoch >= ? GROUP BY user_id)', (get_paddle_datetime().timestamp(),))
-		return self._db.fetchone()[0]
-
-	def get_credits(self) -> list:
-		'''
-		Gets a list of people that have positive balances (waiting to send back)
-
-		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
-		'''
-
-		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance > 0')
-		return self._db.fetchall()
-
-	def get_debits(self) -> list:
-		'''
-		Gets a list of people that have negative balances (waiting for swap back)
-
-		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
-		'''
-
-		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance < 0')
-		return self._db.fetchall()
-
-	def get_last_transaction_epoch(self) -> datetime.datetime:
-		'''
-		Gets a `datetime` object of the last (most recent) transaction saved
-
-		@returns A `datetime` object or `None` if none exists
-		'''
-
-		self._db.execute('SELECT MAX(last_swap_epoch) FROM shaketags')
-		
-		result = self._db.fetchone()[0]
-		if (not result == None): result = epoch_to_datetime(result)
-
-		return result
-
-	def get_transactions(self, shaketag: str, since_epoch: float) -> list:
-		'''
-		Gets all transactions of the user since a timestamp
-
-		@param `shaketag` The shaketag of the user with the leading `@`
-		@param `since_epoch` The timestamp to search until, inclusive
-
-		@returns A list of transactions
-		'''
-
-		self._db.execute('SELECT * FROM transactions WHERE shaketag = ? AND created_at >= ?', (shaketag, since_epoch))
-		return self._db.fetchall()
-
-	def get_shaketag_info(self, shaketag: str):
-		'''
-		Gets the user's info from the `shaketags` table
-
-		@param `shaketag` The shaketag of the user with leading `@`
-
-		@returns `None` if there is no such shaketag, otherwise returns `tuple`
-		'''
-
-		self._db.execute('SELECT * FROM shaketags WHERE shaketag = ? LIMIT 1', (shaketag,))
-
-		# return tuple if exists
-		result = self._db.fetchone()
-		return result
-
-	def get_blacklist(self) -> list:
-		'''
-		Gets all blacklisted users
-
-		@returns A `list` of blacklisted users and their amounts
-		'''
-
-		self._db.execute('SELECT * FROM blacklist')
-		return self._db.fetchall()
-
-	def commit(self):
-		self._conn.commit()
-
-	def close(self):
-		self._db.close()
-		self._conn.close()
