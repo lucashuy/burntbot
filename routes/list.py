@@ -1,28 +1,29 @@
 import flask
 import time
 import hashlib
-import datetime
 
 import globals
 
-from utilities.persistence import upsert_persistence
-from utilities.datetime import get_reset_datetime, string_to_datetime
 from utilities.swap import swap
-
 from api.users import search
 from api.labrie_check import labrie_check_multi, labrie_check
 from api.wallet import get_wallet
+from classes.sqlite import SQLite
 
 def list_page():
+	db = SQLite()
+
 	list_results = _classify_list()
 
 	data = {
 		'version': globals.version,
-		'to_send': list_results['to_send'],
-		'waiting': list_results['waiting'],
-		'done': list_results['done'],
-		'note': globals.list_note
+		'not_sent': list_results[0],
+		'wait_returns': list_results[1],
+		'done_swap': list_results[2],
+		'note': db.get_key_value('list_note', '')
 	}
+
+	db.close()
 
 	return flask.render_template('list.html', data = data)
 
@@ -126,31 +127,24 @@ def toggle_warning(shaketag: str):
 
 	return flask.Response(status = 201)
 
-def ignore(shaketag: str, hours: int):
-	data = globals.bot_send_list[shaketag]
-
-	if ('delay_state' in data) and (data['delay_state'] == hours):
-		del data['delay_state']
-		del data['delay_time']
-	else:
-		delay_time = None
-		if (hours == 0):
-			delay_time = (get_reset_datetime() + datetime.timedelta(days = 1)).timestamp()
-		else:
-			delay_time = int(time.time()) + (60 * 60 * hours)
-
-		data['delay_state'] = hours
-		data['delay_time'] = delay_time
-
-	upsert_persistence({'bot_send_list': globals.bot_send_list})
-
-	return flask.Response(status = 201)
-
 def _make_hash(time: str, reason: str) -> str:
+	'''
+	Helper function to turn reason + datetime string from swapper database into a hash
+
+	@param `time` A datetime string
+	@param `reason` The reason for the warning
+
+	@returns The `md5` hashed string
+	'''
 	return hashlib.md5(f'{time}{reason}'.encode('utf-8')).hexdigest()
 
-# gets the amount of money we have minus swaps
 def _get_wallet_balance() -> float:
+	'''
+	Returns the balance we have available for initiating swaps
+
+	@returns The balance we have for initiating
+	'''
+
 	wallet = float(get_wallet()['balance'])
 
 	for _, history in globals.bot_history.items():
@@ -159,101 +153,99 @@ def _get_wallet_balance() -> float:
 
 	return wallet
 
-def _generate_scammers_from_list() -> dict:
-	send_list_array = []
-	for shaketag in globals.bot_send_list:
-		send_list_array.append(shaketag)
+def _classify_list() -> tuple:
+	'''
+	Helper function to separate those that we've swapped with, are waiting for funds, and haven't swapped yet
 
-	# check names in database
-	do_not_send = {}
+	@returns `tuple` in the format `(not_sent: list, wait_returns: list, done_swap: list)`
+	'''
 
-	response = labrie_check_multi(send_list_array, 'initiate')
+	not_sent = []
+	wait_returns = []
+	done_swap = []
 
-	if (response['success']):
-		for data in response['data']:
-			if (not data['allow_initiate']):
-				# save reason data and hash of this entry
-				do_not_send[f'@{data["shaketag"]}'] = {
-					'reason': data['reason'],
-					'hash': _make_hash(data['added_time'], data['reason'])
-				}
+	# used to check for notices
+	not_sent_dict = {}
 
-	return do_not_send
+	db = SQLite()
 
-def _username_history_cache() -> dict:
-	usernames_local = {}
-	# create local cache of usernames <-> user ids
-	for userid, history in globals.bot_history.items():
-		usernames_local[history.get_shaketag()] = userid
+	# get the list from the DB and initialize debits list (the people we are waiting for)
+	send_list = db.get_list()
+	debits = {}
 
-	return usernames_local
+	# turn the array of tuples into a dictionary
+	for row in db.get_debits():
+		debits[row[0]] = {
+			'amount': row[1],
+			'timestamp': row[2]
+		}
 
-def _classify_list() -> dict:
-	to_send = {}
-	waiting = {}
-	done = {}
+	for user in send_list:
+		shaketag = user[0]
 
-	usernames_local = _username_history_cache()
-	do_not_send = _generate_scammers_from_list()
+		if (shaketag in debits):
+			# add to waiting list if we are waiting for a return
+			wait_returns.append(user)
+		else:
+			# check list and separate those that we havent and have swapped
+			if (db.have_swapped(shaketag)):
+				done_swap.append(user)
+			else:
+				# we have not swapped with this user yet
+				not_sent_dict[shaketag] = user
 
-	reset = get_reset_datetime()
+	# check if anyone from the send list has warnings and save the result as a list of values
+	not_sent = [*_check_warnings(not_sent_dict, db).values()]
 
-	# used to determine if we need to save to disk
-	write = False
+	db.commit()
+	db.close()
+
+	return (not_sent, wait_returns, done_swap)
+
+def _check_warnings(list: dict, db: SQLite) -> dict:
+	'''
+	Helper function to check swapper database for warnings
+
+	@param `list` A dictionary of shaketags and rows from database
+	@param `check_list` A list of shaketags to check
+
+	@returns A dictonary of rows formatted like the `list` table in the database
+	'''
+
+	not_sent = list.copy()
+
+	# save the shaketags as a list
+	check_list = [*not_sent.keys()]
+
+	# check the not sent list for scammers
+	results = []
 	
-	for shaketag, data in globals.bot_send_list.items():
-		user_id = None
-		user_history = None
+	# skip asking API for info on empty send list
+	if (not len(check_list) == 0):
+		results = labrie_check_multi(check_list, 'initiate')
+		results = results['data'] if results['success'] else []
 
-		is_swap_today = True
-		is_waiting = True
+	# update our not sent list with notice data
+	for notice in results:
+		shaketag = f'@{notice["shaketag"]}'
+		list_user = not_sent[shaketag]
 
-		try:
-			user_id = usernames_local[shaketag]
-			user_history = globals.bot_history[user_id]
+		# create hash of reason and datetime string
+		warning_hash = _make_hash(notice['reason'], notice['added_time'])
 
-			is_swap_today = string_to_datetime(user_history.get_timestamp()) > reset
-			is_waiting = user_history.get_swap() < 0
-		except KeyError: pass
+		# used to create new tuple
+		updated_warning = list_user[2]
 
-		insert_obj = data.copy()
+		if (not list_user[2] == None) and (not list_user[2] == warning_hash):
+			# the warning we ignored from before is different, remove it from DB and from list
+			db.update_list_warning(shaketag, None)
+			updated_warning = None
 
-		# check if we need to add ban message and if we should ignore this tag
-		if (shaketag in do_not_send):
-			scam_data = do_not_send[shaketag]
+		if (not notice['allow_initiate']):
+			# add the reason for notice to warning
+			updated_warning = notice['reason']
 
-			insert_obj['do_not_send'] = scam_data['reason']
+		# update warning
+		not_sent[shaketag] = (list_user[0], list_user[1], updated_warning)
 
-			# check if we need to ignore this warning
-			if ('warning_hash' in insert_obj) and (not insert_obj['warning_hash'] == scam_data['hash']):
-				# the hashes are different, something has changed
-				# reset ignored warning
-				del insert_obj['warning_hash']
-				del globals.bot_send_list[shaketag]['warning_hash']
-
-				write = True
-		
-		# check if the delay has passed
-		if ('delay_state' in insert_obj) and (insert_obj['delay_time'] < int(time.time())):
-			# remove from scoped list and global
-			del insert_obj['delay_state']
-			del globals.bot_send_list[shaketag]['delay_state']
-			del globals.bot_send_list[shaketag]['delay_time']
-
-			write = True
-
-		if (user_history == None) or (not is_swap_today and not is_waiting):
-			to_send[shaketag] = insert_obj
-		elif (is_waiting):
-			insert_obj['timestamp'] = user_history.get_timestamp()
-			waiting[shaketag] = insert_obj
-		elif (is_swap_today and not is_waiting):
-			done[shaketag] = insert_obj
-
-	if (write):	upsert_persistence({'bot_send_list': globals.bot_send_list})
-
-	return {
-		'to_send': to_send,
-		'waiting': waiting,
-		'done': done
-	}
+	return not_sent

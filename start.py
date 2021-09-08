@@ -140,8 +140,6 @@ if (__name__ == '__main__'):
 	# main thread busy
 	try:
 		while (1):
-			time.sleep(10)
-
 			if (not swap_bot.is_alive()):
 				log('Bot died, stopping program')
 
@@ -175,6 +173,8 @@ if (__name__ == '__main__'):
 					log('Stopping heart beat thread')
 
 					api_heart_beat.stop.set()
+
+			time.sleep(10)
 	except KeyboardInterrupt:
 		print()
 	finally:

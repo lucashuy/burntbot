@@ -58,8 +58,7 @@ class SQLite:
 			CREATE TABLE IF NOT EXISTS list (
 				shaketag TEXT NOT NULL UNIQUE,
 				pos INTEGER NOT NULL,
-				ignore_until_epoch INTEGER,
-				warning_hash TEXT
+				warning TEXT
 			)
 			'''
 		)
@@ -179,7 +178,7 @@ class SQLite:
 		'''
 
 		self._db.execute('SELECT EXISTS(SELECT 1 FROM transactions WHERE shaketag = ? AND created_at >= ? AND amount <= -5.0 LIMIT 1)', (shaketag, get_reset_datetime().timestamp()))
-		return self._db.fetchone()
+		return self._db.fetchone()[0]
 		
 	########################################3
 	#	table: list
@@ -193,10 +192,9 @@ class SQLite:
 		# if no rows (IFNULL), then set pos == 0, otherwise MAX + 1
 		self._db.execute(
 			'''
-			INSERT INTO list (shaketag, pos, ignore_until_epoch, warning_hash) VALUES (
+			INSERT INTO list (shaketag, pos, warning) VALUES (
 				?,
 				(SELECT IFNULL(MAX(pos), -1) + 1 FROM list),
-				NULL,
 				NULL
 			) ON CONFLICT DO NOTHING
 			''', (shaketag,))
@@ -208,19 +206,12 @@ class SQLite:
 
 		self._db.execute('UPDATE list SET pos = ? WHERE shaketag = ? ON CONFLICT DO NOTHING', (pos, shaketag))
 
-	def update_list_ignore(self, shaketag: str, ignore_epoch):
-		'''
-		Updates the shaketag's "ignore" value in the list. This is used to delay automated sending to the list
-		'''
-
-		self._db.execute('UPDATE list SET ignore_until_epoch = ? WHERE shaketag = ?', (ignore_epoch, shaketag))
-
-	def update_list_warning(self, shaketag: str, warning_hash):
+	def update_list_warning(self, shaketag: str, warning):
 		'''
 		Updates the shaketag's warning hash value in the list. This is used to ignore warnings from the swapper database
 		'''
 
-		self._db.execute('UPDATE list SET warning_hash = ? WHERE shaketag = ?', (warning_hash, shaketag))
+		self._db.execute('UPDATE list SET warning = ? WHERE shaketag = ?', (warning, shaketag))
 
 	def delete_list(self, shaketag: str):
 		'''

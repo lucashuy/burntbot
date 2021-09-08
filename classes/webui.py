@@ -11,7 +11,7 @@ from routes.home import home_page
 from routes.swap import swap, check_spelling, check_swapped
 from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
 from routes.settings import settings_page, settings_save
-from routes.list import list_page, add_shaketags, delete_user, list_send, change_note, override_send, clear_list, toggle_warning, ignore
+from routes.list import list_page, add_shaketags, delete_user, list_send, change_note, override_send, clear_list, toggle_warning
 
 class WebUI(threading.Thread):
 	def __init__(self):
@@ -70,6 +70,5 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/list/send/<string:shaketag>', view_func = override_send, methods = ['POST'])
 		self.app.add_url_rule('/list/note/', view_func = change_note, methods = ['PATCH'])
 		self.app.add_url_rule('/list/warning/<string:shaketag>', view_func = toggle_warning, methods = ['PATCH'])
-		self.app.add_url_rule('/list/ignore/<string:shaketag>/<int:hours>', view_func = ignore, methods = ['PATCH'])
 
 		self.app.run(globals.webui_host, globals.webui_port, debug = False)

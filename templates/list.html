@@ -44,8 +44,8 @@
 				<h2><i class="fas fa-list-ul"></i> Not Sent</h2>
 				<p>You haven't sent to these people yet</p>
 				<div>
-					{% for shaketag, children in data['to_send'].items() %}
-						{{ user(shaketag, children, 1) }}
+					{% for row in data['not_sent'] %}
+						{{ user(row, 1) }}
 					{% endfor %}
 				</div>
 			</div>
@@ -53,8 +53,8 @@
 				<h2><i class="far fa-clock"></i> Waiting</h2>
 				<p>Waiting for returns from these people</p>
 				<div id = 'list-waiting'>
-					{% for shaketag, children in data['waiting'].items() %}
-						{{ user(shaketag, children) }}
+					{% for row in data['wait_returns'] %}
+						{{ user(row) }}
 					{% endfor %}
 				</div>
 			</div>
@@ -62,8 +62,8 @@
 				<h2><i class="fas fa-check"></i> Done</h2>
 				<p>All done for today, come back next reset</p>
 				<div>
-					{% for shaketag, children in data['done'].items() %}
-						{{ user(shaketag, children) }}
+					{% for row in data['done_swap'] %}
+						{{ user(row) }}
 					{% endfor %}
 				</div>
 			</div>
