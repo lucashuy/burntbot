@@ -4,7 +4,7 @@
 Additions:
 * Added favicon
 * Added button to delete entire list
-* Added buttons to ignore warnings and delay sends in list page
+* Added button to ignore warning from the database and send to user anyways
 
 Changes:
 * Changed email confirmation to repeatedly ask user if they hit enter too early
@@ -12,6 +12,10 @@ Changes:
 * Reduced shaking intervals to eight hours (from 12)
 * Made web UI display a "down" page if the bot is down and restarting
 * Changed startup to detect if the user has been logged out/the token is invalid
+* Changed storage system to use SQLite instead of custom solution
+* Fixed bug where the bot would consider a late return as a completed swap
+* Changed waitlist API call to accept compressed data, reducing response size by ~5x
+* Lowered the amount of shaketags sent to domi's database to reduce bandwidth and load
 
 ## 0.8.4 (July 19th 2021)
 Changes:
