@@ -160,6 +160,8 @@ function list_ignore_warning(button) {
 	let shaketag = button.value;
 	let parent = button.parentNode.parentNode.parentNode;
 
+	set_loading(button);
+
 	fetch('/list/warning/' + shaketag, {method: 'PATCH'})
 	.then(async (data) => {
 		if (await data.ok) {
@@ -168,6 +170,9 @@ function list_ignore_warning(button) {
 
 			button.classList.toggle('emphasis');
 			button.classList.toggle('contained');
+
+			unset_loading(button);
+			set_checkmark(button);
 		}
 	});
 }

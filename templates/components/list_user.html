@@ -9,7 +9,7 @@
 			<div class = 'list-user-control'>
 				<button type = 'submit' class = 'delete' value = '{{ data[0] }}' onclick = remove_list_user(this)><i class="far fa-trash-alt"></i></button>
 				{% if not data[2] == None and is_initiate %}
-					<button type = 'submit' value = '{{ data[0] }}' class = 'list-ignore list-warning {{ "contained" if data | length == 4 else "emphasis" }}' onclick = list_ignore_warning(this)>IGNORE WARNING</button>
+					<button type = 'submit' value = '{{ data[0] }}' class = 'list-warning {{ "contained" if data | length == 4 else "emphasis" }}' onclick = list_ignore_warning(this)>IGNORE WARNING</button>
 				{% endif %}
 			</div>
 		</div>

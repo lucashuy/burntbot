@@ -520,15 +520,6 @@ button > .loading {
 	direction: rtl;
 }
 
-.list-ignore {
-	width: 47%;
-}
-
-.list-user-buttons {
-	margin-top: 1rem;
-	align-items: center;
-}
-
 @media only screen and (max-width: 1800px) {
 	.list-users-wrapper,
 	.list-header {

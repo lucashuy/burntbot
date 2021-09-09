@@ -9,6 +9,7 @@ from api.users import search
 from api.labrie_check import labrie_check_multi, labrie_check
 from api.wallet import get_wallet
 from classes.sqlite import SQLite
+from classes.bot import SwapBot
 
 def list_page():
 	db = SQLite()
@@ -28,50 +29,73 @@ def list_page():
 	return flask.render_template('list.html', data = data)
 
 def add_shaketags():
+	'''
+	Route to add shaketag to list. API returns 201 if nothing crashes.
+	'''
+	
+	db = SQLite()
+
 	data = flask.request.get_json()
 	
 	for shaketag in data['shaketags']:
-		local_tag = shaketag.strip()
+		formatted_tag = shaketag.strip()
 
-		if (local_tag == ''): continue
+		if (formatted_tag == ''): continue
 
 		# append @ before
-		if (local_tag[0] != '@'): local_tag = f'@{local_tag}'
+		if (formatted_tag[0] != '@'): formatted_tag = f'@{formatted_tag}'
 
 		# check valid chars
-		if (not local_tag[1:].isalnum()): continue
+		if (not formatted_tag[1:].isalnum()): continue
 
 		# check if the shaketag is valid (by pinging shakepay)
-		results = search(local_tag)
+		results = search(formatted_tag)
 
-		if (len(results) == 1) and (results[0] == local_tag):
-			globals.bot_send_list[local_tag] = 1
+		if (len(results) == 1) and (results[0] == formatted_tag): db.add_list(formatted_tag)
 
-	upsert_persistence({'bot_send_list': globals.bot_send_list})
+	db.commit()
+	db.close()
 
 	return flask.Response(status = 201)
 
 def delete_user(shaketag):
-	if (shaketag in globals.bot_send_list): del globals.bot_send_list[shaketag]
-
-	upsert_persistence({'bot_send_list': globals.bot_send_list})
-
+	'''
+	Removes a shaketag from the list. API returns 201 if nothing crashes.
+	'''
+	
+	db = SQLite()
+	db.delete_from_list(shaketag)
+	db.commit()
+	db.close()
+	
 	return flask.Response(status = 201)
 
 def list_send():
+	'''
+	Route to automatically send to the list. Uses eventstreams to send data to the client to move `div`s to other columns
+	'''
+
+	db = SQLite()
+	note = db.get_key_value('list_note', '')
+	db.close()
+
+	# generator function for event stream
 	def _generate():
 		try:
-			to_send = _classify_list()['to_send']
+			# get not sent list and current wallet balance
+			to_send = _classify_list()[0]
 			balance = _get_wallet_balance()
 
-			for shaketag, data in to_send.items():
-				if (globals.bot_state == 0): break
+			for data in to_send:
+				if (SwapBot.bot_state == 0): break
 
-				# ignore send if we ignored them in UI
-				if ('delay_state' in data) and (data['delay_time'] > int(time.time())): continue
+				shaketag = data[0]
 
 				# only send if they are not marked in the database
-				if ('do_not_send' in data) and (not 'warning_hash' in data): continue
+				# if data has 4 children, this means we are currently ignoring them, send
+				# if data has 3 children and the warning (3rd child) is NOT None, dont send
+				num_children = len(data)
+				if (num_children == 3) and (not data[2] == None): continue
 
 				# if we ran out of money, check again to see if bot got any swaps back
 				if (balance < 5.):
@@ -80,50 +104,68 @@ def list_send():
 					# if we still dont have enough money, stop
 					if (balance < 5.): break
 
-				swap(shaketag, 5.0, override = True, is_return = False, custom_note = globals.list_note)
+				swap(shaketag, 5., note, False, True, False)
 
 				balance = balance - 5.
 
+				# send shaketag to client
 				yield f'data: {shaketag}\n\n'
 		except: pass
 
+		# kill client
 		yield 'data: done\n\n'
 
 	return flask.Response(_generate(), mimetype = 'text/event-stream')
 
 def change_note():
+	'''
+	Route to change the list's note
+	'''
+	
 	data = flask.request.get_json()
 
-	globals.list_note = data['note'] or ''
-
-	upsert_persistence({'list_note': globals.list_note})
+	db = SQLite()
+	db.upsert_key_value('list_note', data['note'] or '')
+	db.commit()
+	db.close()
 
 	return flask.Response(status = 201)
 
-def override_send(shaketag: str):
-	balance = _get_wallet_balance()
-
-	if (balance >= 5.):
-		swap(shaketag, 5., True, False, globals.list_note)
-		return flask.Response(status = 201)
-	else:
-		return flask.Response(status = 400)
-
 def clear_list():
-	globals.bot_send_list = {}
+	'''
+	Route to delete the entire list
+	'''
 
-	upsert_persistence({'bot_send_list': {}})
-
+	db = SQLite()
+	db.clear_list()
+	db.commit()
+	db.close()
+	
 	return flask.Response(status = 201)
 
 def toggle_warning(shaketag: str):
-	if ('warning_hash' in globals.bot_send_list[shaketag]):
-		del globals.bot_send_list[shaketag]['warning_hash']
-	else:
-		response = labrie_check(shaketag, 'initiate')['data']
-		globals.bot_send_list[shaketag]['warning_hash'] = _make_hash(response['added_time'], response['reason'])
-		
-	upsert_persistence({'bot_send_list': globals.bot_send_list})
+	'''
+	Route to toggle the ignoring of database warnings
+	'''
+	
+	db = SQLite()
+	user = db.get_list_shaketag(shaketag)
+
+	if (user):
+		ignored_warning = user[2]
+
+		if (ignored_warning == None):
+			# add warning
+			response = labrie_check(shaketag, 'initiate')['data']
+			ignored_warning = _make_hash(response['added_time'], response['reason'])
+		else:
+			# remove warning
+			ignored_warning = None
+
+		db.update_list_warning(shaketag, ignored_warning)
+
+	db.commit()
+	db.close()
 
 	return flask.Response(status = 201)
 
@@ -145,13 +187,16 @@ def _get_wallet_balance() -> float:
 	@returns The balance we have for initiating
 	'''
 
-	wallet = float(get_wallet()['balance'])
+	balance = float(get_wallet()['balance'])
 
-	for _, history in globals.bot_history.items():
-		balance = history.get_swap()
-		if (balance > 0): wallet = wallet - balance
+	db = SQLite()
 
-	return wallet
+	for data in db.get_credits():
+		balance = balance - data[1]
+
+	db.close()
+
+	return balance
 
 def _classify_list() -> tuple:
 	'''
@@ -214,7 +259,7 @@ def _check_warnings(list: dict, db: SQLite) -> dict:
 
 	not_sent = list.copy()
 
-	# save the shaketags as a list
+	# save the shaketags as a list for swapper DB check
 	check_list = [*not_sent.keys()]
 
 	# check the not sent list for scammers
@@ -231,21 +276,30 @@ def _check_warnings(list: dict, db: SQLite) -> dict:
 		list_user = not_sent[shaketag]
 
 		# create hash of reason and datetime string
-		warning_hash = _make_hash(notice['reason'], notice['added_time'])
+		warning_hash = _make_hash(notice['added_time'], notice['reason'])
 
 		# used to create new tuple
 		updated_warning = list_user[2]
 
-		if (not list_user[2] == None) and (not list_user[2] == warning_hash):
-			# the warning we ignored from before is different, remove it from DB and from list
-			db.update_list_warning(shaketag, None)
-			updated_warning = None
+		ignore_warning = False
+
+		if (not list_user[2] == None):
+			if (not list_user[2] == warning_hash):
+				# the warning we ignored from before is different, remove it from DB and from list
+				db.update_list_warning(shaketag, None)
+				updated_warning = None
+			else:
+				# the warning is the same, this means we should ignore sending
+				ignore_warning = True
 
 		if (not notice['allow_initiate']):
-			# add the reason for notice to warning
+			# change 3rd element to the reason
 			updated_warning = notice['reason']
 
-		# update warning
-		not_sent[shaketag] = (list_user[0], list_user[1], updated_warning)
+		# update the tuple
+		if (ignore_warning):
+			not_sent[shaketag] = (list_user[0], list_user[1], updated_warning, True)
+		else:
+			not_sent[shaketag] = (list_user[0], list_user[1], updated_warning)
 
 	return not_sent

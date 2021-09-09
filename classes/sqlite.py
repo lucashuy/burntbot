@@ -213,7 +213,7 @@ class SQLite:
 
 		self._db.execute('UPDATE list SET warning = ? WHERE shaketag = ?', (warning, shaketag))
 
-	def delete_list(self, shaketag: str):
+	def delete_from_list(self, shaketag: str):
 		'''
 		Delete a shaketag from the list
 		'''
@@ -222,11 +222,30 @@ class SQLite:
 
 	def get_list(self):
 		'''
-		Gets the entire list and the last time 
+		Gets the entire list
 		'''
 
 		self._db.execute('SELECT * FROM list')
 		return self._db.fetchall()
+
+	def get_list_shaketag(self, shaketag: str) -> tuple:
+		'''
+		Gets a specific row from the list
+
+		@param `shaketag` A shaketag with the leading `@`
+		
+		@returns The row as outlined in the table schema
+		'''
+
+		self._db.execute('SELECT * FROM list WHERE shaketag = ?', (shaketag,))
+		return self._db.fetchone()
+
+	def clear_list(self):
+		'''
+		Wipes the entire list
+		'''
+
+		self._db.execute('DELETE FROM list')
 
 	########################################3
 	#	table: blacklist
@@ -279,7 +298,10 @@ class SQLite:
 
 	def upsert_key_value(self, key: str, value):
 		'''
-		Updates the shaketag's "ignore" value in the list
+		Updates the key/value pair in the database
+
+		@param `key` The key
+		@param `value` The value
 		'''
 
 		self._db.execute('INSERT INTO kv VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = ? WHERE key = ?', (key, value, value, key))
