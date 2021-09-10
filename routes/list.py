@@ -169,6 +169,20 @@ def toggle_warning(shaketag: str):
 
 	return flask.Response(status = 201)
 
+def get_list():
+	'''
+	Route to get the entire list
+	'''
+
+	db = SQLite()
+	list_data = db.get_list()
+	db.close()
+
+	return flask.jsonify(list_data)
+
+def update_list_position():
+	pass
+
 def _make_hash(time: str, reason: str) -> str:
 	'''
 	Helper function to turn reason + datetime string from swapper database into a hash

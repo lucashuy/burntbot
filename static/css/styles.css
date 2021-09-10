@@ -242,6 +242,7 @@ p {
 }
 
 .divider {
+	width: 100%;
 	margin: 1.5rem 0 1.5rem 0;
 	border-bottom: 1px solid var(--border);
 }
@@ -527,30 +528,30 @@ button > .loading {
 	}
 }
 
-.list-info {
-	align-self: stretch;
-	justify-content: space-between;
-}
-
-.list-info h2:first-child {
-	color: var(--less-white);
-}
-
 .list-info-buttons {
 	width: 100%;
+	flex: 1;
 }
 
 .list-info-buttons > button {
-	width: 30%;
+	width: 100%;
 }
 
-.list-info-content {
-	text-align: center;
+.list-info-buttons > button:not(:first-child) {
+	margin-top: 1rem;
+}
+
+.list-info-buttons > button:first-child {
 	margin-bottom: 1rem;
 }
 
-.list-header > div {
-	width: 47%;
+.list-header > div.rounded:first-child {
+	flex: 2;
+}
+
+.list-header > div.rounded:nth-child(2) {
+	margin-left: 1rem;
+	flex: 1;
 }
 
 #clear-list {
@@ -568,8 +569,20 @@ button > .loading {
 }
 
 #modal-content {
+	z-index: 20;
 	position: relative;
-	width: 40%;
-	margin: 10% auto;
-	background-color: rgb(29, 29, 29)
+	width: 50%;
+	margin: 4% auto;
+	background-color: rgb(29, 29, 29);
+	height: 80%;
+	overflow-y: scroll;
+}
+
+.list-info {
+	align-self: stretch;
+}
+
+.list-draggable {
+	width: 50%;
+	cursor: move;
 }

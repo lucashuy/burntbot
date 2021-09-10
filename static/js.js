@@ -129,38 +129,12 @@ function remove_blacklist_user(event) {
 	})
 }
 
-function list_override_send(event) {
-	let shaketag = event.value;
-	
-	event.disabled = true;
-	set_loading(event);
-
-	fetch('/list/send/' + shaketag, {
-		method: 'POST'
-	})
-	.then(async (data) => {
-		if (await data.ok) {
-			let list_user = document.querySelector(`div.rounded.list-user[data-shaketag="${shaketag}"]`);
-
-			// remove the override button in case the user gets any funny ideas
-			let buttons = list_user.querySelectorAll('button');
-			if (buttons.length > 1) {
-				buttons[0].remove();
-			}
-
-			document.getElementById('list-waiting').append(list_user);
-		} else {
-			set_x(event);
-			console.log('list_override', `not sent ${shaketag} (invalid funds or blacklisted account?)`);
-		}
-	})
-}
-
 function list_ignore_warning(button) {
 	let shaketag = button.value;
 	let parent = button.parentNode.parentNode.parentNode;
 
 	set_loading(button);
+	button.disabled = true;
 
 	fetch('/list/warning/' + shaketag, {method: 'PATCH'})
 	.then(async (data) => {
@@ -173,16 +147,7 @@ function list_ignore_warning(button) {
 
 			unset_loading(button);
 			set_checkmark(button);
+			button.disabled = false;
 		}
 	});
 }
-
-window.addEventListener('load', () => {
-	let modal = document.getElementById('modal-wrapper');
-
-	if (modal) {
-		modal.addEventListener('click', (e) => {
-			modal.classList.toggle('hidden');
-		})
-	}
-});
