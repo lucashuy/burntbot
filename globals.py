@@ -1,5 +1,7 @@
 # headers required for requests (populated in start.py)
-headers = {}
+headers = {
+	'Accept-Encoding': 'gzip, deflate'
+}
 
 # wallet id
 wallet_id = ''

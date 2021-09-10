@@ -16,9 +16,6 @@ def update_waitlist():
 	# use etags to prevent redundant data transfer
 	if (globals.waitlist_etag): local_headers['If-None-Match'] = globals.waitlist_etag
 
-	# accept gzip compression (since those with lots of swaps have huge responses, > 3MB)
-	local_headers['Accept-Encoding'] = 'gzip, deflate'
-
 	response = requests.get('https://api.shakepay.com/card/waitlist', headers = local_headers)
 
 	# make sure we have 2xx status

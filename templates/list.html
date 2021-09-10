@@ -1,4 +1,5 @@
 {% from 'components/list_user.html' import user %}
+{% from 'components/reorder_list.html' import reorder_list %}
 
 {% extends 'layout.html' %}
 
@@ -69,9 +70,7 @@
 		</div>
 	</div>
 
-	<div id = 'modal-wrapper' class = 'hidden'>
-		<div id = 'modal-content' class = 'rounded flex-col'></div>
-	</div>
+	{{ reorder_list() }}
 
 	<script>
 		function add_shaketags(event) {
@@ -188,13 +187,17 @@
 		}
 
 		function edit_list(event) {
-			console.log(event);
 			let modal = document.getElementById('modal-wrapper');
 
 			if (modal.classList.contains('hidden')) {
 				// clear old content
-				let content = document.getElementById('modal-content');
+				let content = document.getElementById('modal-list-shaketags');
+				let numbers = document.getElementById('modal-list-numbers');
+				let bank = document.getElementById('modal-bank');
+
 				content.innerHTML = '';
+				numbers.innerHTML = '';
+				bank.innerHTML = '';
 
 				// client is opening the edit menu, load data
 				fetch('/list/modify/')
@@ -202,6 +205,9 @@
 					if (data.ok) return data.json()
 				})
 				.then((json) => {
+					let count = 1;
+
+					// populate the list
 					for (let data of json) {
 						// create div for this user
 						let div = document.createElement('div');
@@ -211,9 +217,16 @@
 						// enable drag and drop
 						div.draggable = true;
 
-						div.textContent = `${data[0]} ${data[1]}`;
+						div.textContent = data[0];
 
-						content.append(div);
+						content.appendChild(div);
+
+						// create the number
+						div = document.createElement('div');
+						div.classList.add('list-number');
+						div.textContent = count++;
+
+						numbers.appendChild(div);
 					}
 				})
 			}
@@ -231,72 +244,9 @@
 
 			if (modal) {
 				modal.addEventListener('click', (e) => {
-					modal.classList.toggle('hidden');
+					if (event.target.id === 'modal-wrapper') modal.classList.toggle('hidden');
 				})
 			}
-		});
-
-		// register drag and drop for reordering list
-		// https://stackoverflow.com/questions/21339924/drop-event-not-firing-in-chrome
-		// https://stackoverflow.com/questions/44415228/list-sorting-with-html5-dragndrop-drop-above-or-below-depending-on-mouse
-		
-		document.addEventListener('dragstart', (event) => {
-			let target = event.target;
-			event.dataTransfer.setData('text/plain', target.id);
-		});
-
-		document.addEventListener('dragover', (event) => {
-			let target = event.target;
-
-			if (target.classList.contains('list-draggable')) {
-				// get the bounding information of the element are hovering over
-				let element_bounds = target.getBoundingClientRect();
-
-				// calculate the Y of the middle of this element
-				let mid_point = element_bounds.y + (element_bounds.height / 2);
-
-				// check if we are above or below the mid point
-				// -tive: cursor is above mid point
-				// +tive: cursor is below mid point
-				if (event.clientY - mid_point > 0) {
-					target.style['border-bottom'] = '1px solid red';
-					target.style['border-top'] = '';
-				} else {
-					target.style['border-top'] = '1px solid red';
-					target.style['border-bottom'] = '';
-				}
-			}
-
-			// required on chromium to trigger drop event
-			event.preventDefault();
-		});
-
-		document.addEventListener('dragleave', (event) => {
-			let target = event.target;
-
-			if (target.classList.contains('list-draggable')) {
-				target.style['border-top'] = '';
-				target.style['border-bottom'] = '';
-			}
-		});
-
-		document.addEventListener('drop', (event) => {
-			console.log('drop', event)
-			let target = event.target;
-			let transfer_element = document.getElementById(event.dataTransfer.getData('text/plain'));
-
-			if (target.classList.contains('list-draggable')) {
-				if (target.style['border-top'] !== '') {
-					target.parentNode.insertBefore(transfer_element, target);
-				} else {
-					target.parentNode.insertBefore(transfer_element, target.nextElementSibling);
-				}
-			}
-
-			target.style['border-top'] = '';
-			target.style['border-bottom'] = '';
-
-			event.preventDefault();
 		});
 	</script>
 {% endblock %}

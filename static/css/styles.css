@@ -571,11 +571,41 @@ button > .loading {
 #modal-content {
 	z-index: 20;
 	position: relative;
-	width: 50%;
+	width: 60%;
 	margin: 4% auto;
 	background-color: rgb(29, 29, 29);
 	height: 80%;
+}
+
+#modal-control {
+	flex: 4;
+	height: 100%;
+}
+
+#modal-control > div {
+	flex: 1;
+	width: 100%;
+}
+
+#modal-list {
+	flex: 5;
+	margin-left: 2rem;
 	overflow-y: scroll;
+	height: 100%;
+}
+
+#modal-bank-wrapper {
+	box-sizing: border-box;
+	overflow-y: scroll;
+	width: 100%;
+}
+
+#modal-bank {
+	width: 100%;
+}
+
+.modal-bank-header {
+	width: 100%;
 }
 
 .list-info {
@@ -583,6 +613,43 @@ button > .loading {
 }
 
 .list-draggable {
-	width: 50%;
-	cursor: move;
+	width: 80%;
+	cursor: grab;
+}
+
+.list-draggable:not(:first-child) {
+	margin-top: 0.5rem;
+}
+
+.list-number {
+	font-size: 2rem;
+	padding: 0.5rem;
+	direction: rtl;
+}
+
+.list-number:not(:first-child) {
+	margin-top: 0.5rem;
+}
+
+
+#modal-list-shaketags {
+	margin-left: 1rem;
+	flex: 1;
+}
+
+#modal-info {
+	flex: 1;
+}
+
+#modal-info-buttons {
+	margin-bottom: 1rem;
+	width: 100%;
+}
+
+#modal-info-buttons > button {
+	width: 30%;
+}
+
+#modal-clear {
+	color: var(--red);
 }

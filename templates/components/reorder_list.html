@@ -1,0 +1,141 @@
+{% macro reorder_list() %}
+	<div id = 'modal-wrapper' class = 'hidden'>
+		<div id = 'modal-content' class = 'rounded flex-row'>
+			<div id = 'modal-control' class = 'flex-col'>
+				<div class = 'flex-col'>
+					<div id = 'modal-info'>
+						<h2>Reorder List</h2>
+						<p>Reorder your list using this menu!</p><br>
+						<p>Click and drag shaketags in the list to move their positions. Additionally, you can also drag them into the bank to keep them there as you rearrange other shaketags.</p>
+					</div>
+					<div id = 'modal-info-buttons' class = 'flex-row'>
+						<button id = 'modal-clear' type = 'submit' class = 'emphasis border-red' onclick = edit_list(this)>CANCEL</button>
+						<button id = 'modal-cancel' type = 'submit' class = 'emphasis' onclick = clear_reorder_list(this)>CLEAR</button>
+						<button id = 'modal-save' type = 'submit' class = 'emphasis' onclick = save_list(this)>SAVE</button>
+					</div>
+				</div>
+				<div id = 'modal-bank-wrapper' class = 'rounded flex-col'>
+					<div class = 'modal-bank-header'>
+						<h2>@shaketag Bank</h2>
+						<div class = 'divider'></div>
+					</div>
+					<div id = 'modal-bank'>
+
+					</div>
+				</div>
+			</div>
+			<div id = 'modal-list' class = 'flex-row'>
+				<div id = 'modal-list-numbers'></div>
+				<div id = 'modal-list-shaketags'></div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function clear_reorder_list(event) {
+			let bank = document.getElementById('modal-bank');
+			let shaketag_elements = document.getElementsByClassName('list-draggable');
+
+			for (let shaketag of shaketag_elements) {
+				bank.appendChild(shaketag);
+			}
+		}
+
+		function save_list(event) {
+			let all_shaketags = document.getElementsByClassName('list-draggable');
+			let list_shaketags = document.querySelectorAll('#modal-list-shaketags .list-draggable');
+
+			if (list_shaketags.length == all_shaketags.length) {
+				// this means all shaketags are sorted
+				let data = []
+				
+				for (let list_element of list_shaketags) {
+					data.push(list_element.textContent);
+				}
+
+				set_loading(event);
+				event.disabled = true;
+
+				fetch('/list/modify/', {
+					method: 'PATCH',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({data})
+				})
+				.then((data) => {
+					if (data.ok) {
+						document.getElementById('modal-wrapper').classList.add('hidden');
+						event.textContent = 'SAVE';
+						event.disabled = false;
+					} else {
+						alert('Something went wrong, try again or report this issue.')
+					}
+				});
+			}
+		}
+
+		// register drag and drop for reordering list
+		// https://stackoverflow.com/questions/21339924/drop-event-not-firing-in-chrome
+		// https://stackoverflow.com/questions/44415228/list-sorting-with-html5-dragndrop-drop-above-or-below-depending-on-mouse
+		document.addEventListener('dragstart', (event) => {
+			let target = event.target;
+			event.dataTransfer.setData('text/plain', target.id);
+		});
+
+		document.addEventListener('dragover', (event) => {
+			let target = event.target;
+
+			if (target.classList.contains('list-draggable')) {
+				// get the bounding information of the element are hovering over
+				let element_bounds = target.getBoundingClientRect();
+
+				// calculate the Y of the middle of this element
+				let mid_point = element_bounds.y + (element_bounds.height / 2);
+
+				// check if we are above or below the mid point
+				// -tive: cursor is above mid point
+				// +tive: cursor is below mid point
+				if (event.clientY - mid_point > 0) {
+					target.style['border-bottom'] = '1px solid blue';
+					target.style['border-top'] = '';
+				} else {
+					target.style['border-top'] = '1px solid blue';
+					target.style['border-bottom'] = '';
+				}
+			}
+
+			// required on chromium to trigger drop event
+			event.preventDefault();
+		});
+
+		document.addEventListener('dragleave', (event) => {
+			let target = event.target;
+
+			if (target.classList.contains('list-draggable')) {
+				target.style['border-top'] = '';
+				target.style['border-bottom'] = '';
+			}
+		});
+
+		document.addEventListener('drop', (event) => {
+			let target = event.target;
+			let transfer_element = document.getElementById(event.dataTransfer.getData('text/plain'));
+
+			if (target.id === 'modal-bank-wrapper') {
+				document.getElementById('modal-bank').appendChild(transfer_element);
+			} else if (target.id === 'modal-list') {
+				document.getElementById('modal-list-shaketags').appendChild(transfer_element);
+			} else if (target.classList.contains('list-draggable')) {
+				if (target.style['border-top'] !== '') {
+					target.parentNode.insertBefore(transfer_element, target);
+				} else {
+					target.parentNode.insertBefore(transfer_element, target.nextElementSibling);
+				}
+
+				target.style['border-top'] = '';
+				target.style['border-bottom'] = '';
+			}
+
+			event.preventDefault();
+		});
+	</script>
+{% endmacro %}

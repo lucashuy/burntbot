@@ -181,7 +181,16 @@ def get_list():
 	return flask.jsonify(list_data)
 
 def update_list_position():
-	pass
+	data = flask.request.get_json()
+
+	db = SQLite()
+	for idx, shaketag in enumerate(data['data']):
+		db.update_list_position(shaketag, idx)
+
+	db.commit()
+	db.close()
+
+	return flask.Response(status = 201)
 
 def _make_hash(time: str, reason: str) -> str:
 	'''

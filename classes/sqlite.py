@@ -204,7 +204,7 @@ class SQLite:
 		Updates the shaketag's position in the list, doing nothing if it the position is already taken
 		'''
 
-		self._db.execute('UPDATE list SET pos = ? WHERE shaketag = ? ON CONFLICT DO NOTHING', (pos, shaketag))
+		self._db.execute('UPDATE list SET pos = ? WHERE shaketag = ?', (pos, shaketag))
 
 	def update_list_warning(self, shaketag: str, warning):
 		'''
@@ -225,7 +225,7 @@ class SQLite:
 		Gets the entire list
 		'''
 
-		self._db.execute('SELECT * FROM list')
+		self._db.execute('SELECT * FROM list ORDER BY pos ASC')
 		return self._db.fetchall()
 
 	def get_list_shaketag(self, shaketag: str) -> tuple:
