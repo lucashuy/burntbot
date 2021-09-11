@@ -11,7 +11,6 @@ login_headers = {
 	'X-Device-Brand': 'bot',
 	'X-Device-Model': socket.gethostname(),
 	'X-Device-System-Name': 'burntbot',
-	'X-Device-System-Version': str(globals.version),
 	'X-Device-Carrier': '',
 	'X-Device-Mac-Address': 'AA:BB:CC:DD:EE:FF',
 	'X-Device-Manufacturer': '@burnttoaster',
@@ -19,7 +18,6 @@ login_headers = {
 	'X-Device-Ip-Address': '10.0.0.1',
 	'X-Device-Locale': 'en-CA',
 	'X-Device-Country': 'CA',
-	'X-Device-Name': f'@burnttoaster bot v{globals.version}',
 	'X-Device-Total-Disk-Capacity': '138764288',
 	'X-Device-Total-Memory': '37019976576',
 	'X-Device-Is-Tablet': 'false',
@@ -31,6 +29,10 @@ login_headers = {
 # returns False on email verification
 # returns accessToken for 2FA on success
 def pre_login(email: str, password: str):
+	# set version since this function gets called after version is populated
+	login_headers['X-Device-System-Version'] = str(globals.version)
+	login_headers['X-Device-Name'] = f'@burnttoaster bot v{globals.version}'
+
 	# copy global headers so that we can append our own headers without affecting global
 	local_headers = {**globals.headers, **login_headers}
 

@@ -242,11 +242,7 @@ def _classify_list() -> tuple:
 	debits = {}
 
 	# turn the array of tuples into a dictionary
-	for row in db.get_debits():
-		debits[row[0]] = {
-			'amount': row[1],
-			'timestamp': row[2]
-		}
+	for row in db.get_debits(): debits[row[0]] = row[1]
 
 	for user in send_list:
 		shaketag = user[0]
