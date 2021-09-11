@@ -1,4 +1,5 @@
 import requests
+import time
 
 import globals
 
@@ -11,12 +12,15 @@ def update_waitlist():
 	Update the local cache containing waitlist details (position, points, etc)
 	'''
 	
+	# dont check waitlist if its been < 5 minutes since last check
+	if (globals.waitlist_last_check + (60 * 5) > time.time()): return
+
 	local_headers = globals.headers.copy()
 
 	# use etags to prevent redundant data transfer
 	if (globals.waitlist_etag): local_headers['If-None-Match'] = globals.waitlist_etag
 
-	response = requests.get('https://api.shakepay.com/card/waitlist', headers = local_headers)
+	response = requests.get('https://api.shakepay.com/card/waitlist', headers = local_headers, timeout = 5)
 
 	# make sure we have 2xx status
 	if (not response.ok):

@@ -17,6 +17,7 @@ class HeartBeat(threading.Thread):
 		while (not self.stop.is_set()) and (db.get_key_value('heart_beat', False)) and (SwapBot.bot_state) and (not globals.bot_flags['listen']):
 			heart_beat()
 
-			self.stop.wait(60 * 5)
+			# ping swapper database every 45 seconds
+			self.stop.wait(45)
 
 		db.close()

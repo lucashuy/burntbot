@@ -15,6 +15,7 @@ waitlist_position = 0
 waitlist_points = 0
 waitlist_paddles = []
 waitlist_swaps = 0
+waitlist_last_check = 0
 
 # bot specific flags
 bot_flags = {

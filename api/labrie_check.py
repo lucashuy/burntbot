@@ -9,7 +9,7 @@ def labrie_check(shaketag: str, type: str) -> dict:
 		'step': type
 	}
 
-	response = requests.post('https://swap.labrie.ca/api/', json = data)
+	response = requests.post('https://swap.labrie.ca/api/', json = data, timeout = 5)
 
 	if (response.ok):
 		response = response.json()
@@ -25,7 +25,7 @@ def labrie_check_multi(shaketags: list, type: str) -> dict:
 		'step': type
 	}
 
-	response = requests.post('https://swap.labrie.ca/api/multi/', json = data)
+	response = requests.post('https://swap.labrie.ca/api/multi/', json = data, timeout = 5)
 
 	if (response.ok):
 		response = response.json()

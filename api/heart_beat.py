@@ -17,4 +17,4 @@ def heart_beat():
 		}
 	}
 
-	requests.post('https://swap.labrie.ca/api/ping/', json = data)
+	requests.post('https://swap.labrie.ca/api/ping/', json = data, timeout = 5)
