@@ -152,10 +152,10 @@ if (__name__ == '__main__'):
 	globals.version = read_version()
 	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
 
+	_print_startup()
 	_version_check()
 
 	migrate()
-	_print_startup()
 	_read_flags()
 	_login()
 
