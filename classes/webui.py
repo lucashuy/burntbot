@@ -8,7 +8,7 @@ import globals
 from classes.bot import SwapBot
 
 from routes.home import home_page
-from routes.swap import swap, check_spelling, check_swapped
+from routes.swap import send_transaction, check_spelling, check_swapped
 from routes.blacklist import blacklist_add, blacklist_delete, blacklist_page
 from routes.settings import settings_page, settings_save
 from routes.list import *
@@ -53,7 +53,7 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = check_swapped)
 		self.app.add_url_rule('/search/<string:shaketag>', view_func = check_spelling)
 
-		self.app.add_url_rule('/swap/<string:shaketag>', view_func = swap, methods = ['POST'])
+		self.app.add_url_rule('/swap/<string:shaketag>', view_func = send_transaction, methods = ['POST'])
 
 		self.app.add_url_rule('/blacklist/', view_func = blacklist_page)
 		self.app.add_url_rule('/blacklist/<string:shaketag>', view_func = blacklist_add, methods = ['POST'])

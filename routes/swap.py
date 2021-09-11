@@ -4,7 +4,7 @@ import json
 from api.labrie_check import labrie_check
 from api.wallet import get_wallet
 from api.users import search
-from utilities.swap import swap as sswap
+from utilities.swap import swap
 from utilities.datetime import get_reset_datetime
 from classes.sqlite import SQLite
 
@@ -46,7 +46,7 @@ def check_swapped(shaketag):
 
 	return json.dumps(return_data)
 
-def swap(shaketag):
+def send_transaction(shaketag):
 	data = flask.request.get_json()
 	
 	# check if amount field is valid
@@ -66,8 +66,7 @@ def swap(shaketag):
 
 	note = data['note'] or ''
 
-	sswap(shaketag, amount, note, False, True, False)
-	# sswap(shaketag, amount, override = True, is_return = False, custom_note = note)
+	swap(shaketag, amount, note, False, override = True, is_return = False)
 	
 	return flask.Response(status = 201)
 

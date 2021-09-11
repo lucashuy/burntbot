@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.9.1 (September 10th 2021)
+Changes:
+* Fixed web UI not sending a swap correctly
+
 ## 0.9.0 (September 10th 2021)
 Additions:
 * Added favicon
