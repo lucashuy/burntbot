@@ -146,7 +146,7 @@ function list_ignore_warning(button) {
 			button.classList.toggle('contained');
 
 			unset_loading(button);
-			set_checkmark(button);
+			button.textContent = 'IGNORE WARNING';
 			button.disabled = false;
 		}
 	});
