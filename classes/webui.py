@@ -72,4 +72,4 @@ class WebUI(threading.Thread):
 		self.app.add_url_rule('/list/modify/', view_func = get_list)
 		self.app.add_url_rule('/list/modify/', view_func = update_list_position, methods = ['PATCH'])
 
-		self.app.run(globals.webui_host, globals.webui_port, debug = True)
+		self.app.run(globals.webui_host, globals.webui_port, debug = False)

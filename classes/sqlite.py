@@ -155,7 +155,15 @@ class SQLite:
 		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
 		'''
 
-		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance > 0')
+		self._db.execute('''
+			SELECT * FROM (
+				SELECT shaketag, ROUND(TOTAL(amount), 2) balance FROM (
+					SELECT shaketag, amount FROM transactions WHERE note IS NOT "no return"
+						UNION ALL
+					SELECT shaketag, amount FROM blacklist
+				) GROUP BY shaketag
+			) WHERE balance > 0
+		''')
 		return self._db.fetchall()
 
 	def get_debits(self) -> list:
@@ -165,7 +173,15 @@ class SQLite:
 		@returns A list of tuples in the format `[(shaketag: str, amount: float, timestamp: float), ...]`
 		'''
 
-		self._db.execute('SELECT * FROM (SELECT shaketag, ROUND(TOTAL(amount), 2) balance, created_at FROM transactions WHERE note IS NOT "no return" GROUP BY shaketag) WHERE balance < 0')
+		self._db.execute('''
+			SELECT * FROM (
+				SELECT shaketag, ROUND(TOTAL(amount), 2) balance FROM (
+					SELECT shaketag, amount FROM transactions WHERE note IS NOT "no return"
+						UNION ALL
+					SELECT shaketag, amount FROM blacklist
+				) GROUP BY shaketag
+			) WHERE balance < 0
+		''')
 		return self._db.fetchall()
 
 	def have_swapped(self, shaketag: str) -> bool:

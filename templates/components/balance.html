@@ -7,7 +7,7 @@
 				<div><i class="fas fa-angle-double-up"></i><h2>Sent</h2></div>
 				{% if they_owe | length > 0 %}
 					{% for obj in they_owe %}
-						{{ balance_user(obj[0], obj[1], obj[2]) }}
+						{{ balance_user(obj[0], obj[1]) }}
 					{% endfor %}
 				{% else %}
 					<p>clean slate, all done!</p>
@@ -17,7 +17,7 @@
 				<div><i class="fas fa-angle-double-down"></i><h2>Received</h2></div>
 				{% if we_owe | length > 0 %}
 					{% for obj in we_owe %}
-						{{ balance_user(obj[0], obj[1], obj[2]) }}
+						{{ balance_user(obj[0], obj[1]) }}
 					{% endfor %}
 				{% else %}
 					<p>clean slate, all done!</p>
