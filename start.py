@@ -2,6 +2,7 @@ import time
 import sys
 import secrets
 import getpass
+import sqlite3
 
 import globals
 
@@ -10,17 +11,23 @@ from classes.webui import WebUI
 from classes.shaker import ShakingSats
 from classes.heartbeat import HeartBeat
 from classes.sqlite import SQLite
+from classes.version import Version
 
 from api.exception import ClientException
 from api.users import users
 from api.wallet import get_wallet
 from api.login import pre_login, mfa_login
+from api.version import get_master_version
 from utilities.persistence import read_version
 from utilities.log import log
 from utilities.decode_payload import decode
 from utilities.migrations import migrate
 
 def _read_flags():
+	'''
+	Function to read in and parse startup options
+	'''
+	
 	for arg in sys.argv[1:]:
 		if (arg == '-v') or (arg == '--verbose'):
 			log(f'-v setting verbose logging')
@@ -41,6 +48,10 @@ def _read_flags():
 			raise SystemExit(0)
 
 def _login_helper():
+	'''
+	Helper function to login to Shakepay
+	'''
+
 	# user input
 	email = input('> Email: ')
 	password = getpass.getpass('> Password: ')
@@ -68,6 +79,10 @@ def _login_helper():
 		raise SystemExit(0)
 
 def _login():
+	'''
+	Main logic to login to Shakepay and save token data
+	'''
+
 	db = SQLite()
 
 	# get existing device headers if they exist, otherwise create them
@@ -113,9 +128,31 @@ def _print_startup():
 	log(f'\tv{globals.version}')
 	log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 	
+def _version_check():
+	'''
+	Checks if the bot is being run correctly and is not out of date
+	'''
+
+	master_version = Version(str(get_master_version()))
+	if (globals.version < master_version):
+		log(f'\nHey, theres a new version ({master_version}) of the bot availible to download!\n')
+		time.sleep(1)
+
+	python_version = Version(sys.version.split(' '))
+	if (python_version < Version('3.6.0')):
+		log('\nYou are running a version of Python that is too old! Please make sure you are running at least 3.6.15!\n')
+		raise SystemExit()
+
+	sqlite_version = Version(sqlite3.sqlite_version)
+	if (sqlite_version < Version('3.24.0')):
+		log('\nYou have a version of SQLite3 that is too old! Try installing a newer version of Python or replace the SQLite3 executable with a newer one!\n')
+		raise SystemExit()
+
 if (__name__ == '__main__'):
 	globals.version = read_version()
 	globals.headers['User-Agent'] = f'Shakepay App v1.6.100 (16100) on burntbot ({globals.version})'
+
+	_version_check()
 
 	migrate()
 	_print_startup()

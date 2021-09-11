@@ -5,7 +5,7 @@ import globals
 from classes.version import Version
 from utilities.log import log
 
-def get_master_version() -> bool:
+def get_master_version() -> Version:
 	response = requests.get('https://raw.githubusercontent.com/itslupus/burntbot/master/.version', timeout = 5)
 
 	# make sure we have 2xx status
