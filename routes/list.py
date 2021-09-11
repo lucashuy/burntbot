@@ -291,7 +291,7 @@ def _check_warnings(list: dict, db: SQLite) -> dict:
 
 	# update our not sent list with notice data
 	for notice in results:
-		shaketag = f'@{notice["shaketag"]}'
+		shaketag = f'@{notice["shaketag"].strip()}'
 		list_user = not_sent[shaketag]
 
 		# create hash of reason and datetime string

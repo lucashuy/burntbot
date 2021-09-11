@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.9.2 (September 11th 2021)
+Changes:
+* Fixed issue where API can return shaketags that have trailing spaces causing the `/list` page to be unaccessible
+
 ## 0.9.1 (September 10th 2021)
 Changes:
 * Fixed web UI not sending a swap correctly
