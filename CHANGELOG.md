@@ -1,10 +1,11 @@
 # burntbot - Changelog
 
-## 0.9.0 (TBA)
+## 0.9.0 (September 10th 2021)
 Additions:
 * Added favicon
 * Added button to delete entire list
 * Added button to ignore warning from the database and send to user anyways
+* Added menu to reorder the send list
 
 Changes:
 * Changed email confirmation to repeatedly ask user if they hit enter too early
@@ -16,6 +17,9 @@ Changes:
 * Fixed bug where the bot would consider a late return as a completed swap
 * Changed waitlist API call to accept compressed data, reducing response size by ~5x
 * Lowered the amount of shaketags sent to domi's database to reduce bandwidth and load
+* Changed heart beat options to report position, points and completed swaps for the day
+* Added timeout to hopefully fix "stuck" bots
+* Fixed broken login by readding mobile related headers
 
 ## 0.8.4 (July 19th 2021)
 Changes:
