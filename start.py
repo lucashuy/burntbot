@@ -140,12 +140,12 @@ def _version_check():
 
 	python_version = Version(sys.version.split(' ')[0])
 	if (python_version < Version('3.6.0')):
-		log('\nYou are running a version of Python that is too old! Please make sure you are running at least 3.6.15!\n')
+		log(f'\nYou are running a version of Python that is too old ({python_version})! Please make sure you are running at least 3.6.15!\n')
 		raise SystemExit()
 
 	sqlite_version = Version(sqlite3.sqlite_version)
 	if (sqlite_version < Version('3.24.0')):
-		log('\nYou have a version of SQLite3 that is too old! Try installing a newer version of Python or replace the SQLite3 executable with a newer one!\n')
+		log(f'\nYou have a version of SQLite3 that is too old ({sqlite_version})! Try installing a newer version of Python or replace the SQLite3 executable with one that is at least 3.24.0!\n')
 		raise SystemExit()
 
 if (__name__ == '__main__'):
