@@ -138,7 +138,7 @@ def _version_check():
 		log(f'\nHey, theres a new version ({master_version}) of the bot availible to download!\n')
 		time.sleep(1)
 
-	python_version = Version(sys.version.split(' '))
+	python_version = Version(sys.version.split(' ')[0])
 	if (python_version < Version('3.6.0')):
 		log('\nYou are running a version of Python that is too old! Please make sure you are running at least 3.6.15!\n')
 		raise SystemExit()
