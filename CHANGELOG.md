@@ -6,6 +6,7 @@ Additions:
 * Added button to delete entire list
 * Added button to ignore warning from the database and send to user anyways
 * Added menu to reorder the send list
+* Added version checking when the bot first starts up
 
 Changes:
 * Changed email confirmation to repeatedly ask user if they hit enter too early
