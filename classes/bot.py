@@ -123,7 +123,6 @@ class SwapBot(threading.Thread):
 			db.commit()
 
 			# save the most recent transaction timestamp for next fetch
-			print(response)
 			if (len(response) > 0): params['since'] = string_to_datetime(response[0]['createdAt']).isoformat()
 
 			log(f'Fetching old data ({params["since"]}) ({len(response)})', True)
