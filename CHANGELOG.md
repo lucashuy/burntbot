@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.9.3 (October 7th 2021)
+Changes:
+* Fixed issue where card transactions lacked the `timestamp` key, changed all access to `timestamp` to `createdAt` instead
+
 ## 0.9.2 (September 11th 2021)
 Changes:
 * Fixed issue where API can return shaketags that have trailing spaces causing the `/list` page to be unaccessible

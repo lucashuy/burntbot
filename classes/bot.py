@@ -30,7 +30,7 @@ class SwapBot(threading.Thread):
 		if (transaction['type'] == 'peer') and (transaction['currency'] == 'CAD'):
 			user_id = determine_userid(transaction)
 			shaketag = determine_shaketag(transaction)
-			transaction_epoch = string_to_datetime(transaction['timestamp']).timestamp()
+			transaction_epoch = string_to_datetime(transaction['createdAt']).timestamp()
 
 			# add/update shaketag in database and add transaction
 			db.upsert_shaketag(user_id, shaketag, transaction_epoch)
@@ -59,7 +59,7 @@ class SwapBot(threading.Thread):
 
 			# iterate results
 			for transaction in response:
-				transaction_datetime = string_to_datetime(transaction['timestamp'])
+				transaction_datetime = string_to_datetime(transaction['createdAt'])
 
 				# stop if the transaction is before swapping started
 				if (transaction_datetime < swapping_begin_datetime): break
@@ -69,7 +69,7 @@ class SwapBot(threading.Thread):
 			# write changes
 			db.commit()
 
-			last_transaction_timestamp = response[-1]['timestamp']
+			last_transaction_timestamp = response[-1]['createdAt']
 			last_transaction_datetime = string_to_datetime(last_transaction_timestamp)
 
 			# stop if we have transactions from before swapping
@@ -123,7 +123,8 @@ class SwapBot(threading.Thread):
 			db.commit()
 
 			# save the most recent transaction timestamp for next fetch
-			if (len(response) > 0): params['since'] = string_to_datetime(response[0]['timestamp']).isoformat()
+			print(response)
+			if (len(response) > 0): params['since'] = string_to_datetime(response[0]['createdAt']).isoformat()
 
 			log(f'Fetching old data ({params["since"]}) ({len(response)})', True)
 
@@ -156,7 +157,7 @@ class SwapBot(threading.Thread):
 
 				if (len(response) > 0):
 					# update next transaction time if we have items in the list
-					params['since'] = string_to_datetime(response[0]['timestamp']).isoformat()
+					params['since'] = string_to_datetime(response[0]['createdAt']).isoformat()
 				elif (len(response) == 0):
 					# stop the bot, something weird happened
 					log('Unexpected data, stopping bot')
