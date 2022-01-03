@@ -15,19 +15,17 @@ This is meant for a quick refresher for those that already have the bot installe
 
 Running `python start.py` will start the bot. Startup flags can be found below:
 ```
-python start.py [-v | --verbose] [-l | --listen] [-r=host:port]
+python start.py [-v | --verbose] [-l | --listen] [-r=host:port] [-d | --demo]
 	-v, --verbose	turns on verbose mode, which prints more information
 	-l, --listen	turns on listen mode, which turns off the bot's auto-return feature
 	-r=host:port	change the host address and port which the web UI binds to
+	-d, --demo		sets the bot into demonstration/showcase mode
 ```
 
 This project also has a web UI. This can be found on port `5000`. The web UI binds itself to `0.0.0.0` by default, this means that you can connect to it from any device on the same network if you go to the local machine's IP address in a web browser.
 
 ## Contributing
 Missing a feature you want? Something broken? Create an issue or pull request and help grow this project.
-
-## Donating
-Feeling generous and want to donate some monetary value? Feel free to send it to me via Shakepay, my shaketag is `@burnttoaster`. Make sure you include a note that says `no return`, that way both our bots will ignore the donation!
 
 ## License
 This entire project is licensed under AGPL-3.0-or-later.
