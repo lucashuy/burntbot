@@ -20,7 +20,8 @@ waitlist_last_check = 0
 # bot specific flags
 bot_flags = {
 	'listen': False,
-	'verbose': False
+	'verbose': False,
+	'demo': False
 }
 
 # version of bot for update checking

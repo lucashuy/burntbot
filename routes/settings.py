@@ -1,4 +1,5 @@
 import flask
+import time
 
 import globals
 
@@ -28,6 +29,10 @@ def settings_save():
 	'''
 	Route to save settings
 	'''
+
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
 
 	db = SQLite()
 

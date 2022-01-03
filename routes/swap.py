@@ -1,5 +1,8 @@
 import flask
 import json
+import time
+
+import globals
 
 from api.labrie_check import labrie_check
 from api.wallet import get_wallet
@@ -13,6 +16,13 @@ def check_swapped(shaketag):
 	Checks if we have swapped with the user today
 	'''
 	
+	return_data = {'state': 'NOT_SWAPPED'}
+
+	# demo mode, return false data
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return return_data
+
 	db = SQLite()
 
 	lowercase_shaketag = shaketag.lower()
@@ -20,7 +30,6 @@ def check_swapped(shaketag):
 	
 	user_info = db.get_shaketag_info(lowercase_shaketag)
 
-	return_data = {'state': 'NOT_SWAPPED'}
 	if (user_info == None):
 		# potential new swap
 		return_data = {'state': 'NEW_USER'}
@@ -47,6 +56,11 @@ def check_swapped(shaketag):
 	return json.dumps(return_data)
 
 def send_transaction(shaketag):
+	# demo mode, return false data
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
+
 	data = flask.request.get_json()
 	
 	# check if amount field is valid
@@ -71,6 +85,13 @@ def send_transaction(shaketag):
 	return flask.Response(status = 201)
 
 def check_spelling(shaketag):
+	# demo mode, return false data
+	if (globals.bot_flags['demo'] == True):
+		return {
+			'found': True,
+			'match': shaketag
+		}
+	
 	usernames = search(shaketag)
 
 	result = {

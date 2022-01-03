@@ -43,6 +43,9 @@ def _read_flags():
 
 			globals.webui_host = split_args[0]
 			globals.webui_port = split_args[1]
+		elif (arg == '-d') or (arg == '--demo'):
+			log(f'-d enabling demo mode - no Shakepay functionality')
+			globals.bot_flags['demo'] = True
 		else:
 			log(f'Unknown argument: {arg}')
 			raise SystemExit(0)
@@ -136,7 +139,6 @@ def _version_check():
 	master_version = Version(str(get_master_version()))
 	if (globals.version < master_version):
 		log(f'\nHey, theres a new version ({master_version}) of the bot availible to download!\n')
-		time.sleep(1)
 
 	python_version = Version(sys.version.split(' ')[0])
 	if (python_version < Version('3.6.0')):
@@ -155,63 +157,78 @@ if (__name__ == '__main__'):
 	_print_startup()
 	_version_check()
 
-	migrate()
 	_read_flags()
-	_login()
 
-	# start bot thread
+	# artificial delay
+	time.sleep(3)
+
+	# only run migrations and login if we are not in demo mode
+	if (globals.bot_flags['demo'] == False):
+		migrate()
+		_login()
+
+	# initialize threads
 	swap_bot = SwapBot()
-	swap_bot.start()
-
-	# initialize ui thread
 	ui = WebUI()
-
-	# initialize shake thread
 	shaking_sats = ShakingSats()
-
-	# initialize heart beat thread
 	api_heart_beat = HeartBeat()
 
+	# initialize database
 	db = SQLite()
 
 	# main thread busy
 	try:
-		while (1):
-			if (not swap_bot.is_alive()):
-				log('Bot died, stopping program')
+		# start bot if the bot is not in demo mode
+		if (globals.bot_flags['demo'] == False):
+			swap_bot.start()
 
-				raise SystemExit(0)
+			while (1):
+				# bot has own restart code, if it fails that means something is wrong
+				if (not swap_bot.is_alive()):
+					log('Bot died, stopping program')
 
-			if (SwapBot.bot_state):
+					raise SystemExit(0)
+
+				if (SwapBot.bot_state):
+					if (not ui.is_alive()):
+						log('Started web UI thread')
+
+						ui = WebUI()
+						ui.start()
+
+					if (not shaking_sats.is_alive()) and (db.get_key_value('shaking_sats')):
+						log('Started shaking sats thread')
+
+						shaking_sats = ShakingSats()
+						shaking_sats.start()
+
+					if (not api_heart_beat.is_alive()) and (db.get_key_value('heart_beat')) and (not globals.bot_flags['listen']):
+						log('Started heart beat thread')
+
+						api_heart_beat = HeartBeat()
+						api_heart_beat.start()
+				else:
+					if (shaking_sats.is_alive()):
+						log('Stopping shaking sats thread')
+
+						shaking_sats.stop.set()
+
+					if (api_heart_beat.is_alive()):
+						log('Stopping heart beat thread')
+
+						api_heart_beat.stop.set()
+
+				time.sleep(10)
+		else:
+			# bot is in demo mode, only run the web ui
+			while (1):
 				if (not ui.is_alive()):
 					log('Started web UI thread')
 
 					ui = WebUI()
 					ui.start()
 
-				if (not shaking_sats.is_alive()) and (db.get_key_value('shaking_sats')):
-					log('Started shaking sats thread')
-
-					shaking_sats = ShakingSats()
-					shaking_sats.start()
-
-				if (not api_heart_beat.is_alive()) and (db.get_key_value('heart_beat')) and (not globals.bot_flags['listen']):
-					log('Started heart beat thread')
-
-					api_heart_beat = HeartBeat()
-					api_heart_beat.start()
-			else:
-				if (shaking_sats.is_alive()):
-					log('Stopping shaking sats thread')
-
-					shaking_sats.stop.set()
-
-				if (api_heart_beat.is_alive()):
-					log('Stopping heart beat thread')
-
-					api_heart_beat.stop.set()
-
-			time.sleep(10)
+				time.sleep(10)
 	except KeyboardInterrupt:
 		print()
 	finally:
@@ -222,7 +239,7 @@ if (__name__ == '__main__'):
 		if (api_heart_beat.is_alive()): api_heart_beat.stop.set()
 
 		# wait for processes to finish up
-		time.sleep(1)
+		#time.sleep(1) # this probably doesnt work
 
 		db.commit()
 		db.close()

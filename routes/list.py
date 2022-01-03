@@ -32,6 +32,10 @@ def add_shaketags():
 	'''
 	Route to add shaketag to list. API returns 201 if nothing crashes.
 	'''
+
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
 	
 	db = SQLite()
 
@@ -63,6 +67,10 @@ def delete_user(shaketag):
 	Removes a shaketag from the list. API returns 201 if nothing crashes.
 	'''
 	
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
+		
 	db = SQLite()
 	db.delete_from_list(shaketag)
 	db.commit()
@@ -87,8 +95,6 @@ def list_send():
 			balance = _get_wallet_balance()
 
 			for data in to_send:
-				if (SwapBot.bot_state == 0): break
-
 				shaketag = data[0]
 
 				# only send if they are not marked in the database
@@ -97,16 +103,21 @@ def list_send():
 				num_children = len(data)
 				if (num_children == 3) and (not data[2] == None): continue
 
-				# if we ran out of money, check again to see if bot got any swaps back
-				if (balance < 5.):
-					balance = _get_wallet_balance()
-					
-					# if we still dont have enough money, stop
-					if (balance < 5.): break
+				if (globals.bot_flags['demo'] == False):
+					if (SwapBot.bot_state == 0): break
 
-				swap(shaketag, 5., note, False, True, False)
+					# if we ran out of money, check again to see if bot got any swaps back
+					if (balance < 5.):
+						balance = _get_wallet_balance()
+						
+						# if we still dont have enough money, stop
+						if (balance < 5.): break
 
-				balance = balance - 5.
+					swap(shaketag, 5., note, False, True, False)
+
+					balance = balance - 5.
+				else:
+					time.sleep(1)
 
 				# send shaketag to client
 				yield f'data: {shaketag}\n\n'
@@ -121,6 +132,10 @@ def change_note():
 	'''
 	Route to change the list's note
 	'''
+
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
 	
 	data = flask.request.get_json()
 
@@ -136,6 +151,10 @@ def clear_list():
 	Route to delete the entire list
 	'''
 
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
+
 	db = SQLite()
 	db.clear_list()
 	db.commit()
@@ -147,6 +166,10 @@ def toggle_warning(shaketag: str):
 	'''
 	Route to toggle the ignoring of database warnings
 	'''
+
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
 	
 	db = SQLite()
 	user = db.get_list_shaketag(shaketag)
@@ -174,6 +197,10 @@ def get_list():
 	Route to get the entire list
 	'''
 
+	if (globals.bot_flags['demo'] == True):
+		data = _classify_list()
+		return flask.jsonify(data[0] + data[1] + data[2])
+
 	db = SQLite()
 	list_data = db.get_list()
 	db.close()
@@ -181,6 +208,10 @@ def get_list():
 	return flask.jsonify(list_data)
 
 def update_list_position():
+	if (globals.bot_flags['demo'] == True):
+		time.sleep(1)
+		return flask.Response(status = 201)
+
 	data = flask.request.get_json()
 
 	db = SQLite()
@@ -210,6 +241,9 @@ def _get_wallet_balance() -> float:
 	@returns The balance we have for initiating
 	'''
 
+	if (globals.bot_flags['demo'] == True):
+		return 900.
+
 	balance = float(get_wallet()['balance'])
 
 	db = SQLite()
@@ -227,6 +261,23 @@ def _classify_list() -> tuple:
 
 	@returns `tuple` in the format `(not_sent: list, wait_returns: list, done_swap: list)`
 	'''
+
+	if (globals.bot_flags['demo'] == True):
+		return (
+			[
+				('@satoshi', '', None),
+				('@bot', '', None),
+				('@roger', '', 'Known to ghost money'),
+				('@bell', '', 'No longer swapping')
+			],
+			[
+				('@kramer', '', None)
+			],
+			[
+				('@dylan', '', None),
+				('@tom', '', None)
+			]
+		)
 
 	not_sent = []
 	wait_returns = []

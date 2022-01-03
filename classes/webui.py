@@ -46,8 +46,10 @@ class WebUI(threading.Thread):
 		return (flask.render_template('down.html'), 503)
 
 	def run(self):
-		self.app.add_url_rule('/down/', view_func = self._down_page)
-		self.app.before_request(self._check_bot_state)
+		if (globals.bot_flags['demo'] == False):
+			# only have the down page if we are not in demo mode
+			self.app.add_url_rule('/down/', view_func = self._down_page)
+			self.app.before_request(self._check_bot_state)
 
 		self.app.add_url_rule('/', view_func = home_page)
 		self.app.add_url_rule('/check/<string:shaketag>', view_func = check_swapped)
