@@ -1,5 +1,9 @@
 # burntbot - Changelog
 
+## 0.9.4 (March 11th 2022)
+Changes:
+* Fixed issue where the bot would try to parse an empty list of transactions
+
 ## 0.9.3 (October 7th 2021)
 Changes:
 * Fixed issue where card transactions lacked the `timestamp` key, changed all access to `timestamp` to `createdAt` instead
