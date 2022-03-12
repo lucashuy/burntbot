@@ -104,7 +104,12 @@ class SwapBot(threading.Thread):
 		if (db.get_paddle_swappers() == 0): self._init_history()
 
 		# get the last transaction timestamp
-		self.recent_transaction_datetime = db.get_last_transaction_epoch()
+		self.recent_transaction_datetime = None
+		#self.recent_transaction_datetime = db.get_last_transaction_epoch()
+
+		# set to current date and time if there are no transactions
+		if (self.recent_transaction_datetime == None):
+			self.recent_transaction_datetime = datetime.datetime.now()
 
 		params = {
 			'currency': 'CAD',
@@ -157,13 +162,6 @@ class SwapBot(threading.Thread):
 				if (len(response) > 0):
 					# update next transaction time if we have items in the list
 					params['since'] = string_to_datetime(response[0]['createdAt']).isoformat()
-				elif (len(response) == 0):
-					# stop the bot, something weird happened
-					log('Unexpected data, stopping bot')
-
-					db.close()
-
-					raise SystemExit(0)
 
 				time.sleep(db.get_key_value('poll_rate'))
 			except ClientException:
