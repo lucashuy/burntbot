@@ -104,8 +104,7 @@ class SwapBot(threading.Thread):
 		if (db.get_paddle_swappers() == 0): self._init_history()
 
 		# get the last transaction timestamp
-		self.recent_transaction_datetime = None
-		#self.recent_transaction_datetime = db.get_last_transaction_epoch()
+		self.recent_transaction_datetime = db.get_last_transaction_epoch()
 
 		# set to current date and time if there are no transactions
 		if (self.recent_transaction_datetime == None):
