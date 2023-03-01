@@ -1,3 +1,5 @@
+### < 🚧🚧 archival notice: https://github.com/lucashuy/burntbot/issues/22 🚧🚧 >
+
 # burntbot
 Manage swaps, auto-returns and more with `burntbot`, a Python bot that interacts with the Shakepay API.  
 Visit [https://burntbot.itslucas.win/](https://burntbot.itslucas.win/) for a demonstration of the bot's web capabilities.
